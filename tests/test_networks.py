@@ -1,7 +1,9 @@
 import unittest
-from text_parsing import Descriptor
-from networks import descriptor_vector, LocationNN, MovementNN
+
 import numpy as np
+
+from networks import descriptor_vector, LocationNN, MovementNN
+from descriptor import Descriptor
 
 
 class MockDescriptor(Descriptor):

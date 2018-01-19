@@ -1,5 +1,6 @@
 import unittest
-from text_parsing import *
+from parser import *
+from descriptor import *
 
 
 class MockInteraction(SpeechParsable):
@@ -73,3 +74,43 @@ class SpeechParsableTestCase(unittest.TestCase):
         parsed = parse_user_speech('move interaction', [MockInteraction, MockMovement, MockHack])
 
         assert parsed == None
+
+
+class NTLKFirsTaggedTestCase(unittest.TestCase):
+    """
+    Tests nltk first_tagged
+    """
+
+    def test_no_match(self):
+        assert nltk_first_tagged('NN', ['go', 'dive']) == None
+
+    def test_match(self):
+        assert nltk_first_tagged('NN', ['car', 'go']) == 'car'
+
+    def test_first_match(self):
+        assert nltk_first_tagged('NN', ['boat', 'car']) == 'boat'
+
+
+class ParseOneOfTestCase(unittest.TestCase):
+    """
+    Tests parse_one_of
+    """
+
+    def parse_fn(self, text: str) -> Optional[int]:
+        possibilities = {
+            'a': 1,
+            'b': 2
+        }
+        return parse_one_of(possibilities, text.split())
+
+    def test_no_match(self):
+        assert self.parse_fn('c d') is None
+
+    def test_match1(self):
+        assert self.parse_fn('a d') == 1
+
+    def test_match2(self):
+        assert self.parse_fn('b d') == 2
+
+    def test_matches_first_occurence_in_text(self):
+        assert self.parse_fn('b a') == 2

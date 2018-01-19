@@ -1,6 +1,4 @@
-import numpy as np
-from text_parsing import *
-from typing import List
+from descriptor import *
 
 
 def descriptor_vector(descriptors: List[Descriptor], text: str) -> np.array:

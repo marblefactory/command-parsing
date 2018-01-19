@@ -1,7 +1,7 @@
 from abc import ABC
 from enum import Enum
-import numpy as np
-from text_parsing import *
+from parser import *
+from descriptor import *
 
 
 class Direction(Enum):
@@ -44,16 +44,17 @@ class Absolute(Location):
         """
         self.place_name = place_name
 
-    # @classmethod
-    # def text_descriptor(cls) -> Descriptor:
-    #     """
-    #     :return: a descriptor which gives a high response for absolute locations, e.g. room 21.
-    #     """
-    #     return AllOf([WordMatch('room'), Number()])
-    #
-    # @classmethod
-    # def parse(cls, user_text: str) -> 'Absolute':
-    #     pass
+    @classmethod
+    def text_descriptor(cls) -> Descriptor:
+        """
+        :return: a descriptor which gives a high response for absolute locations, e.g. room 21.
+        """
+        return AllOf([WordMatch('room'), Number()])
+
+    @classmethod
+    def parse(cls, user_text: str) -> 'Absolute':
+        room_num = nltk_first_tagged('CD')
+        return Absolute('room ' + str(room_num))
 
 
 class Positional(Location):
@@ -70,16 +71,30 @@ class Positional(Location):
         self.object_name = object_name
         self.direction = direction
 
-    # @classmethod
-    # def text_descriptor(cls) -> Descriptor:
-    #     """
-    #     :return: a descriptor which gives a high response for positional locations, e.g. third door on the left.
-    #     """
-    #     direction_words = ['left', 'right', 'behind', 'front']
-    #     directions = OneOf(WordMatch.list_from_words(direction_words))
-    #     you = OneOf(WordMatch.list_from_words(['you', 'your']))
-    #
-    #     return And([Positional(), WordTag('NN'), directions, you])
+    @classmethod
+    def text_descriptor(cls) -> Descriptor:
+        """
+        :return: a descriptor which gives a high response for positional locations, e.g. third door on the left.
+        """
+        direction_words = ['left', 'right', 'behind', 'front']
+        directions = OneOf(WordMatch.list_from_words(direction_words))
+        you = OneOf(WordMatch.list_from_words(['you', 'your']))
+
+        return And([Positional(), WordTag('NN'), directions, you])
+
+    @classmethod
+    def parse(cls, tokens: List[str]) -> 'Positional':
+        direction_possibilities = {
+            'left': Direction.LEFT,
+            'right': Direction.RIGHT,
+            'behind': Direction.BACKWARDS,
+            'front': Direction.FORWARDS
+        }
+        direction = parse_one_of(direction_possibilities, tokens) or Direction.FORWARDS
+        position = parse_positional(tokens) or 0
+        object_name = nltk_first_tagged('NN') or 'door'
+
+        return Positional(position, object_name, direction)
 
 
 class Directional(Location):
@@ -92,13 +107,27 @@ class Directional(Location):
     def __init__(self, direction: Direction):
         self.direction = direction
 
-    # @classmethod
-    # def text_descriptor(cls) -> Descriptor:
-    #     """
-    #     :return: a descriptor which produces a high response for directions, e.g. forwards, backwards.
-    #     """
-    #     words = WordMatch.list_from_words(['forwards', 'backwards'])
-    #     return And(words)
+    @classmethod
+    def text_descriptor(cls) -> Descriptor:
+        """
+        :return: a descriptor which produces a high response for directions, e.g. forwards, backwards.
+        """
+        forwards = OneOf(WordMatch.list_from_words(['forwards', 'forward']))
+        backwards = OneOf(WordMatch.list_from_words(['backwards', 'backward']))
+        return And([forwards, backwards])
+
+    @classmethod
+    def parse(cls, tokens: List[str]) -> 'Directional':
+        direction_possibilities = {
+            'forwards': Direction.FORWARDS,
+            'forward': Direction.FORWARDS,
+            'backwards': Direction.BACKWARDS,
+            'backward': Direction.BACKWARDS
+        }
+
+        direction = parse_one_of(direction_possibilities, tokens)
+
+        return Directional(direction)
 
 
 class Stairs(Location):
@@ -111,19 +140,32 @@ class Stairs(Location):
     def __init__(self, direction: FloorDirection):
         self.direction = direction
 
-    # @classmethod
-    # def text_descriptor(cls) -> Descriptor:
-    #     """
-    #     :return: a descriptor which produces a high response for stairs, e.g. go upstairs.
-    #     """
-    #     # Either 'go up the stairs' or 'go down the stairs'
-    #     up_down = OneOf(WordMatch.list_from_words(['up', 'down']))
-    #     up_down_stairs = And([up_down, WordMatch('stairs')])
-    #
-    #     # Either 'go upstairs' or `go downstairs'
-    #     up_down_stairs_compound = OneOf(WordMatch.list_from_words(['upstairs', 'downstairs']))
-    #
-    #     return OneOf([up_down_stairs, up_down_stairs_compound])
+    @classmethod
+    def text_descriptor(cls) -> Descriptor:
+        """
+        :return: a descriptor which produces a high response for stairs, e.g. go upstairs.
+        """
+        # Either 'go up the stairs' or 'go down the stairs'
+        up_down = OneOf(WordMatch.list_from_words(['up', 'down']))
+        up_down_stairs = And([up_down, WordMatch('stairs')])
+
+        # Either 'go upstairs' or `go downstairs'
+        up_down_stairs_compound = OneOf(WordMatch.list_from_words(['upstairs', 'downstairs']))
+
+        return OneOf([up_down_stairs, up_down_stairs_compound])
+
+    @classmethod
+    def parse(cls, tokens: List[str]) -> 'Stairs':
+        direction_possibilities = {
+            'up': FloorDirection.UP,
+            'upstairs': FloorDirection.UP,
+            'down': FloorDirection.DOWN,
+            'downstairs': FloorDirection.DOWN
+        }
+
+        direction = parse_one_of(direction_possibilities, tokens)
+
+        return Stairs(direction)
 
 
 class Behind(Location):
@@ -139,9 +181,16 @@ class Behind(Location):
         """
         self.object_name = object_name
 
-    # @classmethod
-    # def text_descriptor(cls) -> Descriptor:
-    #     """
-    #     :return: a descriptor which produces a high response for going behind an object, e.g. go behind the sofa.
-    #     """
-    #     return AllOf([WordMatch('behind'), WordTag('NN')])
+
+    @classmethod
+    def text_descriptor(cls) -> Descriptor:
+        """
+        :return: a descriptor which produces a high response for going behind an object, e.g. go behind the sofa.
+        """
+        return AllOf([WordMatch('behind'), WordTag('NN')])
+
+    @classmethod
+    def parse(cls, tokens: List[str]) -> 'Behind':
+        object_name = nltk_first_tagged('NN')
+        return Behind(object_name)
+

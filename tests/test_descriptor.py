@@ -1,8 +1,8 @@
 import unittest
-from text_parsing import *
+from descriptor import *
 
 
-class MockParser(Parser):
+class MockDescriptor(Descriptor):
     """
     Returns the supplied response for every string.
     """
@@ -19,7 +19,7 @@ class MockParser(Parser):
 class ThresholdTestCase(unittest.TestCase):
 
     def descriptor(self, value: float):
-        return Threshold(MockParser(value), 0.5)
+        return Threshold(MockDescriptor(value), 0.5)
 
     def test_below_threshold(self):
         assert self.descriptor(0.1).response(' ') == 0

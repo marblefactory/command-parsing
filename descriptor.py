@@ -1,42 +1,19 @@
+from typing import List
 import nltk
-from typing import List, Optional, Type
-from nltk.corpus import wordnet as wn
-import numpy as np
-from abc import abstractclassmethod
-
-
-# def name_in(text: str):
-#     """
-#     :param text: the text the user spoke.
-#     :return: the name of the object the user is referring to.
-#     """
-#     tokens = nltk.word_tokenize(text)
-#     tagged = nltk.pos_tag(tokens)
-#     nouns = [(i, word) for i, (word, word_tag) in enumerate(tagged) if word_tag == 'NN']
-#
-#     if nouns is None:
-#         raise Exception('No place name found')
-#
-#     i, noun = nouns[0]
-#
-#     # Find the name of the room.
-#     if noun == 'room' and i+1 < len(tokens):
-#         room_name = tokens[i+1]
-#         return 'room ' + room_name
-#
-#     return noun
 
 
 def nltk_tagged(tag: str, text: str) -> List[str]:
     """
-    :return: a list of words with the NLTK tag `tag` in `text`.
+    :param words: the word that the user said.
+    :return: the first work tagged with the given tag, or None if no word has the tag.
     """
     tokens = nltk.word_tokenize(text)
     tagged = nltk.pos_tag(tokens)
+
     return [word for (word, word_tag) in tagged if word_tag == tag]
 
 
-class Parser:
+class Descriptor:
     """
     Produces a response when applied to a text.
     """
@@ -61,11 +38,11 @@ class Parser:
         return self.response(text) / self.max_response()
 
 
-class Threshold(Parser):
+class Threshold(Descriptor):
     """
     Produces a response when the given descriptor produces a response over or equal to a threshold.
     """
-    def __init__(self, parser: Parser, threshold: float):
+    def __init__(self, parser: Descriptor, threshold: float):
         self.parser = parser
         self.threshold = threshold
 
@@ -79,10 +56,11 @@ class Threshold(Parser):
         return 1
 
 
-class Word(Parser):
+class Word(Descriptor):
     """
     Matches based on individual words in a text.
     """
+
     word: str
 
     def __init__(self, word: str):
@@ -145,12 +123,12 @@ class WordMatch(Word):
 #         return min(similarities)
 
 
-class And(Parser):
+class And(Descriptor):
     """
     Matches on multiple conditions in a text.
     """
 
-    def __init__(self, parsers: List[Parser]):
+    def __init__(self, parsers: List[Descriptor]):
         """
         :param parsers: the parsers for which the responses will be summed.
         """
@@ -169,12 +147,12 @@ class And(Parser):
         return sum([parser.max_response() for parser in self.ps])
 
 
-class AllOf(Parser):
+class AllOf(Descriptor):
     """
     Matches only if all descriptors match.
     """
 
-    def __init__(self, parsers: List[Parser]):
+    def __init__(self, parsers: List[Descriptor]):
         self.ps = parsers
 
     def response(self, text: str) -> float:
@@ -189,12 +167,12 @@ class AllOf(Parser):
         return 1
 
 
-class NoneOf(Parser):
+class NoneOf(Descriptor):
     """
     Matches on the text if the other descriptors don't match, i.e. give a response of zero.
     """
 
-    def __init__(self, parsers: List[Parser]):
+    def __init__(self, parsers: List[Descriptor]):
         self.ps = parsers
 
     def response(self, text: str) -> float:
@@ -209,12 +187,12 @@ class NoneOf(Parser):
         return 1
 
 
-class OneOf(Parser):
+class OneOf(Descriptor):
     """
     Matches only if one descriptor matches.
     """
 
-    def __init__(self, parsers: List[Parser]):
+    def __init__(self, parsers: List[Descriptor]):
         """
         :param parsers: the list of parsers to match. There must be at least 2.
         """
@@ -256,7 +234,7 @@ class Positional(OneOf):
         super(Positional, self).__init__(ds)
 
 
-class WordTag(Parser):
+class WordTag(Descriptor):
     """
     Matches on words with the given NLTK tag.
     """
@@ -284,53 +262,3 @@ class Number(WordTag):
         super(Number, self).__init__('CD')  # Matches on Cardinal Numbers.
 
 
-class SpeechParsable:
-    """
-    A type which can be created by parsing the transcript of speech from the player.
-    """
-
-    @abstractclassmethod
-    def text_descriptor(cls) -> Parser:
-        """
-        :return: a descriptor used to recognise the type from the transcript of the player's speech.
-        """
-        raise NotImplementedError
-
-    @abstractclassmethod
-    def parse(cls, user_text: str) -> 'SpeechParsable':
-        """
-        :param user_text: the transcript of the player's speech.
-        :return: the object parsed from the user's text.
-        """
-        raise NotImplementedError
-
-
-def parse_user_speech(speech_text: str,
-                      possible_classes: List[Type[SpeechParsable]],
-                      response_threshold: float = 0.5) -> Optional[SpeechParsable]:
-    """
-    :param speech_text: the transcript of the player's speech.
-    :param possible_classes: a list of possible classes to parse to, e.g. Interaction, Movement, etc.
-    :response_threshold: the minimum response a class' text descriptor must give for that class to be considered.
-    :return: the parsed object, or None if the parser was not sure to which class the text belonged.
-    """
-
-    responses = np.array([c.text_descriptor().normalised_response(speech_text) for c in possible_classes])
-
-    # Remove any responses below a threshold.
-    below_threshold_indices = responses < response_threshold
-    responses[below_threshold_indices] = 0
-
-    max_response = max(responses)
-
-    # If all responses are zero, there was no parse.
-    if max_response == 0:
-        return None
-
-    # If more than one response is the maximum, we can't tell which class it should actually be.
-    if responses.tolist().count(max_response) > 1:
-        return None
-
-    # If the maximum response is unique, return that maximum.
-    max_index = responses.argmax()
-    return possible_classes[max_index].parse(speech_text)

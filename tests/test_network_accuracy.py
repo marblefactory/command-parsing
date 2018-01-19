@@ -1,8 +1,10 @@
-from datasets import Dataset
-from networks import LocationNN
-import numpy as np
-from typing import List
 from collections import Counter
+from typing import List
+
+import numpy as np
+
+from networks import LocationNN
+from tests.datasets import Dataset
 
 
 # def question_labels(data_getter: DataGetter) -> List[np.array]:
