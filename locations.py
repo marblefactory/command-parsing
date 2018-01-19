@@ -5,13 +5,13 @@ import numpy as np
 
 class Direction(Enum):
     """
-    The different the directions that the user can use.
+    The different the directions that the user can travel in on a single floor.
     """
 
-    LEFT      = 0
-    RIGHT     = 1
+    LEFT = 0
+    RIGHT = 1
     BACKWARDS = 2
-    FORWARDS  = 3
+    FORWARDS = 3
 
 
 class FloorDirection(Enum):
@@ -19,8 +19,9 @@ class FloorDirection(Enum):
     The different ways the user can travel using the stairs.
     """
 
-    UP   = 0
+    UP = 0
     DOWN = 1
+
 
 class Location(ABC):
     """
@@ -28,33 +29,36 @@ class Location(ABC):
     """
 
     @classmethod
-    def from_tensor_and_text(cls, tensor: np.ndarray, text:str):
+    def from_tensor_and_text(cls, tensor: np.ndarray, text: str):
         return Absolute()
 
 
 class Absolute(Location):
     """
-    Represents a unique location in the map.
-    """
-    pass
-
-
-class Contextual(Location):
-    """
-    A narrow set of locations relative to the player, e.g. third door on your right.
+    Represents the location of a unique object in the map.
     """
 
-    direction: Direction # e.g. on the right
-    num      : int       # e.g. 3rd (door)
+    @classmethod
+    def from_tensor_and_text(cls, tensor: np.ndarray, text: str):
+        pass
 
-    def __init__(self, direction: Direction = Direction.FORWARDS, num: int = 0):
+
+class Positional(Location):
+    """
+    The location of an object, out of many, relative to the player. E.g. the third door on the left.
+    """
+
+    direction: Direction  # e.g. on the right
+    position: int         # e.g. 3rd (door)
+
+    def __init__(self, direction: Direction, position: int):
         self.direction = direction
-        self.num = num
+        self.position = position
 
 
 class Directional(Location):
     """
-    Directional locations relative to the player, e.g. forwards 10 meters
+    Directional locations relative to the player, e.g. forwards 10 meters.
     """
 
     direction: Direction
@@ -72,3 +76,10 @@ class Stairs(Location):
 
     def __init__(self, direction: FloorDirection):
         self.direction = direction
+
+
+class Behind(Location):
+    """
+    A location behind an object, e.g. hide behind the desk.
+    """
+    pass

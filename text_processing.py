@@ -1,6 +1,8 @@
 import nltk
-from typing import List
+from typing import List, Optional, Type
 from nltk.corpus import wordnet as wn
+import numpy as np
+from abc import abstractclassmethod
 
 
 def name_in(text: str):
@@ -281,3 +283,54 @@ class Number(WordTag):
     def __init__(self):
         super(Number, self).__init__('CD')  # Matches on Cardinal Numbers.
 
+
+class SpeechParsable:
+    """
+    A type which can be created by parsing the transcript of speech from the player.
+    """
+
+    @abstractclassmethod
+    def text_descriptor(cls) -> Descriptor:
+        """
+        :return: a descriptor used to recognise the type from the transcript of the player's speech.
+        """
+        raise NotImplementedError
+
+    @abstractclassmethod
+    def parse(cls, user_text: str) -> 'SpeechParsable':
+        """
+        :param user_text: the transcript of the player's speech.
+        :return: the object parsed from the user's text.
+        """
+        raise NotImplementedError
+
+
+def parse_user_speech(speech_text: str,
+                      possible_classes: List[Type[SpeechParsable]],
+                      response_threshold: float = 0.5) -> Optional[SpeechParsable]:
+    """
+    :param speech_text: the transcript of the player's speech.
+    :param possible_classes: a list of possible classes to parse to, e.g. Interaction, Movement, etc.
+    :response_threshold: the minimum response a class' text descriptor must give for that class to be considered.
+    :return: the parsed object, or None if the parser was not sure to which class the text belonged.
+    """
+
+    responses = np.array([c.text_descriptor().normalised_response(speech_text) for c in possible_classes])
+
+    # Remove any responses below a threshold.
+    below_threshold_indices = responses < response_threshold
+    responses[below_threshold_indices] = 0
+
+    max_response = max(responses)
+
+    # If all responses are zero, there was no parse.
+    if max_response == 0:
+        return None
+
+    # If more than one response is the maximum, we can't tell which class it should actually be.
+    if responses.tolist().count(max_response) > 1:
+        return None
+
+    # If the maximum response is unique, return that maximum.
+    max_index = responses.argmax()
+    return possible_classes[max_index].parse(speech_text)
