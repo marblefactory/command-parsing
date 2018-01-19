@@ -92,12 +92,12 @@ def parse_positional(tokens: List[str]) -> Optional[int]:
     :return: the number representing the position, e.g. first maps to 1. Or, returns None if no positions are found.
     """
     ps = {
-        'next': 1,
-        'first': 1,
-        'second': 2,
-        'third': 3,
-        'fourth': 4,
-        'fifth': 5
+        'next': 0,
+        'first': 0,
+        'second': 1,
+        'third': 2,
+        'fourth': 3,
+        'fifth': 4
     }
 
     return parse_one_of(ps, tokens)

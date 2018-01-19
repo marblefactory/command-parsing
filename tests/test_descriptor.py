@@ -108,10 +108,10 @@ class AndTestCase(unittest.TestCase):
         assert and2.normalised_response('a b c') == 1
 
 
-class PositionalTestCase(unittest.TestCase):
+class ContextualTestCase(unittest.TestCase):
 
     def descriptor(self):
-        return Positional()
+        return Contextual()
 
     def test_no_response(self):
         assert self.descriptor().response('take the door') == 0

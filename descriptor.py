@@ -222,7 +222,7 @@ class OneOf(Descriptor):
         return max(max_responses)
 
 
-class Positional(OneOf):
+class Contextual(OneOf):
     """
     Matches on positional words, e.g. next, first, second, etc.
     """
@@ -231,7 +231,7 @@ class Positional(OneOf):
         words = ['next', 'first', 'second', 'third', 'fourth']
         ds = WordMatch.list_from_words(words)
 
-        super(Positional, self).__init__(ds)
+        super(Contextual, self).__init__(ds)
 
 
 class WordTag(Descriptor):

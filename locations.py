@@ -14,6 +14,16 @@ class Direction(Enum):
     BACKWARDS = 2
     FORWARDS = 3
 
+    def __str__(self):
+        if self == Direction.FORWARDS:
+            return 'forwards'
+        elif self == Direction.BACKWARDS:
+            return 'backwards'
+        elif self == Direction.LEFT:
+            return 'left'
+        elif self == Direction.RIGHT:
+            return 'right'
+
 
 class FloorDirection(Enum):
     """
@@ -22,6 +32,11 @@ class FloorDirection(Enum):
 
     UP = 0
     DOWN = 1
+
+    def __str__(self):
+        if self == FloorDirection.UP:
+            return 'up'
+        return 'down'
 
 
 class Location(ABC, SpeechParsable):
@@ -52,8 +67,8 @@ class Absolute(Location):
         return AllOf([WordMatch('room'), Number()])
 
     @classmethod
-    def parse(cls, user_text: str) -> 'Absolute':
-        room_num = nltk_first_tagged('CD')
+    def parse(cls, tokens: List[str]) -> 'Absolute':
+        room_num = nltk_first_tagged('CD', tokens)
         return Absolute('room ' + str(room_num))
 
 
@@ -71,6 +86,9 @@ class Positional(Location):
         self.object_name = object_name
         self.direction = direction
 
+    def __str__(self):
+        return '{} {} {}'.format(self.position, self.object_name, self.direction)
+
     @classmethod
     def text_descriptor(cls) -> Descriptor:
         """
@@ -80,7 +98,7 @@ class Positional(Location):
         directions = OneOf(WordMatch.list_from_words(direction_words))
         you = OneOf(WordMatch.list_from_words(['you', 'your']))
 
-        return And([Positional(), WordTag('NN'), directions, you])
+        return And([Contextual(), WordTag('NN'), directions, you])
 
     @classmethod
     def parse(cls, tokens: List[str]) -> 'Positional':
@@ -92,7 +110,7 @@ class Positional(Location):
         }
         direction = parse_one_of(direction_possibilities, tokens) or Direction.FORWARDS
         position = parse_positional(tokens) or 0
-        object_name = nltk_first_tagged('NN') or 'door'
+        object_name = nltk_first_tagged('NN', tokens) or 'door'
 
         return Positional(position, object_name, direction)
 
@@ -107,14 +125,21 @@ class Directional(Location):
     def __init__(self, direction: Direction):
         self.direction = direction
 
+    def __str__(self):
+        return str(self.direction)
+
     @classmethod
     def text_descriptor(cls) -> Descriptor:
         """
         :return: a descriptor which produces a high response for directions, e.g. forwards, backwards.
         """
-        forwards = OneOf(WordMatch.list_from_words(['forwards', 'forward']))
-        backwards = OneOf(WordMatch.list_from_words(['backwards', 'backward']))
-        return And([forwards, backwards])
+        directions = [
+            'forwards',
+            'backwards',
+            'forward',
+            'backward'
+        ]
+        return OneOf(WordMatch.list_from_words(directions))
 
     @classmethod
     def parse(cls, tokens: List[str]) -> 'Directional':
@@ -125,7 +150,7 @@ class Directional(Location):
             'backward': Direction.BACKWARDS
         }
 
-        direction = parse_one_of(direction_possibilities, tokens)
+        direction = parse_one_of(direction_possibilities, tokens) or Direction.FORWARDS
 
         return Directional(direction)
 
@@ -139,6 +164,9 @@ class Stairs(Location):
 
     def __init__(self, direction: FloorDirection):
         self.direction = direction
+
+    def __str__(self):
+        return '{} the stairs'.format(self.direction)
 
     @classmethod
     def text_descriptor(cls) -> Descriptor:
@@ -163,7 +191,7 @@ class Stairs(Location):
             'downstairs': FloorDirection.DOWN
         }
 
-        direction = parse_one_of(direction_possibilities, tokens)
+        direction = parse_one_of(direction_possibilities, tokens) or FloorDirection.UP
 
         return Stairs(direction)
 
@@ -181,6 +209,8 @@ class Behind(Location):
         """
         self.object_name = object_name
 
+    def __str__(self):
+        return 'behind {}'.format(self.object_name)
 
     @classmethod
     def text_descriptor(cls) -> Descriptor:
@@ -191,6 +221,15 @@ class Behind(Location):
 
     @classmethod
     def parse(cls, tokens: List[str]) -> 'Behind':
-        object_name = nltk_first_tagged('NN')
+        object_name = nltk_first_tagged('NN', tokens) or 'desk'
         return Behind(object_name)
 
+s = 'take the first door behind you'
+r = parse_user_speech(s, [Absolute, Positional, Directional, Stairs, Behind])
+print(r)
+
+print(Positional.text_descriptor().normalised_response(s))
+print(Behind.text_descriptor().normalised_response(s))
+
+tagged = nltk.pos_tag(['left'])
+print(tagged)
