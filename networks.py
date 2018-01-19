@@ -1,5 +1,5 @@
 import numpy as np
-from text_processing import *
+from text_parsing import *
 from typing import List
 
 

@@ -1,5 +1,5 @@
 import unittest
-from text_processing import *
+from text_parsing import *
 
 
 class MockInteraction(SpeechParsable):

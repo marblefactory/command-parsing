@@ -1,5 +1,5 @@
 import unittest
-from text_processing import Descriptor
+from text_parsing import Descriptor
 from networks import descriptor_vector, LocationNN, MovementNN
 import numpy as np
 

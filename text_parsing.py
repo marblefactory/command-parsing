@@ -5,26 +5,26 @@ import numpy as np
 from abc import abstractclassmethod
 
 
-def name_in(text: str):
-    """
-    :param text: the text the user spoke.
-    :return: the name of the object the user is referring to.
-    """
-    tokens = nltk.word_tokenize(text)
-    tagged = nltk.pos_tag(tokens)
-    nouns = [(i, word) for i, (word, word_tag) in enumerate(tagged) if word_tag == 'NN']
-
-    if nouns is None:
-        raise Exception('No place name found')
-
-    i, noun = nouns[0]
-
-    # Find the name of the room.
-    if noun == 'room' and i+1 < len(tokens):
-        room_name = tokens[i+1]
-        return 'room ' + room_name
-
-    return noun
+# def name_in(text: str):
+#     """
+#     :param text: the text the user spoke.
+#     :return: the name of the object the user is referring to.
+#     """
+#     tokens = nltk.word_tokenize(text)
+#     tagged = nltk.pos_tag(tokens)
+#     nouns = [(i, word) for i, (word, word_tag) in enumerate(tagged) if word_tag == 'NN']
+#
+#     if nouns is None:
+#         raise Exception('No place name found')
+#
+#     i, noun = nouns[0]
+#
+#     # Find the name of the room.
+#     if noun == 'room' and i+1 < len(tokens):
+#         room_name = tokens[i+1]
+#         return 'room ' + room_name
+#
+#     return noun
 
 
 def nltk_tagged(tag: str, text: str) -> List[str]:
@@ -36,7 +36,7 @@ def nltk_tagged(tag: str, text: str) -> List[str]:
     return [word for (word, word_tag) in tagged if word_tag == tag]
 
 
-class Descriptor:
+class Parser:
     """
     Produces a response when applied to a text.
     """
@@ -61,25 +61,25 @@ class Descriptor:
         return self.response(text) / self.max_response()
 
 
-class Threshold(Descriptor):
+class Threshold(Parser):
     """
     Produces a response when the given descriptor produces a response over or equal to a threshold.
     """
-    def __init__(self, descriptor: Descriptor, threshold: float):
-        self.descriptor = descriptor
+    def __init__(self, parser: Parser, threshold: float):
+        self.parser = parser
         self.threshold = threshold
 
     def response(self, text: str) -> float:
         """
         :return: the response of the descriptor if the response is over a threshold, otherwise 0.
         """
-        return 1 if self.descriptor.response(text) >= self.threshold else 0
+        return 1 if self.parser.response(text) >= self.threshold else 0
 
     def max_response(self) -> float:
         return 1
 
 
-class Word(Descriptor):
+class Word(Parser):
     """
     Matches based on individual words in a text.
     """
@@ -145,43 +145,43 @@ class WordMatch(Word):
 #         return min(similarities)
 
 
-class And(Descriptor):
+class And(Parser):
     """
     Matches on multiple conditions in a text.
     """
 
-    def __init__(self, descriptors: List[Descriptor]):
+    def __init__(self, parsers: List[Parser]):
         """
-        :param descriptors: the descriptors for which the responses will be summed.
+        :param parsers: the parsers for which the responses will be summed.
         """
-        self.ds = descriptors
+        self.ps = parsers
 
     def response(self, text: str) -> float:
         """
         :return: the average response from all descriptors.
         """
-        return sum([descriptor.response(text) for descriptor in self.ds])
+        return sum([parser.response(text) for parser in self.ps])
 
     def max_response(self) -> float:
         """
         :return: the maximum response, i.e. the sum of all maximum responses of all descriptors.
         """
-        return sum([descriptor.max_response() for descriptor in self.ds])
+        return sum([parser.max_response() for parser in self.ps])
 
 
-class AllOf(Descriptor):
+class AllOf(Parser):
     """
     Matches only if all descriptors match.
     """
 
-    def __init__(self, descriptors: List[Descriptor]):
-        self.ds = descriptors
+    def __init__(self, parsers: List[Parser]):
+        self.ps = parsers
 
     def response(self, text: str) -> float:
         """
         :return: 1 if **all** other descriptors give a response, otherwise 0.
         """
-        responses = [descriptor.response(text) for descriptor in self.ds]
+        responses = [parser.response(text) for parser in self.ps]
         was_response = [r != 0 for r in responses]
         return float(all(was_response))
 
@@ -189,19 +189,19 @@ class AllOf(Descriptor):
         return 1
 
 
-class NoneOf(Descriptor):
+class NoneOf(Parser):
     """
     Matches on the text if the other descriptors don't match, i.e. give a response of zero.
     """
 
-    def __init__(self, descriptors: List[Descriptor]):
-        self.ds = descriptors
+    def __init__(self, parsers: List[Parser]):
+        self.ps = parsers
 
     def response(self, text: str) -> float:
         """
         :return: 1 if **all** other descriptors give a response, otherwise 0.
         """
-        responses = [descriptor.response(text) for descriptor in self.ds]
+        responses = [parser.response(text) for parser in self.ps]
         was_response = [r != 0 for r in responses]
         return float(not any(was_response))
 
@@ -209,25 +209,25 @@ class NoneOf(Descriptor):
         return 1
 
 
-class OneOf(Descriptor):
+class OneOf(Parser):
     """
     Matches only if one descriptor matches.
     """
 
-    def __init__(self, descriptors: List[Descriptor]):
+    def __init__(self, parsers: List[Parser]):
         """
-        :param descriptors: the list of descriptors to match. There must be at least 2.
+        :param parsers: the list of parsers to match. There must be at least 2.
         """
 
-        assert len(descriptors) >= 2
+        assert len(parsers) >= 2
 
-        self.ds = descriptors
+        self.ps = parsers
 
     def response(self, text: str) -> float:
         """
         :return: the value of descriptor D if D is the only descriptor to give a non-zero response, otherwise 0.
         """
-        responses = sorted([descriptor.response(text) for descriptor in self.ds])
+        responses = sorted([parser.response(text) for parser in self.ps])
 
         # If the second to last element is zero, it means either there was a response from only one descriptor, or
         # no descriptors responded.
@@ -240,7 +240,7 @@ class OneOf(Descriptor):
         """
         :return: a maximum response out of all descriptors, i.e. because only one descriptor can respond.
         """
-        max_responses = [descriptor.max_response() for descriptor in self.ds]
+        max_responses = [parser.max_response() for parser in self.ps]
         return max(max_responses)
 
 
@@ -256,7 +256,7 @@ class Positional(OneOf):
         super(Positional, self).__init__(ds)
 
 
-class WordTag(Descriptor):
+class WordTag(Parser):
     """
     Matches on words with the given NLTK tag.
     """
@@ -290,7 +290,7 @@ class SpeechParsable:
     """
 
     @abstractclassmethod
-    def text_descriptor(cls) -> Descriptor:
+    def text_descriptor(cls) -> Parser:
         """
         :return: a descriptor used to recognise the type from the transcript of the player's speech.
         """
