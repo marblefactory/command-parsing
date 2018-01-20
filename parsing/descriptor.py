@@ -1,6 +1,7 @@
 from typing import List
 from functools import reduce
 from parsing.parser import nltk_tagged
+import numpy as np
 
 
 class Descriptor:
@@ -218,7 +219,8 @@ class AllOf(Composite):
         return acc_response * new_response
 
     def max_response(self) -> float:
-        return reduce((lambda p1, p2: p1.max_response() * p2.max_response()), self.ps)
+        max_responses = [p.max_response() for p in self.ps]
+        return np.prod(max_responses)
 
 
 class NoneOf(Composite):
@@ -236,7 +238,8 @@ class NoneOf(Composite):
         return acc_response * (max_response - new_response)
 
     def max_response(self) -> float:
-        return reduce((lambda p1, p2: p1.max_response() * p2.max_response()), self.ps)
+        max_responses = [p.max_response() for p in self.ps]
+        return np.prod(max_responses)
 
 
 class StrongestOf(Composite):

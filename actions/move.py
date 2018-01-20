@@ -4,6 +4,7 @@ from parsing.parser import SpeechParsable, parse_user_speech
 from parsing.descriptor import *
 from typing import Optional
 
+
 class Speed(SpeechParsable):
     pass
 
@@ -34,6 +35,7 @@ class FastSpeed(Speed):
     @classmethod
     def parse(cls, tokens: List[str]) -> Optional['FastSpeed']:
         return FastSpeed()
+
 
 class NormalSpeed(Speed):
     def __str__(self):
@@ -77,6 +79,7 @@ class Crouched(Stance):
     @classmethod
     def parse(cls, tokens: List[str]) -> 'Crouched':
         return Crouched()
+
 
 class Standing(Stance):
     def __str__(self):
