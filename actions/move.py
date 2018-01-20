@@ -104,3 +104,4 @@ class Move(Action, SpeechParsable):
     @classmethod
     def text_descriptor(cls) -> Descriptor:
         words = ['go', 'move', 'step', 'head', 'proceed', 'follow', 'take', 'enter', 'exit']
+

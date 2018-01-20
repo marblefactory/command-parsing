@@ -159,10 +159,11 @@ class Composite(Descriptor):
         """
         raise NotImplementedError
 
-    def combine_responses(self, acc_response: float, new_response: float) -> float:
+    def combine_responses(self, acc_response: float, new_response: float, max_response: float) -> float:
         """
         :param acc_response: the currently accumulated response.
         :param new_response: the new response.
+        :param max_response: the maximum value `new_response` can be.
         :return: the result of combining the accumulated response with the new response.
         """
         raise NotImplementedError
@@ -171,7 +172,8 @@ class Composite(Descriptor):
         curr_response = self.initial_response()
         for parser in self.ps:
             response = parser.response(tokens)
-            curr_response = self.combine_responses(curr_response, response)
+            max_response = parser.max_response()
+            curr_response = self.combine_responses(curr_response, response, max_response)
 
         return curr_response
 
@@ -190,7 +192,7 @@ class SomeOf(Composite):
     def initial_response(self) -> float:
         return 0
 
-    def combine_responses(self, acc_response: float, new_response: float) -> float:
+    def combine_responses(self, acc_response: float, new_response: float, max_response: float) -> float:
         return acc_response + new_response
 
     def max_response(self) -> float:
@@ -212,7 +214,7 @@ class AllOf(Composite):
     def initial_response(self) -> float:
         return 1
 
-    def combine_responses(self, acc_response: float, new_response: float) -> float:
+    def combine_responses(self, acc_response: float, new_response: float, max_response: float) -> float:
         return acc_response * new_response
 
     def max_response(self) -> float:
@@ -230,11 +232,11 @@ class NoneOf(Composite):
     def initial_response(self) -> float:
         return 1
 
-    def combine_responses(self, acc_response: float, new_response: float) -> float:
-        return acc_response * (1 - new_response)
+    def combine_responses(self, acc_response: float, new_response: float, max_response: float) -> float:
+        return acc_response * (max_response - new_response)
 
     def max_response(self) -> float:
-        return 1
+        return reduce((lambda p1, p2: p1.max_response() * p2.max_response()), self.ps)
 
 
 class OneOf(Descriptor):

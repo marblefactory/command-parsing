@@ -211,6 +211,11 @@ class NoneOfTestCase(unittest.TestCase):
     def test_normalised_response(self):
         assert self.descriptor().normalised_response(['no', 'matched', 'words']) == 1
 
+    def test_normalised_nested(self):
+        some_descriptor = SomeOf(WordMatch.list_from_words(['a', 'b']))  # Max Response = 2
+        none_of = NoneOf([some_descriptor, WordMatch('c')])              # Max Response = 1
+        assert none_of.normalised_response(['a', 'b']) == 0
+
 
 class AllOfTestCase(unittest.TestCase):
 
