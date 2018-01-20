@@ -22,16 +22,16 @@ class ThresholdTestCase(unittest.TestCase):
         return Threshold(MockDescriptor(value), 0.5)
 
     def test_below_threshold(self):
-        assert self.descriptor(0.1).response(' ') == 0
+        assert self.descriptor(0.1).response([' ']) == 0
 
     def test_on_threshold(self):
-        assert self.descriptor(0.5).response(' ') == 1
+        assert self.descriptor(0.5).response([' ']) == 1
 
     def test_above_threshold(self):
-        assert self.descriptor(0.7).response(' ') == 1
+        assert self.descriptor(0.7).response([' ']) == 1
 
     def test_normalised_response(self):
-        assert self.descriptor(0.7).normalised_response(' ') == 1
+        assert self.descriptor(0.7).normalised_response([' ']) == 1
 
 
 class WordMatchTestCase(unittest.TestCase):
@@ -40,16 +40,16 @@ class WordMatchTestCase(unittest.TestCase):
         return WordMatch('hello')
 
     def test_no_response(self):
-        assert self.descriptor().response('my sentence') == 0
+        assert self.descriptor().response(['my', 'sentence']) == 0
 
     def test_single(self):
-        assert self.descriptor().response('hello world') == 1
+        assert self.descriptor().response(['hello', 'world']) == 1
 
     def test_multiple(self):
-        assert self.descriptor().response('hello world hello') == 1
+        assert self.descriptor().response(['hello', 'world', 'hello']) == 1
 
     def test_normalised_response(self):
-        assert self.descriptor().normalised_response('hello word') == 1
+        assert self.descriptor().normalised_response(['hello', 'word']) == 1
 
 
 # class WordMeaningDistanceMeasureTestCase(unittest.TestCase):
@@ -77,35 +77,34 @@ class AndTestCase(unittest.TestCase):
         return And(words)
 
     def test_no_response(self):
-        print(self.descriptor().response('my sentence'))
-        assert self.descriptor().response('my sentence') == 0
+        assert self.descriptor().response(['my', 'sentence']) == 0
 
     def test_single(self):
-        assert self.descriptor().response('hello sentence') == 1
+        assert self.descriptor().response(['hello', 'sentence']) == 1
 
     def test_single_order_invariant(self):
-        assert self.descriptor().response('sentence hello') == 1
+        assert self.descriptor().response(['sentence', 'hello']) == 1
 
     def test_multiple(self):
-        assert self.descriptor().response('hello world') == 2
+        assert self.descriptor().response(['hello', 'world']) == 2
 
     def test_multiple_order_invariant(self):
-        assert self.descriptor().response('world hello') == 2
+        assert self.descriptor().response(['world', 'hello']) == 2
 
     def test_extra_word_invariant(self):
-        assert self.descriptor().response('hello extra world extra') == 2
+        assert self.descriptor().response(['hello', 'extra', 'world', 'extra']) == 2
 
     def test_normalised_response(self):
-        assert self.descriptor().normalised_response('hello sentence') == 0.5
+        assert self.descriptor().normalised_response(['hello' ,'sentence']) == 0.5
 
     def test_normalised_response_extra_word_invariant(self):
-        assert self.descriptor().normalised_response('hello extra world extra') == 1
+        assert self.descriptor().normalised_response(['hello', 'extra', 'world', 'extra']) == 1
 
     def test_normalised_response_nested(self):
         and1 = And(WordMatch.list_from_words(['a', 'b']))
         and2 = And([and1, WordMatch('c')])
 
-        assert and2.normalised_response('a b c') == 1
+        assert and2.normalised_response(['a', 'b', 'c']) == 1
 
 
 class ContextualTestCase(unittest.TestCase):
@@ -114,16 +113,16 @@ class ContextualTestCase(unittest.TestCase):
         return Contextual()
 
     def test_no_response(self):
-        assert self.descriptor().response('take the door') == 0
+        assert self.descriptor().response(['take', 'the', 'door']) == 0
 
     def test_single(self):
-        assert self.descriptor().response('take the first door') == 1
+        assert self.descriptor().response(['take', 'the', 'first', 'door']) == 1
 
     def test_multiple(self):
-        assert self.descriptor().response('take the first second door') == 0
+        assert self.descriptor().response(['take', 'the', 'first', 'second', 'door']) == 0
 
     def test_normalised_response(self):
-        assert self.descriptor().normalised_response('take the first door') == 1
+        assert self.descriptor().normalised_response(['take', 'the', 'first', 'door']) == 1
 
 
 class WordTagTestCase(unittest.TestCase):
@@ -135,16 +134,16 @@ class WordTagTestCase(unittest.TestCase):
         return WordTag('NN')
 
     def test_no_response(self):
-        assert self.descriptor().response('flying') == 0
+        assert self.descriptor().response(['flying']) == 0
 
     def test_single(self):
-        assert self.descriptor().response('flying car') == 1
+        assert self.descriptor().response(['flying', 'car']) == 1
 
     def test_multiple(self):
-        assert self.descriptor().response('flying car table') == 1
+        assert self.descriptor().response(['flying', 'car', 'table']) == 1
 
     def test_normalised_response(self):
-        assert self.descriptor().normalised_response('flying car') == 1
+        assert self.descriptor().normalised_response(['flying', 'car']) == 1
 
 
 class NumberTestCase(unittest.TestCase):
@@ -153,16 +152,16 @@ class NumberTestCase(unittest.TestCase):
         return Number()
 
     def test_no_response(self):
-        assert self.descriptor().response('number') == 0
+        assert self.descriptor().response(['number']) == 0
 
     def test_single(self):
-        assert self.descriptor().response('105') == 1
+        assert self.descriptor().response(['105']) == 1
 
     def test_multiple(self):
-        assert self.descriptor().response('Room 802 and 700') == 1
+        assert self.descriptor().response(['Room', '802', 'and', '700']) == 1
 
     def test_normalised_response(self):
-        assert self.descriptor().normalised_response('105') == 1
+        assert self.descriptor().normalised_response(['105']) == 1
 
 
 class OneOfTestCase(unittest.TestCase):
@@ -171,21 +170,21 @@ class OneOfTestCase(unittest.TestCase):
         return OneOf([WordMatch('left'), WordMatch('right')])
 
     def test_no_response(self):
-        assert self.descriptor().response('go forwards') == 0
+        assert self.descriptor().response(['go', 'forwards']) == 0
 
     def test_single1(self):
-        assert self.descriptor().response('go left') == 1
+        assert self.descriptor().response(['go', 'left']) == 1
 
     def test_single2(self):
-        assert self.descriptor().response('go right') == 1
+        assert self.descriptor().response(['go', 'right']) == 1
 
     def test_multiple(self):
-        assert self.descriptor().response('go left right') == 0
+        assert self.descriptor().response(['go', 'left', 'right']) == 0
 
     def test_normalised_response(self):
-        and_descriptor = And(WordMatch.list_from_words(['a', 'b'])) # Max Response = 2
-        one_of = OneOf([and_descriptor, WordMatch('c')])            # Max Response = 1
-        assert one_of.normalised_response('a') == 0.5
+        and_descriptor = And(WordMatch.list_from_words(['a', 'b']))  # Max Response = 2
+        one_of = OneOf([and_descriptor, WordMatch('c')])             # Max Response = 1
+        assert one_of.normalised_response(['a']) == 0.5
 
 
 class NoneOfTestCase(unittest.TestCase):
@@ -194,22 +193,22 @@ class NoneOfTestCase(unittest.TestCase):
         return NoneOf([WordMatch('hello'), WordMatch('world')])
 
     def test_no_response1(self):
-        assert self.descriptor().response('hello') == 0
+        assert self.descriptor().response(['hello']) == 0
 
     def test_no_response2(self):
-        assert self.descriptor().response('world') == 0
+        assert self.descriptor().response(['world']) == 0
 
     def test_no_response3(self):
-        assert self.descriptor().response('hello the world is blue') == 0
+        assert self.descriptor().response(['hello', 'the', 'world', 'is', 'blue']) == 0
 
     def test_response(self):
-        assert self.descriptor().response('no matched words in here') == 1
+        assert self.descriptor().response(['no', 'matched', 'words', 'in', 'here']) == 1
 
     def test_response_if_empty(self):
-        assert self.descriptor().response('') == 1
+        assert self.descriptor().response([]) == 1
 
     def test_normalised_response(self):
-        assert self.descriptor().normalised_response('no matched words') == 1
+        assert self.descriptor().normalised_response(['no', 'matched', 'words']) == 1
 
 
 class AllOfTestCase(unittest.TestCase):
@@ -218,13 +217,16 @@ class AllOfTestCase(unittest.TestCase):
         return AllOf(WordMatch.list_from_words(['hello', 'world']))
 
     def test_no_response1(self):
-        assert self.descriptor().response('nothing') == 0
+        assert self.descriptor().response(['nothing']) == 0
 
     def test_no_response2(self):
-        assert self.descriptor().response('hello') == 0
+        assert self.descriptor().response(['hello']) == 0
 
     def test_no_response3(self):
-        assert self.descriptor().response('word') == 0
+        assert self.descriptor().response(['word']) == 0
 
     def test_response(self):
-        assert self.descriptor().response('hello world') == 1
+        assert self.descriptor().response(['hello', 'world']) == 1
+
+    def test_normalised_response(self):
+        assert self.descriptor().normalised_response(['hello', 'world']) == 1

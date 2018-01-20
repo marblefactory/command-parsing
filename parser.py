@@ -35,7 +35,8 @@ def parse_user_speech(speech_text: str,
     :return: the parsed object, or None if the parser was not sure to which class the text belonged.
     """
 
-    responses = np.array([c.text_descriptor().normalised_response(speech_text) for c in possible_classes])
+    tokens = nltk.word_tokenize(speech_text)
+    responses = np.array([c.text_descriptor().normalised_response(tokens) for c in possible_classes])
 
     print("responses:", responses)
 

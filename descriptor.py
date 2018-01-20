@@ -1,6 +1,5 @@
 from typing import List
 from parser import nltk_tagged
-from nltk import word_tokenize
 
 
 class Descriptor:
@@ -8,8 +7,9 @@ class Descriptor:
     Produces a response when applied to a text.
     """
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: the non-normalised response of the descriptor on the text. I.e. this does not need to be in the
                  range 0-1. However, it does need to be in the range 0-max_response
         """
@@ -21,11 +21,12 @@ class Descriptor:
         """
         raise NotImplementedError
 
-    def normalised_response(self, text: str) -> float:
+    def normalised_response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: the response normalised to be in the range 0-1.
         """
-        return self.response(text) / self.max_response()
+        return self.response(tokens) / self.max_response()
 
 
 class Threshold(Descriptor):
@@ -36,11 +37,12 @@ class Threshold(Descriptor):
         self.parser = parser
         self.threshold = threshold
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: the response of the descriptor if the response is over a threshold, otherwise 0.
         """
-        return 1 if self.parser.response(text) >= self.threshold else 0
+        return 1 if self.parser.response(tokens) >= self.threshold else 0
 
     def max_response(self) -> float:
         return 1
@@ -75,11 +77,12 @@ class WordMatch(Word):
     def __init__(self, word: str):
         super(WordMatch, self).__init__(word)
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: 1 if the word is present in the text, otherwise 0.
         """
-        matched_words = [w for w in text.split() if w == self.word]
+        matched_words = [w for w in tokens if w == self.word]
         return float(len(matched_words) >= 1)
 
     def max_response(self) -> float:
@@ -124,11 +127,12 @@ class And(Descriptor):
         """
         self.ps = parsers
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: the average response from all descriptors.
         """
-        return sum([parser.response(text) for parser in self.ps])
+        return sum([parser.response(tokens) for parser in self.ps])
 
     def max_response(self) -> float:
         """
@@ -145,11 +149,12 @@ class AllOf(Descriptor):
     def __init__(self, parsers: List[Descriptor]):
         self.ps = parsers
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: 1 if **all** other descriptors give a response, otherwise 0.
         """
-        responses = [parser.response(text) for parser in self.ps]
+        responses = [parser.response(tokens) for parser in self.ps]
         was_response = [r != 0 for r in responses]
         return float(all(was_response))
 
@@ -165,11 +170,12 @@ class NoneOf(Descriptor):
     def __init__(self, parsers: List[Descriptor]):
         self.ps = parsers
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: 1 if **all** other descriptors give a response, otherwise 0.
         """
-        responses = [parser.response(text) for parser in self.ps]
+        responses = [parser.response(tokens) for parser in self.ps]
         was_response = [r != 0 for r in responses]
         return float(not any(was_response))
 
@@ -191,11 +197,12 @@ class OneOf(Descriptor):
 
         self.ps = parsers
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: the value of descriptor D if D is the only descriptor to give a non-zero response, otherwise 0.
         """
-        responses = sorted([parser.response(text) for parser in self.ps])
+        responses = sorted([parser.response(tokens) for parser in self.ps])
 
         # If the second to last element is zero, it means either there was a response from only one descriptor, or
         # no descriptors responded.
@@ -232,11 +239,12 @@ class WordTag(Descriptor):
     def __init__(self, tag: str):
         self.tag = tag
 
-    def response(self, text: str) -> float:
+    def response(self, tokens: List[str]) -> float:
         """
+        :param tokens: the words in the text.
         :return: the number of words matching the tag in the text.
         """
-        num_tagged = len(nltk_tagged(self.tag, word_tokenize(text)))
+        num_tagged = len(nltk_tagged(self.tag, tokens))
         return float(num_tagged >= 1)
 
     def max_response(self) -> float:
