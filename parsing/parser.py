@@ -17,28 +17,26 @@ class SpeechParsable:
         raise NotImplementedError
 
     @abstractclassmethod
-    def parse(cls, tokens: List[str]) -> 'SpeechParsable':
+    def parse(cls, tokens: List[str]) -> Optional:
         """
         :param tokens: the transcript individual words of the player's speech.
-        :return: the object parsed from the user's text.
+        :return: the object parsed from the user's text, or None if nothing could be parsed.
         """
         raise NotImplementedError
 
 
-def parse_user_speech(speech_text: str,
+def parse_user_speech(tokens: List[str],
                       possible_classes: List[Type[SpeechParsable]],
                       response_threshold: float = 0.5) -> Optional[SpeechParsable]:
     """
-    :param speech_text: the transcript of the player's speech.
+    :param tokens: the individual words in transcript of the player's speech.
     :param possible_classes: a list of possible classes to parse to, e.g. Interaction, Movement, etc.
     :response_threshold: the minimum response a class' text descriptor must give for that class to be considered.
     :return: the parsed object, or None if the parser was not sure to which class the text belonged.
     """
-
-    tokens = nltk.word_tokenize(speech_text)
     responses = np.array([c.text_descriptor().normalised_response(tokens) for c in possible_classes])
 
-    print("responses:", responses)
+    print(responses)
 
     # Remove any responses below a threshold.
     below_threshold_indices = responses < response_threshold
@@ -56,7 +54,6 @@ def parse_user_speech(speech_text: str,
 
     # If the maximum response is unique, return that maximum.
     max_index = responses.argmax()
-    tokens = nltk.word_tokenize(speech_text)
     return possible_classes[max_index].parse(tokens)
 
 

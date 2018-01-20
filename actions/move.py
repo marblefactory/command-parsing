@@ -1,8 +1,8 @@
 from actions.action import Action
-from actions.locations import Location
-from parsing.parser import SpeechParsable
+from actions.locations import *
+from parsing.parser import SpeechParsable, parse_user_speech
 from parsing.descriptor import *
-
+from typing import Optional
 
 class Speed(SpeechParsable):
     pass
@@ -32,7 +32,7 @@ class FastSpeed(Speed):
         return OneOf(WordMatch.list_from_words(words))
 
     @classmethod
-    def parse(cls, tokens: List[str]) -> 'FastSpeed':
+    def parse(cls, tokens: List[str]) -> Optional['FastSpeed']:
         return FastSpeed()
 
 class NormalSpeed(Speed):
@@ -101,7 +101,22 @@ class Move(Action, SpeechParsable):
         self.stance = stance
         self.location = location
 
+    def __str__(self):
+        return 'go to {} at {} while {}'.format(self.location, self.speed, self.stance)
+
     @classmethod
     def text_descriptor(cls) -> Descriptor:
-        words = ['go', 'move', 'step', 'head', 'proceed', 'follow', 'take', 'enter', 'exit']
+        words = ['go', 'move', 'step', 'head', 'proceed', 'follow', 'take', 'enter', 'exit', 'run', 'walk']
+        word_descriptors = WordMatch.list_from_words(words)
+        return StrongestOf(word_descriptors)
 
+    @classmethod
+    def parse(cls, tokens: List[str]) -> Optional['Move']:
+        speed = parse_user_speech(tokens, [SlowSpeed, NormalSpeed, FastSpeed]) or NormalSpeed()
+        stance = parse_user_speech(tokens, [Prone, Crouched, Standing]) or Standing()
+        location = parse_user_speech(tokens, [Absolute, Positional, Directional, Stairs, Behind])
+
+        if location is None:
+            return None
+
+        return Move(speed, stance, location)

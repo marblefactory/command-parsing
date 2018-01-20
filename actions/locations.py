@@ -71,7 +71,7 @@ class Absolute(Location):
         return AllOf([WordMatch('room'), Number()])
 
     @classmethod
-    def parse(cls, tokens: List[str]) -> 'Absolute':
+    def parse(cls, tokens: List[str]) -> Optional['Absolute']:
         room_num = nltk_first_tagged('CD', tokens)
         return Absolute('room ' + str(room_num))
 
@@ -105,7 +105,7 @@ class Positional(Location):
         return SomeOf([Contextual(), WordTag('NN'), directions, you])
 
     @classmethod
-    def parse(cls, tokens: List[str]) -> 'Positional':
+    def parse(cls, tokens: List[str]) -> Optional['Positional']:
         direction_possibilities = {
             'left': Direction.LEFT,
             'right': Direction.RIGHT,
@@ -146,7 +146,7 @@ class Directional(Location):
         return OneOf(WordMatch.list_from_words(directions))
 
     @classmethod
-    def parse(cls, tokens: List[str]) -> 'Directional':
+    def parse(cls, tokens: List[str]) -> Optional['Directional']:
         direction_possibilities = {
             'forwards': Direction.FORWARDS,
             'forward': Direction.FORWARDS,
@@ -187,7 +187,7 @@ class Stairs(Location):
         return OneOf([up_down_stairs, up_down_stairs_compound])
 
     @classmethod
-    def parse(cls, tokens: List[str]) -> 'Stairs':
+    def parse(cls, tokens: List[str]) -> Optional['Stairs']:
         direction_possibilities = {
             'up': FloorDirection.UP,
             'upstairs': FloorDirection.UP,
@@ -224,6 +224,6 @@ class Behind(Location):
         return AllOf([WordMatch('behind'), WordTag('NN')])
 
     @classmethod
-    def parse(cls, tokens: List[str]) -> 'Behind':
-        object_name = parse_object_name(tokens) or 'desk'
+    def parse(cls, tokens: List[str]) -> Optional['Behind']:
+        object_name = parse_object_name(tokens)
         return Behind(object_name)

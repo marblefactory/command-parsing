@@ -40,7 +40,7 @@ class SpeechParsableTestCase(unittest.TestCase):
         """
         Tests the correct class is parsed when the input text uniquely describes the type.
         """
-        parsed = parse_user_speech('move', [MockInteraction, MockMovement, MockHack])
+        parsed = parse_user_speech(['move'], [MockInteraction, MockMovement, MockHack])
 
         assert type(parsed) == MockMovement
 
@@ -48,7 +48,7 @@ class SpeechParsableTestCase(unittest.TestCase):
         """
         Tests None is returned if nothing could be parsed.
         """
-        parsed = parse_user_speech('nothing', [MockInteraction, MockMovement, MockHack])
+        parsed = parse_user_speech(['nothing'], [MockInteraction, MockMovement, MockHack])
 
         assert parsed is None
 
@@ -56,7 +56,7 @@ class SpeechParsableTestCase(unittest.TestCase):
         """
         Tests None is returned if all responses are below the threshold.
         """
-        parsed = parse_user_speech('hack', [MockInteraction, MockMovement, MockHack], response_threshold=0.51)
+        parsed = parse_user_speech(['hack'], [MockInteraction, MockMovement, MockHack], response_threshold=0.51)
 
         assert parsed == None
 
@@ -64,7 +64,7 @@ class SpeechParsableTestCase(unittest.TestCase):
         """
         Tests the correct class is parsed if the response if above a threshold.
         """
-        parsed = parse_user_speech('hack', [MockInteraction, MockMovement, MockHack], response_threshold=0.49)
+        parsed = parse_user_speech(['hack'], [MockInteraction, MockMovement, MockHack], response_threshold=0.49)
 
         assert type(parsed) == MockHack
 
@@ -72,7 +72,7 @@ class SpeechParsableTestCase(unittest.TestCase):
         """
         Tests None is returned if two classes give the maximum response.
         """
-        parsed = parse_user_speech('move interaction', [MockInteraction, MockMovement, MockHack])
+        parsed = parse_user_speech(['move', 'interaction'], [MockInteraction, MockMovement, MockHack])
 
         assert parsed == None
 
@@ -97,21 +97,21 @@ class ParseOneOfTestCase(unittest.TestCase):
     Tests parse_one_of
     """
 
-    def parse_fn(self, text: str) -> Optional[int]:
+    def parse_fn(self, tokens: List[str]) -> Optional[int]:
         possibilities = {
             'a': 1,
             'b': 2
         }
-        return parse_one_of(possibilities, text.split())
+        return parse_one_of(possibilities, tokens)
 
     def test_no_match(self):
-        assert self.parse_fn('c d') is None
+        assert self.parse_fn(['c', 'd']) is None
 
     def test_match1(self):
-        assert self.parse_fn('a d') == 1
+        assert self.parse_fn(['a', 'd']) == 1
 
     def test_match2(self):
-        assert self.parse_fn('b d') == 2
+        assert self.parse_fn(['b', 'd']) == 2
 
     def test_matches_first_occurence_in_text(self):
-        assert self.parse_fn('b a') == 2
+        assert self.parse_fn(['b', 'a']) == 2
