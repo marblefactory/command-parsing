@@ -239,6 +239,25 @@ class NoneOf(Composite):
         return reduce((lambda p1, p2: p1.max_response() * p2.max_response()), self.ps)
 
 
+class StrongestOf(Composite):
+    """
+    Matches on text with the strongest response of any of the parsers.
+    """
+
+    def __init__(self, parsers: List[Descriptor]):
+        super(StrongestOf, self).__init__(parsers)
+
+    def initial_response(self) -> float:
+        return 0
+
+    def combine_responses(self, acc_response: float, new_response: float, max_response: float) -> float:
+        return max(acc_response, new_response)
+
+    def max_response(self) -> float:
+        max_responses = [p.max_response() for p in self.ps]
+        return max(max_responses)
+
+
 class OneOf(Descriptor):
     """
     Matches only if one descriptor matches.

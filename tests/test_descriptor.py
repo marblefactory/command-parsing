@@ -242,3 +242,24 @@ class AllOfTestCase(unittest.TestCase):
         all_of = AllOf([some_descriptor, WordMatch('c')])                # Max Response = 1
         assert all_of.normalised_response(['a', 'b', 'c']) == 1
 
+
+class StrongestOfTestCase(unittest.TestCase):
+
+    def descriptor(self):
+        some = SomeOf(WordMatch.list_from_words(['a', 'b']))
+        return StrongestOf([some, WordMatch('c')])
+
+    def test_no_response(self):
+        assert self.descriptor().response(['d']) == 0
+
+    def test_response1(self):
+        assert self.descriptor().response(['a']) == 1
+
+    def test_response2(self):
+        assert self.descriptor().response(['a', 'b']) == 2
+
+    def test_response3(self):
+        assert self.descriptor().response(['a', 'b', 'c']) == 2
+
+    def test_normalised_response(self):
+        assert self.descriptor().normalised_response(['a', 'b', 'c']) == 1
