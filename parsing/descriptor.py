@@ -1,5 +1,6 @@
 from typing import List
-from parser import nltk_tagged
+from functools import reduce
+from parsing.parser import nltk_tagged
 
 
 class Descriptor:
@@ -115,24 +116,82 @@ class WordMatch(Word):
 #         similarities = [similarity(word_synsets, synsets) for synsets in sentence_synsets]
 #         return min(similarities)
 
-
-class And(Descriptor):
+class WordTag(Descriptor):
     """
-    Matches on multiple conditions in a text.
+    Matches on words with the given NLTK tag.
+    """
+
+    def __init__(self, tag: str):
+        self.tag = tag
+
+    def response(self, tokens: List[str]) -> float:
+        """
+        :param tokens: the words in the text.
+        :return: the number of words matching the tag in the text.
+        """
+        num_tagged = len(nltk_tagged(self.tag, tokens))
+        return float(num_tagged >= 1)
+
+    def max_response(self) -> float:
+        return 1
+
+
+class Number(WordTag):
+    """
+    Matches on numbers (e.g. 102) in a text.
+    """
+
+    def __init__(self):
+        super(Number, self).__init__('CD')  # Matches on Cardinal Numbers.
+
+
+class Composite(Descriptor):
+    """
+    Matches using multiple descriptors.
+    """
+
+    def __init__(self, parsers: List[Descriptor]):
+        self.ps = parsers
+
+    def initial_response(self) -> float:
+        """
+        :return: the initial value of the accumulated response.
+        """
+        raise NotImplementedError
+
+    def combine_responses(self, acc_response: float, new_response: float) -> float:
+        """
+        :param acc_response: the currently accumulated response.
+        :param new_response: the new response.
+        :return: the result of combining the accumulated response with the new response.
+        """
+        raise NotImplementedError
+
+    def response(self, tokens: List[str]) -> float:
+        curr_response = self.initial_response()
+        for parser in self.ps:
+            response = parser.response(tokens)
+            curr_response = self.combine_responses(curr_response, response)
+
+        return curr_response
+
+
+class SomeOf(Composite):
+    """
+    Matches on text more strongly as more descriptors match on the text.
     """
 
     def __init__(self, parsers: List[Descriptor]):
         """
         :param parsers: the parsers for which the responses will be summed.
         """
-        self.ps = parsers
+        super(SomeOf, self).__init__(parsers)
 
-    def response(self, tokens: List[str]) -> float:
-        """
-        :param tokens: the words in the text.
-        :return: the average response from all descriptors.
-        """
-        return sum([parser.response(tokens) for parser in self.ps])
+    def initial_response(self) -> float:
+        return 0
+
+    def combine_responses(self, acc_response: float, new_response: float) -> float:
+        return acc_response + new_response
 
     def max_response(self) -> float:
         """
@@ -141,43 +200,38 @@ class And(Descriptor):
         return sum([parser.max_response() for parser in self.ps])
 
 
-class AllOf(Descriptor):
+class AllOf(Composite):
     """
-    Matches only if all descriptors match.
+    Matches on text more strongly the more descriptors give a response. If any do not give a response then the final
+    response will be 0.
     """
 
     def __init__(self, parsers: List[Descriptor]):
-        self.ps = parsers
+        super(AllOf, self).__init__(parsers)
 
-    def response(self, tokens: List[str]) -> float:
-        """
-        :param tokens: the words in the text.
-        :return: 1 if **all** other descriptors give a response, otherwise 0.
-        """
-        responses = [parser.response(tokens) for parser in self.ps]
-        was_response = [r != 0 for r in responses]
-        return float(all(was_response))
-
-    def max_response(self) -> float:
+    def initial_response(self) -> float:
         return 1
 
+    def combine_responses(self, acc_response: float, new_response: float) -> float:
+        return acc_response * new_response
 
-class NoneOf(Descriptor):
+    def max_response(self) -> float:
+        return reduce((lambda p1, p2: p1.max_response() * p2.max_response()), self.ps)
+
+
+class NoneOf(Composite):
     """
-    Matches on the text if the other descriptors don't match, i.e. give a response of zero.
+    Matches on text more strongly if the parsers supplied don't match on the text.
     """
 
     def __init__(self, parsers: List[Descriptor]):
-        self.ps = parsers
+        super(NoneOf, self).__init__(parsers)
 
-    def response(self, tokens: List[str]) -> float:
-        """
-        :param tokens: the words in the text.
-        :return: 1 if **all** other descriptors give a response, otherwise 0.
-        """
-        responses = [parser.response(tokens) for parser in self.ps]
-        was_response = [r != 0 for r in responses]
-        return float(not any(was_response))
+    def initial_response(self) -> float:
+        return 1
+
+    def combine_responses(self, acc_response: float, new_response: float) -> float:
+        return acc_response * (1 - new_response)
 
     def max_response(self) -> float:
         return 1
@@ -229,32 +283,3 @@ class Contextual(OneOf):
         ds = WordMatch.list_from_words(words)
 
         super(Contextual, self).__init__(ds)
-
-
-class WordTag(Descriptor):
-    """
-    Matches on words with the given NLTK tag.
-    """
-
-    def __init__(self, tag: str):
-        self.tag = tag
-
-    def response(self, tokens: List[str]) -> float:
-        """
-        :param tokens: the words in the text.
-        :return: the number of words matching the tag in the text.
-        """
-        num_tagged = len(nltk_tagged(self.tag, tokens))
-        return float(num_tagged >= 1)
-
-    def max_response(self) -> float:
-        return 1
-
-
-class Number(WordTag):
-    """
-    Matches on numbers (e.g. 102) in a text.
-    """
-
-    def __init__(self):
-        super(Number, self).__init__('CD')  # Matches on Cardinal Numbers.

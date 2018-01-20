@@ -1,7 +1,8 @@
 from abc import ABC
 from enum import Enum
-from parser import *
-from descriptor import *
+
+from parsing.descriptor import *
+from parsing.parser import *
 
 
 class Direction(Enum):
@@ -101,7 +102,7 @@ class Positional(Location):
         directions = OneOf(WordMatch.list_from_words(direction_words))
         you = OneOf(WordMatch.list_from_words(['you', 'your']))
 
-        return And([Contextual(), WordTag('NN'), directions, you])
+        return SomeOf([Contextual(), WordTag('NN'), directions, you])
 
     @classmethod
     def parse(cls, tokens: List[str]) -> 'Positional':
@@ -178,7 +179,7 @@ class Stairs(Location):
         """
         # Either 'go up the stairs' or 'go down the stairs'
         up_down = OneOf(WordMatch.list_from_words(['up', 'down']))
-        up_down_stairs = And([up_down, WordMatch('stairs')])
+        up_down_stairs = SomeOf([up_down, WordMatch('stairs')])
 
         # Either 'go upstairs' or `go downstairs'
         up_down_stairs_compound = OneOf(WordMatch.list_from_words(['upstairs', 'downstairs']))

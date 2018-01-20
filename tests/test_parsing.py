@@ -1,6 +1,7 @@
 import unittest
-from parser import *
-from descriptor import *
+
+from parsing.descriptor import *
+from parsing.parser import *
 
 
 class MockInteraction(SpeechParsable):
@@ -26,7 +27,7 @@ class MockMovement(SpeechParsable):
 class MockHack(SpeechParsable):
     @classmethod
     def text_descriptor(cls) -> Descriptor:
-        return And([WordMatch('hack'), WordMatch('terminal')])
+        return SomeOf([WordMatch('hack'), WordMatch('terminal')])
 
     @classmethod
     def parse(cls, user_text: str) -> 'MockHack':

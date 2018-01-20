@@ -1,4 +1,4 @@
-from descriptor import *
+from parsing.descriptor import *
 
 
 def descriptor_vector(descriptors: List[Descriptor], text: str) -> np.array:
@@ -52,7 +52,7 @@ class MovementNN():
         """
         :return: a descriptor which produces a high response for crouched stance.
         """
-        return And([WordMatch('crouched'), WordMatch('crouching')])
+        return SomeOf([WordMatch('crouched'), WordMatch('crouching')])
 
     def stand_descriptor(self) -> Descriptor:
         """
@@ -104,14 +104,14 @@ class LocationNN():
         directions = OneOf(WordMatch.list_from_words(direction_words))
         you = OneOf(WordMatch.list_from_words(['you', 'your']))
 
-        return And([Positional(), WordTag('NN'), directions, you])
+        return SomeOf([Positional(), WordTag('NN'), directions, you])
 
     def directional_descriptor(self) -> Descriptor:
         """
         :return: a descriptor which produces a high response for directions, e.g. forwards, backwards
         """
         words = WordMatch.list_from_words(['forwards', 'backwards'])
-        return And(words)
+        return SomeOf(words)
 
     def stairs_descriptor(self) -> Descriptor:
         """
@@ -120,7 +120,7 @@ class LocationNN():
 
         # Either 'go up the stairs' or 'go down the stairs'
         up_down = OneOf(WordMatch.list_from_words(['up', 'down']))
-        up_down_stairs = And([up_down, WordMatch('stairs')])
+        up_down_stairs = SomeOf([up_down, WordMatch('stairs')])
 
         # Either 'go upstairs' or `go downstairs'
         up_down_stairs_compound = OneOf(WordMatch.list_from_words(['upstairs', 'downstairs']))

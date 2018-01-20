@@ -1,5 +1,6 @@
 import unittest
-from descriptor import *
+
+from parsing.descriptor import *
 
 
 class MockDescriptor(Descriptor):
@@ -70,11 +71,11 @@ class WordMatchTestCase(unittest.TestCase):
 #         assert self.descriptor().response('crouch crouching') == 1.0
 
 
-class AndTestCase(unittest.TestCase):
+class SomeOfTestCase(unittest.TestCase):
 
     def descriptor(self):
         words = WordMatch.list_from_words(['hello', 'world'])
-        return And(words)
+        return SomeOf(words)
 
     def test_no_response(self):
         assert self.descriptor().response(['my', 'sentence']) == 0
@@ -101,10 +102,10 @@ class AndTestCase(unittest.TestCase):
         assert self.descriptor().normalised_response(['hello', 'extra', 'world', 'extra']) == 1
 
     def test_normalised_response_nested(self):
-        and1 = And(WordMatch.list_from_words(['a', 'b']))
-        and2 = And([and1, WordMatch('c')])
+        some1 = SomeOf(WordMatch.list_from_words(['a', 'b']))
+        some2 = SomeOf([some1, WordMatch('c')])
 
-        assert and2.normalised_response(['a', 'b', 'c']) == 1
+        assert some2.normalised_response(['a', 'b', 'c']) == 1
 
 
 class ContextualTestCase(unittest.TestCase):
@@ -182,8 +183,8 @@ class OneOfTestCase(unittest.TestCase):
         assert self.descriptor().response(['go', 'left', 'right']) == 0
 
     def test_normalised_response(self):
-        and_descriptor = And(WordMatch.list_from_words(['a', 'b']))  # Max Response = 2
-        one_of = OneOf([and_descriptor, WordMatch('c')])             # Max Response = 1
+        some_descriptor = SomeOf(WordMatch.list_from_words(['a', 'b']))  # Max Response = 2
+        one_of = OneOf([some_descriptor, WordMatch('c')])                # Max Response = 1
         assert one_of.normalised_response(['a']) == 0.5
 
 
@@ -230,3 +231,9 @@ class AllOfTestCase(unittest.TestCase):
 
     def test_normalised_response(self):
         assert self.descriptor().normalised_response(['hello', 'world']) == 1
+
+    def test_normalised_nested(self):
+        some_descriptor = SomeOf(WordMatch.list_from_words(['a', 'b']))  # Max Response = 2
+        all_of = AllOf([some_descriptor, WordMatch('c')])                # Max Response = 1
+        assert all_of.normalised_response(['a', 'b', 'c']) == 1
+

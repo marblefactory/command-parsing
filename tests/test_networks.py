@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from networks import descriptor_vector, LocationNN, MovementNN
-from descriptor import Descriptor
+from parsing.descriptor import Descriptor
 
 
 class MockDescriptor(Descriptor):
