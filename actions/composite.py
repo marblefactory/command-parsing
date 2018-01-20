@@ -6,7 +6,7 @@ from utils import split_list
 from typing import Optional, List
 
 
-class Composite(Action, SpeechParsable):
+class Composite(Action):
     """
     An action made of multiple actions, e.g. go left then go right.
     """
@@ -46,7 +46,7 @@ class SingleActionParser(SpeechParsable):
         return NoneOf([Composite.text_descriptor()])
 
     @classmethod
-    def parse(cls, tokens: List[str]) -> Action:
+    def parse(cls, tokens: List[str]) -> Optional[Action]:
         return parse_user_speech(tokens, single_actions())
 
 

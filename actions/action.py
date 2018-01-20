@@ -3,14 +3,14 @@ from parsing.descriptor import Descriptor, WordMatch
 from typing import List, Optional
 
 
-class Action:
+class Action(SpeechParsable):
     """
     An action that the player can command the spy to make.
     """
     pass
 
 
-class Stop(Action, SpeechParsable):
+class Stop(Action):
     """
     Tells the spy to stop whatever they're doing.
     """
