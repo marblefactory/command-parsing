@@ -36,8 +36,6 @@ def parse_user_speech(tokens: List[str],
     """
     responses = np.array([c.text_descriptor().normalised_response(tokens) for c in possible_classes])
 
-    print(responses)
-
     # Remove any responses below a threshold.
     below_threshold_indices = responses < response_threshold
     responses[below_threshold_indices] = 0
