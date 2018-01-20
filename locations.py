@@ -59,6 +59,9 @@ class Absolute(Location):
         """
         self.place_name = place_name
 
+    def __str__(self):
+        return self.place_name
+
     @classmethod
     def text_descriptor(cls) -> Descriptor:
         """
@@ -110,7 +113,7 @@ class Positional(Location):
         }
         direction = parse_one_of(direction_possibilities, tokens) or Direction.FORWARDS
         position = parse_positional(tokens) or 0
-        object_name = nltk_first_tagged('NN', tokens) or 'door'
+        object_name = parse_object_name(tokens) or 'door'
 
         return Positional(position, object_name, direction)
 
@@ -221,15 +224,5 @@ class Behind(Location):
 
     @classmethod
     def parse(cls, tokens: List[str]) -> 'Behind':
-        object_name = nltk_first_tagged('NN', tokens) or 'desk'
+        object_name = parse_object_name(tokens) or 'desk'
         return Behind(object_name)
-
-s = 'take the first door behind you'
-r = parse_user_speech(s, [Absolute, Positional, Directional, Stairs, Behind])
-print(r)
-
-print(Positional.text_descriptor().normalised_response(s))
-print(Behind.text_descriptor().normalised_response(s))
-
-tagged = nltk.pos_tag(['left'])
-print(tagged)

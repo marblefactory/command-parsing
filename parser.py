@@ -1,5 +1,4 @@
 from abc import abstractclassmethod
-from descriptor import Descriptor
 from typing import List, Type, Optional, Any, Dict
 import numpy as np
 import nltk
@@ -11,7 +10,7 @@ class SpeechParsable:
     """
 
     @abstractclassmethod
-    def text_descriptor(cls) -> Descriptor:
+    def text_descriptor(cls):
         """
         :return: a descriptor used to recognise the type from the transcript of the player's speech.
         """
@@ -38,6 +37,8 @@ def parse_user_speech(speech_text: str,
 
     responses = np.array([c.text_descriptor().normalised_response(speech_text) for c in possible_classes])
 
+    print("responses:", responses)
+
     # Remove any responses below a threshold.
     below_threshold_indices = responses < response_threshold
     responses[below_threshold_indices] = 0
@@ -58,18 +59,48 @@ def parse_user_speech(speech_text: str,
     return possible_classes[max_index].parse(tokens)
 
 
-def nltk_first_tagged(tag: str, tokens: List[str]) -> Optional[str]:
+def nltk_tagged_list(tags: List[str], tokens: List[str]) -> List[str]:
     """
-    :param words: the word that the user said.
-    :return: the first work tagged with the given tag, or None if no word has the tag.
+    :param words: the words that the user said.
+    :return: a list of words for which their tag is in the list of tags.
     """
     tagged = nltk.pos_tag(tokens)
-    matched = [word for (word, word_tag) in tagged if word_tag == tag]
+    return [word for (word, word_tag) in tagged if word_tag in tags]
 
-    if len(matched) == 0:
+
+def nltk_tagged(tag: str, tokens: List[str]) -> List[str]:
+    """
+    :param words: the words that the user said.
+    :return: a list of words with the given tag.
+    """
+    return nltk_tagged_list([tag], tokens)
+
+
+def nltk_first_tagged(tag: str, tokens: List[str]) -> Optional[str]:
+    """
+    :param tokens: the words that the user said.
+    :return: the first work tagged with the given tag, or None if no word has the tag.
+    """
+    tagged = nltk_tagged(tag, tokens)
+
+    if len(tagged) == 0:
         return None
 
-    return matched[0]
+    return tagged[0]
+
+
+def parse_object_name(tokens: List[str]) -> Optional[str]:
+    """
+    :param tokens: the words that the user said.
+    :return: the name of the object the user is referring to in text.
+    """
+    nouns = nltk_tagged_list(['NN', 'NNS'], tokens)
+    filtered = [word for word in nouns if word != 'left' and 'right']
+
+    if len(filtered) == 0:
+        return None
+
+    return filtered[0]
 
 
 def parse_one_of(possibilities: Dict[str, Any], tokens: List[str]) -> Optional[Any]:

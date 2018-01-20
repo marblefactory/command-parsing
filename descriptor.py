@@ -1,16 +1,6 @@
 from typing import List
-import nltk
-
-
-def nltk_tagged(tag: str, text: str) -> List[str]:
-    """
-    :param words: the word that the user said.
-    :return: the first work tagged with the given tag, or None if no word has the tag.
-    """
-    tokens = nltk.word_tokenize(text)
-    tagged = nltk.pos_tag(tokens)
-
-    return [word for (word, word_tag) in tagged if word_tag == tag]
+from parser import nltk_tagged
+from nltk import word_tokenize
 
 
 class Descriptor:
@@ -246,7 +236,7 @@ class WordTag(Descriptor):
         """
         :return: the number of words matching the tag in the text.
         """
-        num_tagged = len(nltk_tagged(self.tag, text))
+        num_tagged = len(nltk_tagged(self.tag, word_tokenize(text)))
         return float(num_tagged >= 1)
 
     def max_response(self) -> float:
@@ -260,5 +250,3 @@ class Number(WordTag):
 
     def __init__(self):
         super(Number, self).__init__('CD')  # Matches on Cardinal Numbers.
-
-
