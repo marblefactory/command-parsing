@@ -50,6 +50,6 @@ class SingleActionParser(SpeechParsable):
         return parse_user_speech(tokens, single_actions())
 
 
-s = 'walk through the doorway directly in front of you then go behind the sofas'
+s = 'run through the second door on your right'
 action = parse_user_speech(s.split(), [Composite, SingleActionParser])
 print(action)

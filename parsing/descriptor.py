@@ -1,5 +1,4 @@
 from typing import List
-from functools import reduce
 from parsing.parser import nltk_tagged
 import numpy as np
 

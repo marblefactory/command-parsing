@@ -60,7 +60,8 @@ class Prone(Stance):
 
     @classmethod
     def text_descriptor(cls) -> Descriptor:
-        return WordMatch('prone')
+        words = ['crawl', 'crawling', 'prone', 'proned']
+        return OneOf(WordMatch.list_from_words(words))
 
     @classmethod
     def parse(cls, tokens: List[str]) -> 'Prone':
@@ -109,7 +110,7 @@ class Move(Action, SpeechParsable):
 
     @classmethod
     def text_descriptor(cls) -> Descriptor:
-        words = ['go', 'move', 'step', 'head', 'proceed', 'follow', 'take', 'enter', 'exit', 'run', 'walk']
+        words = ['go', 'move', 'step', 'head', 'proceed', 'follow', 'take', 'enter', 'exit', 'run', 'walk', 'crawl']
         word_descriptors = WordMatch.list_from_words(words)
         return StrongestOf(word_descriptors)
 
