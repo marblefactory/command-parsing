@@ -60,7 +60,7 @@ class Predicate(Parser):
     Parses on words when a predicate is above or equal to a threshold.
     """
 
-    def __init__(self, predicate: Callable[[Word], float], threshold: float):
+    def __init__(self, predicate: Callable[[Word], float], threshold: Response):
         """
         :param predicate: the function that must give an output above the threshold for a parse to occur.
         :param threshold: the minimum response of the predicate.
@@ -125,29 +125,77 @@ class Number(WordTagged):
 
 class StrongestOf(Parser):
     """
-    Chooses the parser with the strongest response over the text to be used as the parser.
+    Chooses the parser with the strongest response over the text to be used as the parser. If multiple parsers give
+    the same maximum response, the parser that occurs first in the list is used.
     """
 
     def __init__(self, parsers: List[Parser]):
         """
-        :param parsers: the parsers to be combined.
+        :param parsers: the parsers to choose the strongest from.
         """
-        def parse(input: List[Word]) -> ParseResult:
+        def parse(input: List[Word]) -> Optional[ParseResult]:
             # Run all parsers over the text and choose the strongest.
             results = [parser.parse(input) for parser in parsers]
             filtered = [r for r in results if r is not None]
+
+            if filtered == []:
+                return None
+
             maximum = max(filtered, key=lambda parse_result: parse_result.response)
             return maximum
 
         super(StrongestOf, self).__init__(parse)
 
 
+class Thresholded(Parser):
+    """
+    Uses the supplied parser if all other parsers give a response below the given threshold.
+    """
+
+    def __init__(self, parsers: List[Parser], default: Parser, threshold: Response):
+        """
+        :param parsers: the parsers to test for a response from.
+        :param default: the default parser used if the other parsers responses are below the threshold.
+        :param threshold: the maximum response all of the parsers must give, for the default parser to be used.
+        """
+        def parse(input: List[Word]) -> Optional[ParseResult]:
+            parse_result = StrongestOf(parsers).parse(input)
+
+            if parse_result is not None and parse_result.response > threshold:
+                return None
+
+            return default.parse(input)
+
+        super(Thresholded, self).__init__(parse)
+
+
+class Produce(Parser):
+    """
+    A parser that matches on all input and returns the supplied parsed object and response from parsing.
+    """
+
+    def __init__(self, parsed: Any, response: Response):
+        """
+        :param parsed: the object to return from parsing.
+        :param response: the response to return from parsing.
+        """
+        def parse(input: List[Word]) -> Optional[ParseResult]:
+            return ParseResult(parsed, response, input)
+
+        super(Produce, self).__init__(parse)
+
+
 p1 = WordMatch('hello')
 p2 = WordMatch('world')
+p3 = Produce('OUTPUT', 1.0)
 
-strongest = StrongestOf([p1, p2])
+thresholded = Thresholded([p1, p2], p3, 0.5)
 
-print(strongest.parse(['hello']))
+print(thresholded.parse(['f']))
+
+# strongest = StrongestOf([p1, p2])
+#
+# print(strongest.parse(['hello']))
 
 # p1 = WordMatch('hello')
 #
