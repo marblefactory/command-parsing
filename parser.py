@@ -123,11 +123,37 @@ class Number(WordTagged):
         super(Number, self).__init__(['CD'])
 
 
+class StrongestOf(Parser):
+    """
+    Chooses the parser with the strongest response over the text to be used as the parser.
+    """
+
+    def __init__(self, parsers: List[Parser]):
+        """
+        :param parsers: the parsers to be combined.
+        """
+        def parse(input: List[Word]) -> ParseResult:
+            # Run all parsers over the text and choose the strongest.
+            results = [parser.parse(input) for parser in parsers]
+            filtered = [r for r in results if r is not None]
+            maximum = max(filtered, key=lambda parse_result: parse_result.response)
+            return maximum
+
+        super(StrongestOf, self).__init__(parse)
+
+
 p1 = WordMatch('hello')
+p2 = WordMatch('world')
 
-def f(parsed: str, response: Response) -> Parser:
-    return WordMatch('world').map(lambda p, r: (parsed + p, 0))
+strongest = StrongestOf([p1, p2])
 
-s = 'hello world'.split()
+print(strongest.parse(['hello']))
 
-print(p1.then(f).parse(s))
+# p1 = WordMatch('hello')
+#
+# def f(parsed: str, response: Response) -> Parser:
+#     return WordMatch('world').map(lambda p, r: (parsed + p, 0))
+#
+# s = 'hello world'.split()
+#
+# print(p1.then(f).parse(s))
