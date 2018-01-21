@@ -4,7 +4,7 @@ import nltk
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
-ParseResult = namedtuple('ParseResult', 'result response remaining')
+ParseResult = namedtuple('ParseResult', 'parsed response remaining')
 
 # A word in the user's text.
 Word = str
@@ -41,21 +41,18 @@ class Parser:
 
         return Parser(new_parse)
 
-    def map(self, transform: Callable[[Any, Response], Tuple[Any, Response]]) -> 'Parser':
+    def map(self, transformation: Callable[[Any, Response], Tuple[Any, Response]]) -> 'Parser':
         """
         :return: takes the parse result 'wrapped' in the parser and applies the transformation to create a new parser.
         """
-        def new_parse(input: List[Word]) -> Optional[ParseResult]:
-            parsed = self.parse(input)
+        def transform(parsed: Any, response: Response) -> Parser:
+            def new_parse(words: List[Word]) -> Optional[ParseResult]:
+                new_parsed, new_response = transformation(parsed, response)
+                return ParseResult(new_parsed, new_response, words)
 
-            if parsed is None:
-                return None
+            return Parser(new_parse)
 
-            result, response, remaining = parsed
-            new_result, new_response = transform(result, response)
-            return ParseResult(new_result, new_response, remaining)
-
-        return Parser(new_parse)
+        return self.then(transform)
 
 
 class Predicate(Parser):
@@ -129,7 +126,7 @@ class Number(WordTagged):
 p1 = WordMatch('hello')
 
 def f(parsed: str, response: Response) -> Parser:
-    return WordMatch('world')
+    return WordMatch('world').map(lambda p, r: (parsed + p, 0))
 
 s = 'hello world'.split()
 
