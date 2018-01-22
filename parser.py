@@ -141,22 +141,21 @@ class Parser:
         return self.map(t)
 
 
-# def produce(parsed: Any, response: Response) -> Parser:
-#     """
-#     :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and
-#              consumes no input.
-#     """
-#     def parse(input: List[Word]) -> Optional[ParseResult]:
-#         return ParseResult(parsed, response, input)
-#
-#     return Parser(parse)
+def produce(parsed: Any, response: Response) -> Parser:
+    """
+    :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and
+             consumes no input.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        return ParseResult(parsed, response, input)
+
+    return Parser(parse)
 
 
 def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) -> Parser:
     """
     :return: a parser which matches on the first word to give a value of condition higher than the threshold.
     """
-
     def parse(input: List[Word]) -> Optional[ParseResult]:
         for i, word in enumerate(input):
             response = condition(word)
@@ -320,10 +319,10 @@ print(go.then_ignore(you, mean).parse(s))
 
 ###############
 
-# s = 'run'.split()
-# p1 = word_meaning('go')
-#
-# print(p1.parse(s))
+s = 'walk'.split()
+p1 = word_meaning('go')
+
+print(p1.parse(s))
 
 ###############
 
@@ -337,7 +336,7 @@ print(p.parse(s))
 
 ###############
 
-s = 'down'.split()
+s = 'go upstairs'.split()
 
 ups = [anywhere(word_match('up')), anywhere(word_match('upstairs'))]
 up = strongest(ups).map_parsed(lambda _: 'UP')
@@ -350,8 +349,15 @@ print(direction.parse(s))
 
 ###############
 
-s = 'go around the table'.split()
+s = 'go behind the table'.split()
 behind = strongest([word_match('behind'), word_match('around')])
 p = behind.ignore_then(object_name(), mean)
 
 print(p.parse(s))
+
+###############
+
+s = 'go to room 201'.split()
+room = word_match('room').ignore_then(number())
+
+print(room.parse(s))
