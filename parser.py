@@ -98,8 +98,7 @@ class Parser:
 
     def map_response(self, transformation: Callable[[Response], Response]) -> 'Parser':
         """
-        :return: maps the response of this parser (supplied to transformation) to the value returned by the
-                 transformation.
+        :return: maps the response of this parser to the value returned by the transformation.
         """
         def t(parsed: Any, response: Response) -> Tuple[Any, Response]:
             new_response = transformation(response)
@@ -107,16 +106,26 @@ class Parser:
 
         return self.map(t)
 
+    def map_parsed(self, transformation: Callable[[Any], Any]) -> 'Parser':
+        """
+        :return: maps the parsed object of this parser to the value returned by the transformation.
+        """
+        def t(parsed: Any, response: Response) -> Tuple[Any, Response]:
+            new_parsed = transformation(parsed)
+            return (new_parsed, response)
 
-def produce(parsed: Any, response: Response) -> Parser:
-    """
-    :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and
-             consumes no input.
-    """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
-        return ParseResult(parsed, response, input)
+        return self.map(t)
 
-    return Parser(parse)
+
+# def produce(parsed: Any, response: Response) -> Parser:
+#     """
+#     :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and
+#              consumes no input.
+#     """
+#     def parse(input: List[Word]) -> Optional[ParseResult]:
+#         return ParseResult(parsed, response, input)
+#
+#     return Parser(parse)
 
 
 def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) -> Parser:
@@ -228,15 +237,22 @@ def maybe(parser: Parser) -> Parser:
 
     return Parser(parse)
 
+###############
 
 s = 'hello world'.split()
 print(word_match('hello').parse(s))
 
+###############
+
 s = 'car'.split()
 print(word_tagged(['NN']).parse(s))
 
+###############
+
 s = '102'.split()
 print(inverse(number()).parse(s))
+
+###############
 
 s = 'hello world'.split()
 p1 = anywhere(word_match('world'))
@@ -244,6 +260,8 @@ p2 = anywhere(word_match('hello'))
 p3 = p1.then_ignore(p2)
 
 print(p3.parse(s))
+
+###############
 
 s = 'go'.split()
 you = maybe(anywhere(word_match('you')))
@@ -254,38 +272,19 @@ def mean(r1: Response, r2: Response) -> Response:
 
 print(go.then_ignore(you, mean).parse(s))
 
-s = 'run'.split()
-p1 = word_meaning('go')
+###############
 
-print(p1.parse(s))
+# s = 'run'.split()
+# p1 = word_meaning('go')
+#
+# print(p1.parse(s))
 
-# p1 = WordMatch('hello')
-# p2 = WordMatch('world')
-# p3 = Produce('OUTPUT', 1.0)
-#
-# thresholded = Thresholded([p1, p2], p3, 0.5)
-#
-# print(thresholded.parse(['f']))
+###############
 
-# strongest = StrongestOf([p1, p2])
-#
-# print(strongest.parse(['hello']))
+s = 'left'.split()
 
-# p1 = WordMatch('hello')
-#
-# def f(parsed: str, response: Response) -> Parser:
-#     return WordMatch('world').map(lambda p, r: (parsed + p, 0))
-#
-# s = 'hello world'.split()
-#
-# print(p1.then(f).parse(s))
+left = word_match('left').map_parsed(lambda _: 'LEFT')
+right = word_match('right').map_parsed(lambda _: 'RIGHT')
+p = strongest([left, right])
 
-# def f(parsed: str, response: Response) -> Parser:
-#     return Number() #.map(lambda num_str, r: (int(num_str), r))
-#
-# room_parser = WordMatch('room').then(f)
-#
-# s = '102'.split()
-#
-# print(room_parser.parse(s))
-# print(Number().parse(s))
+print(p.parse(s))
