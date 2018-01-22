@@ -15,6 +15,13 @@ Word = str
 Response = float
 
 
+def mean(r1: Response, r2: Response) -> Response:
+    """
+    :return: the mean response of r1 and r2.
+    """
+    return (r1 + r2) / 2.0
+
+
 def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
     """
     :param similarity_measure: a word net function which give the semantic distance between two synsets.
@@ -272,96 +279,96 @@ def object_name() -> Parser:
 
     return predicate(condition)
 
-###############
-
-s = 'hello world'.split()
-print(word_match('hello').parse(s))
-
-###############
-
-s = 'car'.split()
-print(word_tagged(['NN']).parse(s))
-
-###############
-
-s = '102'.split()
-print(number().parse(s))
-
-###############
-
-s = 'hello world'.split()
-p1 = anywhere(word_match('world'))
-p2 = anywhere(word_match('hello'))
-p3 = p1.then_ignore(p2)
-
-print(p3.parse(s))
-
-###############
-
-s = 'go'.split()
-you = maybe(anywhere(word_match('you')))
-go = anywhere(word_match('go'))
-
-
-def mean(r1: Response, r2: Response) -> Response:
-    return (r1 + r2) / 2.0
-
-
-print(go.then_ignore(you, mean).parse(s))
-
-###############
-
-# s = 'walk'.split()
-# p1 = word_meaning('go')
+# ###############
 #
-# print(p1.parse(s))
-
-###############
-
-s = 'left'.split()
-
-left = word_match('left').map_parsed(lambda _: 'LEFT')
-right = word_match('right').map_parsed(lambda _: 'RIGHT')
-p = strongest([left, right])
-
-print(p.parse(s))
-
-###############
-
-s = 'go upstairs'.split()
-
-ups = [anywhere(word_match('up')), anywhere(word_match('upstairs'))]
-up = strongest(ups).map_parsed(lambda _: 'UP')
-
-downs = [anywhere(word_match('down')), anywhere(word_match('downstairs'))]
-down = strongest(downs).map_parsed(lambda _: 'DOWN')
-
-direction = strongest([up, down])
-print(direction.parse(s))
-
-###############
-
-s = 'go behind the table'.split()
-behind = strongest([word_match('behind'), word_match('around')])
-p = behind.ignore_then(object_name(), mean)
-
-print(p.parse(s))
-
-###############
-
-s = 'go to room 201'.split()
-room = word_match('room').ignore_then(number())
-
-print(room.parse(s))
-
-###############
-
-s = 'prone'.split()
-
-prone = word_match('prone')
-crouch = word_match('crouch')
-stand = strongest([prone, crouch, produce('standing', 0.8)])
-
-stance = strongest([prone, crouch, stand])
-
-print(stance.parse(s))
+# s = 'hello world'.split()
+# print(word_match('hello').parse(s))
+#
+# ###############
+#
+# s = 'car'.split()
+# print(word_tagged(['NN']).parse(s))
+#
+# ###############
+#
+# s = '102'.split()
+# print(number().parse(s))
+#
+# ###############
+#
+# s = 'hello world'.split()
+# p1 = anywhere(word_match('world'))
+# p2 = anywhere(word_match('hello'))
+# p3 = p1.then_ignore(p2)
+#
+# print(p3.parse(s))
+#
+# ###############
+#
+# s = 'go'.split()
+# you = maybe(anywhere(word_match('you')))
+# go = anywhere(word_match('go'))
+#
+#
+# def mean(r1: Response, r2: Response) -> Response:
+#     return (r1 + r2) / 2.0
+#
+#
+# print(go.then_ignore(you, mean).parse(s))
+#
+# ###############
+#
+# # s = 'walk'.split()
+# # p1 = word_meaning('go')
+# #
+# # print(p1.parse(s))
+#
+# ###############
+#
+# s = 'left'.split()
+#
+# left = word_match('left').map_parsed(lambda _: 'LEFT')
+# right = word_match('right').map_parsed(lambda _: 'RIGHT')
+# p = strongest([left, right])
+#
+# print(p.parse(s))
+#
+# ###############
+#
+# s = 'go upstairs'.split()
+#
+# ups = [anywhere(word_match('up')), anywhere(word_match('upstairs'))]
+# up = strongest(ups).map_parsed(lambda _: 'UP')
+#
+# downs = [anywhere(word_match('down')), anywhere(word_match('downstairs'))]
+# down = strongest(downs).map_parsed(lambda _: 'DOWN')
+#
+# direction = strongest([up, down])
+# print(direction.parse(s))
+#
+# ###############
+#
+# s = 'go behind the table'.split()
+# behind = strongest([word_match('behind'), word_match('around')])
+# p = behind.ignore_then(object_name(), mean)
+#
+# print(p.parse(s))
+#
+# ###############
+#
+# s = 'go to room 201'.split()
+# room = word_match('room').ignore_then(number())
+#
+# print(room.parse(s))
+#
+# ###############
+#
+# s = 'prone'.split()
+#
+# prone = word_match('prone')
+# crouch = word_match('crouch')
+# stand = strongest([prone, crouch, produce('standing', 0.8)])
+#
+# stance = strongest([prone, crouch, stand])
+#
+# print(stance.parse(s))
