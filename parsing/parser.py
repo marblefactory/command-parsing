@@ -115,6 +115,7 @@ class Parser:
         """
         :return: takes the parse result 'wrapped' in the parser and applies the transformation to create a new parser.
         """
+
         def transform(parsed: Any, response: Response) -> Parser:
             def new_parse(words: List[Word]) -> Optional[ParseResult]:
                 new_parsed, new_response = transformation(parsed, response)
@@ -272,7 +273,6 @@ def maybe(parser: Parser) -> Parser:
         return result
 
     return Parser(parse)
-
 
 # ###############
 #

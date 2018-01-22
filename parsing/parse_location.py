@@ -18,20 +18,15 @@ def ordinal_number() -> Parser:
     """
     :return: a parser for ordinal numbers, e.g. first, second, third.
     """
-    #words = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
-    words = [('first', 0), ('second', 1)]
 
-    #word_matchers = [word_match(word).map(lambda d, r: (d + str(num), r)) for (word, num) in words]
+    # This function to get get around Python's static scope, i.e. `num` in the list comprehension is essentially a pointer.
+    def make_transformation(word: Word, num: int):
+        return lambda _: num
 
-    word_matchers = []
+    words = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
+    numeric_zipped = zip(words, range(len(words)))
 
-    for word, num in words:
-        print(word, num)
-        parser = word_match(word).map_parsed(lambda p: p + str(num))
-
-        word_matchers.append(parser)
-
-
+    word_matchers = [word_match(word).map_parsed(make_transformation(word, num)) for word, num in numeric_zipped]
     return strongest(word_matchers)
 
 
@@ -51,6 +46,6 @@ def positional() -> Parser:
     """
     num = anywhere(ordinal_number())
 
-s = 'first'.split()
+s = 'second'.split()
 (x, response, remaining) = ordinal_number().parse(s)
 print(x)
