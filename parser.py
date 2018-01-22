@@ -31,7 +31,7 @@ class Parser:
         def new_parse(input: List[Word]) -> Optional[ParseResult]:
             parsed = self.parse(input)
 
-            if parsed is None:
+            if not parsed:
                 return None
 
             result, response, remaining = parsed
@@ -41,22 +41,26 @@ class Parser:
 
         return Parser(new_parse)
 
-    def then_ignore(self, next_parser: 'Parser') -> 'Parser':
+    def then_ignore(self,
+                    next_parser: 'Parser',
+                    combine_responses: Callable[[Response, Response], Response] = None) -> 'Parser':
         """
-        :return: a parser which requires `next_parser` to give a response after this parser, but 'throws away' the
-                 result of `next_parser` and uses the result of this parser.
+        :param next_parser:       the parser to apply over the tokens after using this parser.
+        :param combine_responses: a function used to combine the responses of both this parser and `next_parser`. If
+                                  this is None then this will be equal to the response of this parser, i.e. ignoring
+                                  `next_parser`.
+        :return:                  a parser which parsers first with this parser, then with `next_parser`. The parsed
+                                  object from `next_parser` is ignored, and the response of both parsers is combined
+                                  using `combine_responses`.
         """
-        def op(parsed: Any, response: Response) -> Parser:
-            return next_parser.map(lambda ignored_parsed, ignored_response: (parsed, response))
+
+        if not combine_responses:
+            combine_responses = lambda r1, r2: r1
+
+        def op(parsed: Any, r1: Response) -> Parser:
+            return next_parser.map(lambda ignored_parsed, r2: (parsed, combine_responses(r1, r2)))
 
         return self.then(op)
-
-    def ignore_then(self, next_parser: 'Parser') -> 'Parser':
-        """
-        :return: a parser which requires this parser to give a response before `next_parser` but 'throws away' the
-                 result of this parser and uses the result of `next_parser`.
-        """
-        return self.then(lambda parsed, response: next_parser)
 
     def map(self, transformation: Callable[[Any, Response], Tuple[Any, Response]]) -> 'Parser':
         """
@@ -166,7 +170,7 @@ def anywhere(parser: Parser) -> Parser:
     """
     def parse(input: List[Word]) -> Optional[ParseResult]:
         result = parser.parse(input)
-        if result is None:
+        if not result:
             return None
 
         return ParseResult(result.parsed, result.response, input)
@@ -181,7 +185,7 @@ def maybe(parser: Parser) -> Parser:
     """
     def parse(input: List[Word]) -> Optional[ParseResult]:
         result = parser.parse(input)
-        if result is None:
+        if not result:
             return ParseResult(parsed=None, response=0.0, remaining=input)
 
         return result
@@ -201,7 +205,7 @@ print(inverse(number()).parse(s))
 s = 'hello world'.split()
 p1 = anywhere(word_match('world'))
 p2 = anywhere(word_match('hello'))
-p3 = p1.ignore_then(p2)
+p3 = p1.then_ignore(p2)
 
 print(p3.parse(s))
 
@@ -209,7 +213,10 @@ s = 'go'.split()
 you = maybe(anywhere(word_match('you')))
 go = anywhere(word_match('go'))
 
-print(go.then_ignore(you).parse(s))
+def mean(r1: Response, r2: Response) -> Response:
+    return (r1 + r2) / 2.0
+
+print(go.then_ignore(you, mean).parse(s))
 
 # p1 = WordMatch('hello')
 # p2 = WordMatch('world')
