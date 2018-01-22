@@ -68,8 +68,8 @@ class Parser:
         """
         :param next_parser:       the parser to apply over the tokens after using this parser.
         :param combine_responses: a function used to combine the responses of both this parser and `next_parser`. If
-                                  this is None then this will be equal to the response of this parser, i.e. ignoring
-                                  `next_parser`.
+                                  `combine_responses` is None then this will be equal to the response of this parser,
+                                  i.e. ignoring `next_parser`.
         :return:                  a parser which parsers first with this parser, then with `next_parser`. The parsed
                                   object from `next_parser` is ignored, and the response of both parsers is combined
                                   using `combine_responses`.
@@ -82,6 +82,27 @@ class Parser:
             return next_parser.map(lambda ignored_parsed, r2: (parsed, combine_responses(r1, r2)))
 
         return self.then(op)
+
+    def ignore_then(self,
+                    next_parser: 'Parser',
+                    combine_responses: Callable[[Response, Response], Response] = None) -> 'Parser':
+        """
+        :param next_parser:       the parser to apply over the tokens after using this parser.
+        :param combine_responses: a function used to combine the responses of both this parser and `next_parser`. If
+                                  `combine_responses` is None then this will be equal to the response of `next_parser`,
+                                  i.e. ignoring this parser.
+        :return:                  a parser which parsers first with this parser, then with `next_parser`. The parsed
+                                  object from this parser is ignored, and the response of both parsers is combined
+                                  using `combine_responses`.
+        """
+        if not combine_responses:
+            combine_responses = lambda r1, r2: r1
+
+        def op(ignored_parsed: Any, r1: Response) -> Parser:
+            return next_parser.map(lambda parsed, r2: (parsed, combine_responses(r1, r2)))
+
+        return self.then(op)
+
 
     def map(self, transformation: Callable[[Any, Response], Tuple[Any, Response]]) -> 'Parser':
         """
@@ -249,6 +270,17 @@ def maybe(parser: Parser) -> Parser:
     return Parser(parse)
 
 
+def object_name() -> Parser:
+    """
+    :return: a parser which parses object names, i.e. table, door, desk.
+    """
+    object_names = ['table', 'door', 'desk']
+
+    def condition(input_word: Word) -> Response:
+        return float(input_word in object_names)
+
+    return predicate(condition)
+
 ###############
 
 s = 'hello world'.split()
@@ -315,3 +347,11 @@ down = strongest(downs).map_parsed(lambda _: 'DOWN')
 
 direction = strongest([up, down])
 print(direction.parse(s))
+
+###############
+
+s = 'go around the table'.split()
+behind = strongest([word_match('behind'), word_match('around')])
+p = behind.ignore_then(object_name(), mean)
+
+print(p.parse(s))
