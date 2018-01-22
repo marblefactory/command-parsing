@@ -147,6 +147,12 @@ class Parser:
 
         return self.map(t)
 
+    def ignore_parsed(self, new_parsed: Any) -> 'Parser':
+        """
+        :return: a parser which ignores the parsed object from this parser and uses `new_parsed`.
+        """
+        return self.map_parsed(lambda _: new_parsed)
+
 
 def produce(parsed: Any, response: Response) -> Parser:
     """

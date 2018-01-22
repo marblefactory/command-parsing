@@ -70,7 +70,7 @@ class Positional(Location):
     object_name: str      # e.g. door
     direction: Direction  # e.g. on the right
 
-    def __init__(self, position: int, object_name: str, direction: Direction):
+    def __init__(self,  object_name: str, position: int, direction: Direction):
         self.position = position
         self.object_name = object_name
         self.direction = direction
