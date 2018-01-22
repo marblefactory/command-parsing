@@ -40,6 +40,13 @@ class ParserTestCase(unittest.TestCase):
 
         assert parser.parse([]) == ParseResult(parsed='a', response=0.4, remaining=[])
 
+    def test_map_captures_state(self):
+        letter = 'b'
+        parser = produce('a', 0.8).map_parsed(lambda p: letter)
+        letter = 'c'
+
+        assert parser.parse([]) == ParseResult(parsed='b', response=0.8, remaining=[])
+
 
 class PredicateTestCase(unittest.TestCase):
     def test_condition_below_threshold(self):

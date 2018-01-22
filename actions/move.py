@@ -1,5 +1,5 @@
 from actions.action import Action
-from actions.locations import Location
+from actions.location import Location
 from enum import Enum
 
 

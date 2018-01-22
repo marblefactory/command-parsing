@@ -115,7 +115,6 @@ class Parser:
         """
         :return: takes the parse result 'wrapped' in the parser and applies the transformation to create a new parser.
         """
-
         def transform(parsed: Any, response: Response) -> Parser:
             def new_parse(words: List[Word]) -> Optional[ParseResult]:
                 new_parsed, new_response = transformation(parsed, response)
@@ -274,17 +273,6 @@ def maybe(parser: Parser) -> Parser:
 
     return Parser(parse)
 
-
-def object_name() -> Parser:
-    """
-    :return: a parser which parses object names, i.e. table, door, desk.
-    """
-    object_names = ['table', 'door', 'desk']
-
-    def condition(input_word: Word) -> Response:
-        return float(input_word in object_names)
-
-    return predicate(condition)
 
 # ###############
 #
