@@ -38,3 +38,38 @@ class ParserTestCase(unittest.TestCase):
         parser = produce('a', 0.8).map_response(lambda r: r / 2)
 
         assert parser.parse([]) == ParseResult(parsed='a', response=0.4, remaining=[])
+
+
+class PredicateTestCase(unittest.TestCase):
+    def test_condition_below_threshold(self):
+        """
+        Tests None is returned if the condition is below the threshold.
+        """
+        def condition(input_word: Word) -> Response:
+            return 0.1
+
+        parser = predicate(condition, threshold=0.5)
+
+        assert parser.parse([]) is None
+
+    def test_condition_on_threshold(self):
+        """
+        Tests the parse result is returned if condition is on the threshold.
+        """
+        def condition(input_word: Word) -> Response:
+            return 0.5
+
+        parser = predicate(condition, threshold=0.5)
+
+        assert parser.parse(['a', 'b']) == ParseResult(parsed='a', response=0.5, remaining=['b'])
+
+    def test_condition_above_threshold(self):
+        """
+        Tests the parse result is returned if the condition is over the threshold.
+        """
+        def condition(input_word: Word) -> Response:
+            return 0.51
+
+        parser = predicate(condition, threshold=0.5)
+
+        assert parser.parse(['a', 'b']) == ParseResult(parsed='a', response=0.51, remaining=['b'])
