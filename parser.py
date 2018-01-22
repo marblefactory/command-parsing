@@ -1,7 +1,8 @@
 from typing import List, Optional, Callable, Any, Tuple
 from collections import namedtuple
 import nltk
-
+from nltk.corpus import wordnet as wn
+from nltk.corpus.reader.wordnet import Synset
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
 ParseResult = namedtuple('ParseResult', 'parsed response remaining')
@@ -12,6 +13,26 @@ Word = str
 # A value from 0-1 indicating how strongly a parser 'matches' on some text. E.g. a parser for the semantic similarity
 # to the word 'hello' would give a higher response for 'hi' than 'car'.
 Response = float
+
+
+def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
+    """
+    :param similarity_measure: a word net function which give the semantic distance between two synsets.
+    :return: the semantic similarity between the words using a `similarity` distance function defined by WordNet.
+    """
+    w1_synsets: List[Synset] = wn.synsets(w1)
+    w2_synsets: List[Synset] = wn.synsets(w2)
+
+    # Each synset contains different meanings of the word, e.g. fly is a noun and verb.
+    # We'll find the maximum semantic similarity between any pairing of words from both synsets.
+    maximum: Response = 0
+
+    for s1 in w1_synsets:
+        for s2 in w2_synsets:
+            similarity_value = similarity_measure(s1, s2) or 0
+            maximum = similarity_value if similarity_value > maximum else maximum
+
+    return maximum
 
 
 class Parser:
@@ -123,6 +144,21 @@ def word_match(word: Word) -> Parser:
     return predicate(condition)
 
 
+def word_meaning(word: Word,
+                 semantic_similarity_threshold: Response = 0.5,
+                 similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
+    """
+    :param word: the word to find similar words to.
+    :param semantic_similarity_threshold: the minimum semantic distance for an input word to be from the supplied word.
+    :param similarity_measure: used to compare the semantic similarity of two words.
+    :return: a parser which matches on words which have a similar meaning to the supplied word.
+    """
+    def condition(input_word: Word) -> Response:
+        return semantic_similarity(input_word, word, similarity_measure)
+
+    return predicate(condition, semantic_similarity_threshold)
+
+
 def word_tagged(tags: List[str]) -> Parser:
     """
     :return: a parser which matches on words with the given tags.
@@ -217,6 +253,11 @@ def mean(r1: Response, r2: Response) -> Response:
     return (r1 + r2) / 2.0
 
 print(go.then_ignore(you, mean).parse(s))
+
+s = 'good'.split()
+p1 = word_meaning('hello')
+
+print(p1.parse(s))
 
 # p1 = WordMatch('hello')
 # p2 = WordMatch('world')
