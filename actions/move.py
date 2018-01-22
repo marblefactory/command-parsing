@@ -1,101 +1,34 @@
 from actions.action import Action
-from actions.locations import *
-from parsing.parser import SpeechParsable, parse_user_speech
-from parsing.descriptor import *
-from typing import Optional
+from actions.locations import Location
+from enum import Enum
 
 
-class Speed(SpeechParsable):
-    pass
+class Speed(Enum):
+    SLOW = 0
+    NORMAL = 1
+    FAST = 2
 
-
-class SlowSpeed(Speed):
     def __str__(self):
-        return 'slow speed'
-
-    @classmethod
-    def text_descriptor(cls) -> Descriptor:
-        words = ['slow', 'slowly']
-        return OneOf(WordMatch.list_from_words(words))
-
-    @classmethod
-    def parse(cls, tokens: List[str]) -> 'SlowSpeed':
-        return cls()
+        if self == Speed.SLOW:
+            return 'slow'
+        elif self == Speed.NORMAL:
+            return 'normal'
+        else:
+            return 'fast'
 
 
-class FastSpeed(Speed):
+class Stance(Enum):
+    CROUCH = 0
+    STAND = 1
+
     def __str__(self):
-        return 'fast speed'
-
-    @classmethod
-    def text_descriptor(cls) -> Descriptor:
-        words = ['fast', 'quickly', 'quick', 'run']
-        return OneOf(WordMatch.list_from_words(words))
-
-    @classmethod
-    def parse(cls, tokens: List[str]) -> Optional['FastSpeed']:
-        return FastSpeed()
+        if self == Stance.CROUCH:
+            return 'crouched'
+        else:
+            return 'standing'
 
 
-class NormalSpeed(Speed):
-    def __str__(self):
-        return 'normal speed'
-
-    @classmethod
-    def text_descriptor(cls) -> Descriptor:
-        return NoneOf([SlowSpeed.text_descriptor(), FastSpeed.text_descriptor()])
-
-    @classmethod
-    def parse(cls, tokens: List[str]) -> 'NormalSpeed':
-        return NormalSpeed()
-
-
-class Stance(SpeechParsable):
-    pass
-
-
-class Prone(Stance):
-    def __str__(self):
-        return 'prone'
-
-    @classmethod
-    def text_descriptor(cls) -> Descriptor:
-        words = ['crawl', 'crawling', 'prone', 'proned']
-        return OneOf(WordMatch.list_from_words(words))
-
-    @classmethod
-    def parse(cls, tokens: List[str]) -> 'Prone':
-        return Prone()
-
-
-class Crouched(Stance):
-    def __str__(self):
-        return 'crouched'
-
-    @classmethod
-    def text_descriptor(cls) -> Descriptor:
-        words = ['crouch', 'crouched']
-        return OneOf(WordMatch.list_from_words(words))
-
-    @classmethod
-    def parse(cls, tokens: List[str]) -> 'Crouched':
-        return Crouched()
-
-
-class Standing(Stance):
-    def __str__(self):
-        return 'standing'
-
-    @classmethod
-    def text_descriptor(cls) -> Descriptor:
-        return NoneOf([Prone.text_descriptor(), Crouched.text_descriptor()])
-
-    @classmethod
-    def parse(cls, tokens: List[str]) -> 'Standing':
-        return Standing()
-
-
-class Move(Action, SpeechParsable):
+class Move(Action):
     """
     An action that tells the spy to move to a location.
     """
@@ -107,20 +40,3 @@ class Move(Action, SpeechParsable):
 
     def __str__(self):
         return 'go to {} at {} while {}'.format(self.location, self.speed, self.stance)
-
-    @classmethod
-    def text_descriptor(cls) -> Descriptor:
-        words = ['go', 'move', 'step', 'head', 'proceed', 'follow', 'take', 'enter', 'exit', 'run', 'walk', 'crawl']
-        word_descriptors = WordMatch.list_from_words(words)
-        return StrongestOf(word_descriptors)
-
-    @classmethod
-    def parse(cls, tokens: List[str]) -> Optional['Move']:
-        speed = parse_user_speech(tokens, [SlowSpeed, NormalSpeed, FastSpeed]) or NormalSpeed()
-        stance = parse_user_speech(tokens, [Prone, Crouched, Standing]) or Standing()
-        location = parse_user_speech(tokens, [Absolute, Positional, Directional, Stairs, Behind])
-
-        if location is None:
-            return None
-
-        return Move(speed, stance, location)

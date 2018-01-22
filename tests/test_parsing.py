@@ -1,5 +1,6 @@
 import unittest
-from parser import *
+
+from parsing.parser import *
 
 
 class ParserTestCase(unittest.TestCase):
