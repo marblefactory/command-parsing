@@ -218,7 +218,6 @@ def strongest(parsers: List[Parser]) -> Parser:
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
              then the parser to occur first in the list is returned.
     """
-
     def parse(input: List[Word]) -> Optional[ParseResult]:
         results = [parser.parse(input) for parser in parsers]
         filtered = [r for r in results if r is not None]
@@ -229,13 +228,6 @@ def strongest(parsers: List[Parser]) -> Parser:
         return max(filtered, key=lambda parse_result: parse_result.response)
 
     return Parser(parse)
-
-
-def inverse(parser: Parser) -> Parser:
-    """
-    :return: a parser with a response which is the inverse of the supplied parser, i.e. 1 - response.
-    """
-    return parser.map_response(lambda r: 1 - r)
 
 
 def anywhere(parser: Parser) -> Parser:
@@ -293,7 +285,7 @@ print(word_tagged(['NN']).parse(s))
 ###############
 
 s = '102'.split()
-print(inverse(number()).parse(s))
+print(number().parse(s))
 
 ###############
 
@@ -319,10 +311,10 @@ print(go.then_ignore(you, mean).parse(s))
 
 ###############
 
-s = 'walk'.split()
-p1 = word_meaning('go')
-
-print(p1.parse(s))
+# s = 'walk'.split()
+# p1 = word_meaning('go')
+#
+# print(p1.parse(s))
 
 ###############
 
@@ -361,3 +353,15 @@ s = 'go to room 201'.split()
 room = word_match('room').ignore_then(number())
 
 print(room.parse(s))
+
+###############
+
+s = 'prone'.split()
+
+prone = word_match('prone')
+crouch = word_match('crouch')
+stand = strongest([prone, crouch, produce('standing', 0.8)])
+
+stance = strongest([prone, crouch, stand])
+
+print(stance.parse(s))
