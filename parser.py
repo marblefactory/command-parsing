@@ -22,9 +22,9 @@ class Parser:
         self.parse = parse
 
 
-    def then(self, f: Callable[[Any, Response], 'Parser']) -> 'Parser':
+    def then(self, operation: Callable[[Any, Response], 'Parser']) -> 'Parser':
         """
-        :param f: used to construct a new parser from the parse result of this parser.
+        :param operation: used to construct a new parser from the parse result of this parser.
         :return: applies this parser, then uses the result of parsing and the response to return another parser over
                  the remaining tokens.
         """
@@ -36,10 +36,27 @@ class Parser:
 
             result, response, remaining = parsed
 
-            new_parser = f(result, response)
+            new_parser = operation(result, response)
             return new_parser.parse(remaining)
 
         return Parser(new_parse)
+
+    def then_ignore(self, next_parser: 'Parser') -> 'Parser':
+        """
+        :return: a parser which requires `next_parser` to give a response after this parser, but 'throws away' the
+                 result of `next_parser` and uses the result of this parser.
+        """
+        def op(parsed: Any, response: Response) -> Parser:
+            return next_parser.map(lambda ignored_parsed, ignored_response: (parsed, response))
+
+        return self.then(op)
+
+    def ignore_then(self, next_parser: 'Parser') -> 'Parser':
+        """
+        :return: a parser which requires this parser to give a response before `next_parser` but 'throws away' the
+                 result of this parser and uses the result of `next_parser`.
+        """
+        return self.then(lambda parsed, response: next_parser)
 
     def map(self, transformation: Callable[[Any, Response], Tuple[Any, Response]]) -> 'Parser':
         """
@@ -53,6 +70,17 @@ class Parser:
             return Parser(new_parse)
 
         return self.then(transform)
+
+    def map_response(self, transformation: Callable[[Response], Response]) -> 'Parser':
+        """
+        :return: maps the response of this parser (supplied to transformation) to the value returned by the
+                 transformation.
+        """
+        def t(parsed: Any, response: Response) -> Tuple[Any, Response]:
+            new_response = transformation(response)
+            return (parsed, new_response)
+
+        return self.map(t)
 
 
 def produce(parsed: Any, response: Response) -> Parser:
@@ -125,6 +153,41 @@ def strongest(parsers: List[Parser]) -> Parser:
 
     return Parser(parse)
 
+def inverse(parser: Parser) -> Parser:
+    """
+    :return: a parser with a response which is the inverse of the supplied parser, i.e. 1 - response.
+    """
+    return parser.map_response(lambda r: 1 - r)
+
+
+def anywhere(parser: Parser) -> Parser:
+    """
+    :return: a parser which consumes none of the input, therefore any chained parsers can match anywhere in the text.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        result = parser.parse(input)
+        if result is None:
+            return None
+
+        return ParseResult(result.parsed, result.response, input)
+
+    return Parser(parse)
+
+
+def maybe(parser: Parser) -> Parser:
+    """
+    :return: a parser which will produce an empty parse result if the parser returns no result.
+             The empty parse result contains no parsed object, a response of 0, and the remaining full input to parser.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        result = parser.parse(input)
+        if result is None:
+            return ParseResult(parsed=None, response=0.0, remaining=input)
+
+        return result
+
+    return Parser(parse)
+
 
 s = 'hello world'.split()
 print(word_match('hello').parse(s))
@@ -133,7 +196,20 @@ s = 'car'.split()
 print(word_tagged(['NN']).parse(s))
 
 s = '102'.split()
-print(number().parse(s))
+print(inverse(number()).parse(s))
+
+s = 'hello world'.split()
+p1 = anywhere(word_match('world'))
+p2 = anywhere(word_match('hello'))
+p3 = p1.ignore_then(p2)
+
+print(p3.parse(s))
+
+s = 'go'.split()
+you = maybe(anywhere(word_match('you')))
+go = anywhere(word_match('go'))
+
+print(go.then_ignore(you).parse(s))
 
 # p1 = WordMatch('hello')
 # p2 = WordMatch('world')
