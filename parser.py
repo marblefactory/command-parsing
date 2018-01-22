@@ -254,8 +254,8 @@ def mean(r1: Response, r2: Response) -> Response:
 
 print(go.then_ignore(you, mean).parse(s))
 
-s = 'good'.split()
-p1 = word_meaning('hello')
+s = 'run'.split()
+p1 = word_meaning('go')
 
 print(p1.parse(s))
 
