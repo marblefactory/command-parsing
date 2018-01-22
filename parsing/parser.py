@@ -250,6 +250,16 @@ def strongest(parsers: List[Parser]) -> Parser:
     return Parser(parse)
 
 
+def strongest_word(words: List[Word], make_parser: Callable[[Word], Parser] = word_match) -> Parser:
+    """
+    :param words: the list of words to compare to the input.
+    :param make_parser: the function used to create a parser from a word.
+    :return: created parser which matches most strongly on the input.
+    """
+    parsers = [make_parser(word) for word in words]
+    return strongest(parsers)
+
+
 def anywhere(parser: Parser) -> Parser:
     """
     :return: a parser which consumes none of the input, therefore any chained parsers can match anywhere in the text.

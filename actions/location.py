@@ -105,20 +105,3 @@ class Stairs(Location):
 
     def __str__(self):
         return '{} the stairs'.format(self.direction)
-
-
-class Behind(Location):
-    """
-    A location behind an object, e.g. hide behind the desk.
-    """
-
-    object_name: str
-
-    def __init__(self, object_name: str):
-        """
-        :param object_name: the name of the object to move behind.
-        """
-        self.object_name = object_name
-
-    def __str__(self):
-        return 'behind {}'.format(self.object_name)

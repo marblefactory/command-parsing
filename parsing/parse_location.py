@@ -29,10 +29,14 @@ def direction() -> Parser:
     """
     :return: a parser for directions, e.g. left, right, forwards, backwards, which are converted to Direction enums.
     """
+    forwards_matcher = strongest_word(['forward', 'front'], make_parser=word_meaning)
+    backwards_matcher = strongest_word(['backward', 'behind'], make_parser=word_meaning)
+
+    forwards = forwards_matcher.ignore_parsed(Direction.FORWARDS)
+    backwards = backwards_matcher.ignore_parsed(Direction.BACKWARDS)
+
     left = word_match('left').ignore_parsed(Direction.LEFT)
     right = word_match('right').ignore_parsed(Direction.RIGHT)
-    forwards = word_meaning('forward').ignore_parsed(Direction.FORWARDS)
-    backwards = word_meaning('backward').ignore_parsed(Direction.BACKWARDS)
 
     return strongest([left, right, forwards, backwards])
 
@@ -71,8 +75,33 @@ def positional() -> Parser:
               .map_parsed(lambda p: Positional(p[0], p[1], p[2]))
 
 
-s = 'desk on your left'.split()
-result = positional().parse(s)
+def directional() -> Parser:
+    """
+    :return: a parser for directions, e.g. go left, right, forwards, backwards.
+    """
+    return direction().map_parsed(lambda dir: Directional(dir))
+
+
+def stairs() -> Parser:
+    """
+    :return: a parser for stair directions, e.g. upstairs, downstairs.
+    """
+    up = strongest_word(['up', 'upstairs']).ignore_parsed(FloorDirection.UP)
+    down = strongest_word(['down', 'downstairs']).ignore_parsed(FloorDirection.DOWN)
+
+    return strongest([up, down])
+
+
+# s = 'go to the third desk behind you'.split()
+# result = positional().parse(s)
+# if result:
+#     print(result.parsed)
+#     print(result.response)
+# else:
+#     print("None")
+
+s = 'go down the stairs'.split()
+result = stairs().parse(s)
 if result:
     print(result.parsed)
     print(result.response)
