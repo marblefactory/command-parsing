@@ -55,143 +55,93 @@ class Parser:
         return self.then(transform)
 
 
-class Predicate(Parser):
+def produce(parsed: Any, response: Response) -> Parser:
     """
-    Parses on words when a predicate is above or equal to a threshold.
+    :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and
+             consumes no input.
     """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        return ParseResult(parsed, response, input)
 
-    def __init__(self, predicate: Callable[[Word], float], threshold: Response):
-        """
-        :param predicate: the function that must give an output above the threshold for a parse to occur.
-        :param threshold: the minimum response of the predicate.
-        """
-        def parse(input: List[Word]) -> Optional[ParseResult]:
-            """
-            Searches through the input until the predicate is true.
-            :return: the parsed word and remaining tokens if the predicate is true. Or, None if the predicate is false.
-            """
-            for i, word in enumerate(input):
-                response = predicate(word)
-                if response >= threshold:
-                    return ParseResult(word, response, input[i + 1:])
+    return Parser(parse)
 
+
+def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) -> Parser:
+    """
+    :return: a parser which matches on the first word to give a value of condition higher than the threshold.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        for i, word in enumerate(input):
+            response = condition(word)
+            if response >= threshold:
+                return ParseResult(word, response, input[i + 1:])
+
+        return None
+
+    return Parser(parse)
+
+
+def word_match(word: Word) -> Parser:
+    """
+    :return: a parser which matches on the first occurrence of the supplied word.
+    """
+    def condition(input_word: Word) -> Response:
+        return float(input_word == word)
+
+    return predicate(condition)
+
+
+def word_tagged(tags: List[str]) -> Parser:
+    """
+    :return: a parser which matches on words with the given tags.
+    """
+    def condition(input_word: Word) -> Response:
+        word, tag = nltk.pos_tag([input_word])[0]
+        return float(tag in tags)
+
+    return predicate(condition)
+
+
+def number() -> Parser:
+    """
+    :return: a parser which matches on cardinal numbers, e.g. 102. The parse result is a string of the number.
+    """
+    return word_tagged(['CD'])
+
+
+def strongest(parsers: List[Parser]) -> Parser:
+    """
+    :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
+             then the parser to occur first in the list is returned.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        results = [parser.parse(input) for parser in parsers]
+        filtered = [r for r in results if r is not None]
+
+        if filtered == []:
             return None
 
-        super(Predicate, self).__init__(parse)
+        return max(filtered, key=lambda parse_result: parse_result.response)
+
+    return Parser(parse)
 
 
-class WordMatch(Predicate):
-    """
-    Parses on words when a given word in the text matches.
-    """
+s = 'hello world'.split()
+print(word_match('hello').parse(s))
 
-    def __init__(self, word: Word):
-        """
-        :param word: the word to match in the input.
-        """
-        def predicate(input_word: Word) -> float:
-            return float(input_word == word)
+s = 'car'.split()
+print(word_tagged(['NN']).parse(s))
 
-        super(WordMatch, self).__init__(predicate, 1.0)
+s = '102'.split()
+print(number().parse(s))
 
-
-class WordTagged(Predicate):
-    """
-    Parses on words when a word has a NLTK tag from the given list.
-    """
-
-    def __init__(self, tags: List[str]):
-        """
-        :param tags: the tags to look for in the input.
-        """
-        def predicate(input_word: Word) -> float:
-            tag = nltk.pos_tag([input_word])[0]
-            return float(tag in tags)
-
-        super(WordTagged, self).__init__(predicate, 1.0)
-
-
-class Number(WordTagged):
-    """
-    Parses on cardinal numbers, e.g. 102.
-    """
-
-    def __init__(self):
-        """
-        :param input: the words to parse over.
-        """
-        super(Number, self).__init__(['CD'])
-
-
-class StrongestOf(Parser):
-    """
-    Chooses the parser with the strongest response over the text to be used as the parser. If multiple parsers give
-    the same maximum response, the parser that occurs first in the list is used.
-    """
-
-    def __init__(self, parsers: List[Parser]):
-        """
-        :param parsers: the parsers to choose the strongest from.
-        """
-        def parse(input: List[Word]) -> Optional[ParseResult]:
-            # Run all parsers over the text and choose the strongest.
-            results = [parser.parse(input) for parser in parsers]
-            filtered = [r for r in results if r is not None]
-
-            if filtered == []:
-                return None
-
-            maximum = max(filtered, key=lambda parse_result: parse_result.response)
-            return maximum
-
-        super(StrongestOf, self).__init__(parse)
-
-
-class Thresholded(Parser):
-    """
-    Uses the supplied parser if all other parsers give a response below the given threshold.
-    """
-
-    def __init__(self, parsers: List[Parser], default: Parser, threshold: Response):
-        """
-        :param parsers: the parsers to test for a response from.
-        :param default: the default parser used if the other parsers responses are below the threshold.
-        :param threshold: the maximum response all of the parsers must give, for the default parser to be used.
-        """
-        def parse(input: List[Word]) -> Optional[ParseResult]:
-            parse_result = StrongestOf(parsers).parse(input)
-
-            if parse_result is not None and parse_result.response > threshold:
-                return None
-
-            return default.parse(input)
-
-        super(Thresholded, self).__init__(parse)
-
-
-class Produce(Parser):
-    """
-    A parser that matches on all input and returns the supplied parsed object and response from parsing.
-    """
-
-    def __init__(self, parsed: Any, response: Response):
-        """
-        :param parsed: the object to return from parsing.
-        :param response: the response to return from parsing.
-        """
-        def parse(input: List[Word]) -> Optional[ParseResult]:
-            return ParseResult(parsed, response, input)
-
-        super(Produce, self).__init__(parse)
-
-
-p1 = WordMatch('hello')
-p2 = WordMatch('world')
-p3 = Produce('OUTPUT', 1.0)
-
-thresholded = Thresholded([p1, p2], p3, 0.5)
-
-print(thresholded.parse(['f']))
+# p1 = WordMatch('hello')
+# p2 = WordMatch('world')
+# p3 = Produce('OUTPUT', 1.0)
+#
+# thresholded = Thresholded([p1, p2], p3, 0.5)
+#
+# print(thresholded.parse(['f']))
 
 # strongest = StrongestOf([p1, p2])
 #
@@ -205,3 +155,13 @@ print(thresholded.parse(['f']))
 # s = 'hello world'.split()
 #
 # print(p1.then(f).parse(s))
+
+# def f(parsed: str, response: Response) -> Parser:
+#     return Number() #.map(lambda num_str, r: (int(num_str), r))
+#
+# room_parser = WordMatch('room').then(f)
+#
+# s = '102'.split()
+#
+# print(room_parser.parse(s))
+# print(Number().parse(s))
