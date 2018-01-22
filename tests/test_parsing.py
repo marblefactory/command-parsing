@@ -73,3 +73,47 @@ class PredicateTestCase(unittest.TestCase):
         parser = predicate(condition, threshold=0.5)
 
         assert parser.parse(['a', 'b']) == ParseResult(parsed='a', response=0.51, remaining=['b'])
+
+
+class WordMatchTestCase(unittest.TestCase):
+    def test_no_match(self):
+        """
+        Tests None is returned if the word is nowhere in the input text.
+        """
+        assert word_match('a').parse(['b', 'c']) is None
+
+    def test_match(self):
+        """
+        Tests the word is parsed if it is in the input text.
+        """
+        assert word_match('a').parse(['b', 'a', 'c']) == ParseResult(parsed='a', response=1.0, remaining=['c'])
+
+
+class WordMeaningTestCase(unittest.TestCase):
+    def test_no_match(self):
+        """
+        Tests None is returned if no similar words are found.
+        """
+        assert word_meaning('go').parse(['boat', 'hello']) is None
+
+    def test_match(self):
+        """
+        Tests the similar word is parsed.
+        """
+        assert word_meaning('go').parse(['boat', 'walk', 'hello']) == ParseResult(parsed='walk', response=0.5, remaining=['hello'])
+
+
+class WordTaggedTestCase(unittest.TestCase):
+    def test_no_match(self):
+        """
+        Tests None is returned if no words with the tags are found.
+        """
+        parser = word_tagged(['CD', 'NN'])
+        assert parser.parse(['go', 'listening']) is None
+
+    def test_match(self):
+        """
+        Tests the word is returned if it matches any of the tags.
+        """
+        parser = word_tagged(['NN'])
+        assert parser.parse(['go', 'tree', 'listening']) == ParseResult(parsed='tree', response=1.0, remaining=['listening'])
