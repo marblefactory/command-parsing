@@ -42,13 +42,13 @@ class Parser:
         """
         self.parse = parse
 
-
     def then(self, operation: Callable[[Any, Response], 'Parser']) -> 'Parser':
         """
         :param operation: used to construct a new parser from the parse result of this parser.
         :return: applies this parser, then uses the result of parsing and the response to return another parser over
                  the remaining tokens.
         """
+
         def new_parse(input: List[Word]) -> Optional[ParseResult]:
             parsed = self.parse(input)
 
@@ -87,6 +87,7 @@ class Parser:
         """
         :return: takes the parse result 'wrapped' in the parser and applies the transformation to create a new parser.
         """
+
         def transform(parsed: Any, response: Response) -> Parser:
             def new_parse(words: List[Word]) -> Optional[ParseResult]:
                 new_parsed, new_response = transformation(parsed, response)
@@ -100,6 +101,7 @@ class Parser:
         """
         :return: maps the response of this parser to the value returned by the transformation.
         """
+
         def t(parsed: Any, response: Response) -> Tuple[Any, Response]:
             new_response = transformation(response)
             return (parsed, new_response)
@@ -110,6 +112,7 @@ class Parser:
         """
         :return: maps the parsed object of this parser to the value returned by the transformation.
         """
+
         def t(parsed: Any, response: Response) -> Tuple[Any, Response]:
             new_parsed = transformation(parsed)
             return (new_parsed, response)
@@ -132,6 +135,7 @@ def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) 
     """
     :return: a parser which matches on the first word to give a value of condition higher than the threshold.
     """
+
     def parse(input: List[Word]) -> Optional[ParseResult]:
         for i, word in enumerate(input):
             response = condition(word)
@@ -147,6 +151,7 @@ def word_match(word: Word) -> Parser:
     """
     :return: a parser which matches on the first occurrence of the supplied word.
     """
+
     def condition(input_word: Word) -> Response:
         return float(input_word == word)
 
@@ -162,6 +167,7 @@ def word_meaning(word: Word,
     :param similarity_measure: used to compare the semantic similarity of two words.
     :return: a parser which matches on words which have a similar meaning to the supplied word.
     """
+
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, similarity_measure)
 
@@ -172,6 +178,7 @@ def word_tagged(tags: List[str]) -> Parser:
     """
     :return: a parser which matches on words with the given tags.
     """
+
     def condition(input_word: Word) -> Response:
         word, tag = nltk.pos_tag([input_word])[0]
         return float(tag in tags)
@@ -191,6 +198,7 @@ def strongest(parsers: List[Parser]) -> Parser:
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
              then the parser to occur first in the list is returned.
     """
+
     def parse(input: List[Word]) -> Optional[ParseResult]:
         results = [parser.parse(input) for parser in parsers]
         filtered = [r for r in results if r is not None]
@@ -201,6 +209,7 @@ def strongest(parsers: List[Parser]) -> Parser:
         return max(filtered, key=lambda parse_result: parse_result.response)
 
     return Parser(parse)
+
 
 def inverse(parser: Parser) -> Parser:
     """
@@ -213,6 +222,7 @@ def anywhere(parser: Parser) -> Parser:
     """
     :return: a parser which consumes none of the input, therefore any chained parsers can match anywhere in the text.
     """
+
     def parse(input: List[Word]) -> Optional[ParseResult]:
         result = parser.parse(input)
         if not result:
@@ -228,6 +238,7 @@ def maybe(parser: Parser) -> Parser:
     :return: a parser which will produce an empty parse result if the parser returns no result.
              The empty parse result contains no parsed object, a response of 0, and the remaining full input to parser.
     """
+
     def parse(input: List[Word]) -> Optional[ParseResult]:
         result = parser.parse(input)
         if not result:
@@ -236,6 +247,7 @@ def maybe(parser: Parser) -> Parser:
         return result
 
     return Parser(parse)
+
 
 ###############
 
@@ -267,8 +279,10 @@ s = 'go'.split()
 you = maybe(anywhere(word_match('you')))
 go = anywhere(word_match('go'))
 
+
 def mean(r1: Response, r2: Response) -> Response:
     return (r1 + r2) / 2.0
+
 
 print(go.then_ignore(you, mean).parse(s))
 
@@ -288,3 +302,16 @@ right = word_match('right').map_parsed(lambda _: 'RIGHT')
 p = strongest([left, right])
 
 print(p.parse(s))
+
+###############
+
+s = 'down'.split()
+
+ups = [anywhere(word_match('up')), anywhere(word_match('upstairs'))]
+up = strongest(ups).map_parsed(lambda _: 'UP')
+
+downs = [anywhere(word_match('down')), anywhere(word_match('downstairs'))]
+down = strongest(downs).map_parsed(lambda _: 'DOWN')
+
+direction = strongest([up, down])
+print(direction.parse(s))
