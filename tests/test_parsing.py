@@ -117,3 +117,52 @@ class WordTaggedTestCase(unittest.TestCase):
         """
         parser = word_tagged(['NN'])
         assert parser.parse(['go', 'tree', 'listening']) == ParseResult(parsed='tree', response=1.0, remaining=['listening'])
+
+
+class StrongestTestCase(unittest.TestCase):
+    def test_chooses_strongest_from_unique(self):
+        p1 = produce('a', 0.1)
+        p2 = produce('b', 0.8)
+        p3 = produce('c', 0.4)
+
+        parser = strongest([p1, p2, p3])
+
+        assert parser.parse([]) == ParseResult(parsed='b', response=0.8, remaining=[])
+
+    def test_chooses_first_strongest(self):
+        p1 = produce('a', 0.8)
+        p2 = produce('b', 0.8)
+        p3 = produce('c', 0.4)
+
+        parser = strongest([p1, p2, p3])
+
+        assert parser.parse([]) == ParseResult(parsed='a', response=0.8, remaining=[])
+
+
+class AnywhereTestCase(unittest.TestCase):
+    def test_input_is_unchanged(self):
+        """
+        Tests even if the input will be consumed by a parser, that by wrapping said parser in an `anywhere` parser
+        none of the input text is consumed.
+        """
+        s = ['b', 'a', 'c']
+        parser = anywhere(word_match('a'))
+
+        assert parser.parse(s) == ParseResult(parsed='a', response=1.0, remaining=s)
+
+
+class MaybeTestCase(unittest.TestCase):
+    def test_replaces_none_result(self):
+        """
+        Tests that if a parser returns None, that the result is replaced with an empty result with zero response.
+        """
+        parser = maybe(failure())
+        assert parser.parse(['a', 'b']) == ParseResult(parsed=None, response=0.0, remaining=['a', 'b'])
+
+
+    def test_no_replace_result(self):
+        """
+        Tests the result of a parser is not replaced if it result is not None.
+        """
+        parser = maybe(produce('a', 0.5))
+        assert parser.parse(['b', 'c']) == ParseResult(parsed='a', response=0.5, remaining=['b', 'c'])

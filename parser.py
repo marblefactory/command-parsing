@@ -43,7 +43,7 @@ def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset
 
 
 class Parser:
-    def __init__(self, parse: Callable[[List[Word]], ParseResult]):
+    def __init__(self, parse: Callable[[List[Word]], Optional[ParseResult]]):
         """
         :param parse: the function that takes a list of words and produces a parse result.
         """
@@ -157,6 +157,13 @@ def produce(parsed: Any, response: Response) -> Parser:
         return ParseResult(parsed, response, input)
 
     return Parser(parse)
+
+
+def failure() -> Parser:
+    """
+    :return: a parser which fails (i.e. gives a None result) to all input.
+    """
+    return Parser(lambda input: None)
 
 
 def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) -> Parser:
