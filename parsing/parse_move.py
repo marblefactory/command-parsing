@@ -47,15 +47,3 @@ def move() -> Parser:
                     .then(combine_speed) \
                     .then(combine_stance) \
                     .map_parsed(lambda p: Move(p[1], p[2], p[0]))
-
-
-s = 'run to the next door on your right'.split()
-
-result = move().parse(s)
-
-if result:
-    print(result.parsed)
-    print(result.response)
-else:
-    print("None")
-
