@@ -27,6 +27,14 @@ def stance() -> Parser:
     return strongest([crouched, standing])
 
 
+def change_stance() -> Parser:
+    """
+    :return: a parser for change stance, i.e. crouch, stand.
+    """
+    # Half the response to give bias towards move actions since both use stances.
+    return stance().map_response(lambda r: r / 2)
+
+
 def move() -> Parser:
     """
     :return: a parser to recognise movement actions.
