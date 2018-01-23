@@ -32,3 +32,9 @@ def pick_up() -> Parser:
                        .then(combine_direction) \
                        .map_parsed(lambda p: PickUp(p[0], p[1]))
 
+
+def throw() -> Parser:
+    """
+    :return: a parser which parses instructions to throw the object the spy is holding.
+    """
+    return word_meaning('throw')

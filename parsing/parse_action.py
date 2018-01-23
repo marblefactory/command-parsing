@@ -1,6 +1,7 @@
 from actions.action import Stop, Composite
 from parsing.parser import *
 from parsing.parse_move import move, change_stance
+from parsing.parse_interaction import through_door, pick_up, throw
 
 
 def stop() -> Parser:
@@ -14,7 +15,15 @@ def single_action() -> Parser:
     """
     :return: a parser which parses single actions, i.e. not composite actions.
     """
-    return strongest([move(), change_stance(), stop()])
+    parsers = [
+        stop(),
+        move(),
+        change_stance(),
+        through_door(),
+        pick_up(),
+        throw()
+    ]
+    return strongest(parsers)
 
 
 def composite() -> Parser:
@@ -25,7 +34,8 @@ def composite() -> Parser:
 
 
 if __name__ == '__main__':
-    s = 'stand up and run to the next door in front of you'.split()
+    #s = 'stand up and run to the next door in front of you'.split()
+    s = 'pick up the rock'.split()
 
     result = single_action().parse(s)
 
