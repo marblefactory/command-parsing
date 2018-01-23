@@ -1,5 +1,4 @@
 from abc import ABC
-from enum import Enum
 
 
 class MoveDirection:
@@ -22,18 +21,13 @@ class ObjectRelativeDirection(MoveDirection):
     VICINITY = 'vicinity'
 
 
-class FloorDirection(Enum):
+class FloorDirection:
     """
     The different ways the user can travel using the stairs.
     """
 
-    UP = 0
-    DOWN = 1
-
-    def __str__(self):
-        if self == FloorDirection.UP:
-            return 'up'
-        return 'down'
+    UP = 'up'
+    DOWN = 'down'
 
 
 class Location(ABC):

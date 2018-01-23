@@ -2,7 +2,7 @@ from actions.location import *
 from parsing.parser import *
 
 
-def object_name() -> Parser:
+def move_object_name() -> Parser:
     """
     :return: a parser which parses names of objects which can be moved to, i.e. table, door, desk.
     """
@@ -71,10 +71,10 @@ def positional() -> Parser:
         return ord.map(lambda parsed_num, r2: (acc + [parsed_num], mean(r1, r2)))
 
     def combine_direction(acc: List, r1: Response) -> Parser:
-        dir = object_relative_direction()
+        dir = anywhere(object_relative_direction())
         return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], mean(r1, r2)))
 
-    obj = anywhere(object_name()).map_parsed(lambda parsed_name: [parsed_name])
+    obj = anywhere(move_object_name()).map_parsed(lambda parsed_name: [parsed_name])
 
     return obj.then(combine_ordinal_num) \
               .then(combine_direction) \
