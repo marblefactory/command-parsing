@@ -22,8 +22,7 @@ def stance() -> Parser:
     :return: a parser for different stances, i.e. crouched, standing.
     """
     crouched = word_meaning('crouch').ignore_parsed(Stance.CROUCH)
-    # Deduce that if the stance is not crouched then it must be standing.
-    standing = strongest([crouched, produce(Stance.STAND, 1.0)])
+    standing = word_meaning('stand').ignore_parsed(Stance.STAND)
 
     return strongest([crouched, standing])
 
@@ -37,8 +36,10 @@ def move() -> Parser:
         return anywhere(speed()).map(lambda parsed_speed, _: (acc + [parsed_speed], r))
 
     def combine_stance(acc: List, r: Response) -> Parser:
+        # If no stance is found, default to None, meaning there is no change in the stance.
+        stance_parser = maybe(anywhere(stance()))
         # Passes through the response, ignoring the response of the stance parser.
-        return anywhere(stance()).map(lambda parsed_stance, _: (acc + [parsed_stance], r))
+        return stance_parser.map(lambda parsed_stance, _: (acc + [parsed_stance], r))
 
     move_verb = anywhere(word_meaning('go'))
     loc_parser = anywhere(location()).map_parsed(lambda loc: [loc])
@@ -46,4 +47,4 @@ def move() -> Parser:
     return move_verb.ignore_then(loc_parser, mean) \
                     .then(combine_speed) \
                     .then(combine_stance) \
-                    .map_parsed(lambda p: Move(p[1], p[2], p[0]))
+                    .map_parsed(lambda p: Move(p[1], p[0], p[2]))

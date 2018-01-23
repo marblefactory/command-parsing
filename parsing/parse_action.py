@@ -25,7 +25,7 @@ def composite() -> Parser:
 
 
 if __name__ == '__main__':
-    s = 'run to the next door in front of you'.split()
+    s = 'stand up and run to the next door in front of you'.split()
 
     result = single_action().parse(s)
 

@@ -49,9 +49,6 @@ def object_relative_direction() -> Parser:
     return strongest([move_direction(), produce(ObjectRelativeDirection.VICINITY, 1.0)])
 
 
-print(object_relative_direction().parse(['left']))
-
-
 def absolute() -> Parser:
     """
     :return: a parser for absolute locations, e.g. '[go to] room 201'.

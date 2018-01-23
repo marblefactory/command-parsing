@@ -1,5 +1,5 @@
 from actions.action import Action
-from actions.location import ObjectRelativeDirection
+from actions.location import ObjectRelativeDirection, Location
 
 
 class ThroughDoor(Action):
@@ -26,4 +26,9 @@ class Throw(Action):
     """
     Tells the spy to throw whatever object they've picked up.
     """
-    pass
+
+    target: Location
+
+    def __init__(self, target: Location):
+        self.target = target
+
