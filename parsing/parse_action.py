@@ -34,8 +34,9 @@ def composite() -> Parser:
 
 
 if __name__ == '__main__':
-    #s = 'stand up and run to the next door in front of you'.split()
-    s = 'pick up the rock'.split()
+    #s = 'stand up and run to the door on your right'.split()
+    s = 'throw the rock to the desk behind you'.split()
+    #s = 'run upstairs'.split()
 
     result = single_action().parse(s)
 

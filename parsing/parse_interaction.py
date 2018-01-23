@@ -1,6 +1,7 @@
 from actions.interaction import *
 from parsing.parser import *
-from parsing.parse_location import object_relative_direction
+from parsing.parse_location import object_relative_direction, positional, directional
+from actions.location import Directional, MoveDirection
 
 
 def interaction_object_name() -> Parser:
@@ -37,4 +38,14 @@ def throw() -> Parser:
     """
     :return: a parser which parses instructions to throw the object the spy is holding.
     """
-    return word_meaning('throw')
+    # Defaults to throwing forwards.
+    target_location_parsers = [
+        positional(),
+        directional(),
+        produce(Directional(MoveDirection.FORWARDS), 1)
+    ]
+    target = strongest(target_location_parsers)
+    throw_verb = word_meaning('throw')
+
+    return throw_verb.ignore_then(target) \
+                     .map_parsed(lambda loc: Throw(loc))

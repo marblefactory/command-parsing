@@ -68,11 +68,11 @@ def positional() -> Parser:
         default = produce(parsed=0, response=0)
         ord = strongest([anywhere(ordinal_number()), default])
 
-        return ord.map(lambda parsed_num, r2: (acc + [parsed_num], mean(r1, r2)))
+        return ord.map(lambda parsed_num, r2: (acc + [parsed_num], r1))
 
     def combine_direction(acc: List, r1: Response) -> Parser:
         dir = anywhere(object_relative_direction())
-        return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], mean(r1, r2)))
+        return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], r1))
 
     obj = anywhere(move_object_name()).map_parsed(lambda parsed_name: [parsed_name])
 
@@ -85,8 +85,7 @@ def directional() -> Parser:
     """
     :return: a parser for directions, e.g. go left, right, forwards, backwards.
     """
-    # Half the response to give bias towards positional locations since both use directions.
-    return move_direction().map(lambda dir, r: (Directional(dir), r/2))
+    return move_direction().map_parsed(lambda dir: Directional(dir))
 
 
 def stairs() -> Parser:
@@ -103,4 +102,6 @@ def location() -> Parser:
     """
     :return: a parser which parses locations.
     """
-    return strongest([absolute(), positional(), directional(), stairs()])
+    # Half the response to give bias towards positional locations since both use directions.
+    dir = directional().map(lambda dir, r: (Directional(dir), r/2))
+    return strongest([absolute(), positional(), dir, stairs()])
