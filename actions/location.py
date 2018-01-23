@@ -2,25 +2,24 @@ from abc import ABC
 from enum import Enum
 
 
-class Direction(Enum):
+class MoveDirection:
     """
     The different the directions that the user can travel in on a single floor.
     """
 
-    LEFT = 0
-    RIGHT = 1
-    BACKWARDS = 2
-    FORWARDS = 3
+    LEFT = 'left'
+    RIGHT = 'right'
+    BACKWARDS = 'backwards'
+    FORWARDS = 'forwards'
 
-    def __str__(self):
-        if self == Direction.FORWARDS:
-            return 'forwards'
-        elif self == Direction.BACKWARDS:
-            return 'backwards'
-        elif self == Direction.LEFT:
-            return 'left'
-        elif self == Direction.RIGHT:
-            return 'right'
+
+class ObjectRelativeDirection(MoveDirection):
+    """
+    The different directions that an object can be in compared to the position of the spy.
+    """
+
+    # For finding an object within a vicinity of the spy.
+    VICINITY = 'vicinity'
 
 
 class FloorDirection(Enum):
@@ -66,11 +65,11 @@ class Positional(Location):
     The location of an object, out of many, relative to the player. E.g. the third door on the left.
     """
 
-    position: int         # e.g. third
-    object_name: str      # e.g. door
-    direction: Direction  # e.g. on the right
+    position: int                       # e.g. third
+    object_name: str                    # e.g. door
+    direction: ObjectRelativeDirection  # e.g. on the right
 
-    def __init__(self,  object_name: str, position: int, direction: Direction):
+    def __init__(self,  object_name: str, position: int, direction: ObjectRelativeDirection):
         self.position = position
         self.object_name = object_name
         self.direction = direction
@@ -84,9 +83,9 @@ class Directional(Location):
     Directional locations relative to the player, e.g. forwards 10 meters.
     """
 
-    direction: Direction
+    direction: MoveDirection
 
-    def __init__(self, direction: Direction):
+    def __init__(self, direction: MoveDirection):
         self.direction = direction
 
     def __str__(self):
@@ -105,3 +104,17 @@ class Stairs(Location):
 
     def __str__(self):
         return '{} the stairs'.format(self.direction)
+
+
+class Behind(Location):
+    """
+    A location behind an object.
+    """
+
+    object_name: str
+
+    def __init__(self, object_name: str):
+        self.object_name = object_name
+
+    def __str__(self):
+        return 'behind {}'.format(self.object_name)

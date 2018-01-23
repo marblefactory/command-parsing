@@ -28,9 +28,18 @@ class Stance(Enum):
             return 'standing'
 
 
+class ChangeStance(Action):
+    """
+    Tells the spy to change their stance.
+    """
+
+    def __init__(self, stance: Stance):
+        self.stance = stance
+
+
 class Move(Action):
     """
-    An action that tells the spy to move to a location.
+    Tells the spy to move to a location.
     """
 
     def __init__(self, speed: Speed, stance: Stance, location: Location):
@@ -39,4 +48,4 @@ class Move(Action):
         self.location = location
 
     def __str__(self):
-        return 'go to {} at {} speed while {}'.format(self.location, self.speed, self.stance)
+        return 'go "{}" at "{}" speed while "{}"'.format(self.location, self.speed, self.stance)

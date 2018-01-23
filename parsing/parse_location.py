@@ -17,7 +17,7 @@ def object_name() -> Parser:
 def ordinal_number() -> Parser:
     """
     :return: a parser for ordinal numbers, e.g. next, first, second, third, which are converted to their numerical
-             respresentation.
+             representation.
     """
     words = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
     numeric_zipped = list(zip(words, range(len(words)))) + [('next', 0)]
@@ -26,20 +26,30 @@ def ordinal_number() -> Parser:
     return strongest(word_matchers)
 
 
-def direction() -> Parser:
+def move_direction() -> Parser:
     """
-    :return: a parser for directions, e.g. left, right, forwards, backwards, which are converted to Direction enums.
+    :return: a parser for movement directions, e.g. left, right, forwards, backwards, which are converted to Direction enums.
     """
     forwards_matcher = strongest_word(['forward', 'front'], make_parser=word_meaning)
     backwards_matcher = strongest_word(['backward', 'behind'], make_parser=word_meaning)
 
-    forwards = forwards_matcher.ignore_parsed(Direction.FORWARDS)
-    backwards = backwards_matcher.ignore_parsed(Direction.BACKWARDS)
+    forwards = forwards_matcher.ignore_parsed(MoveDirection.FORWARDS)
+    backwards = backwards_matcher.ignore_parsed(MoveDirection.BACKWARDS)
 
-    left = word_match('left').ignore_parsed(Direction.LEFT)
-    right = word_match('right').ignore_parsed(Direction.RIGHT)
+    left = word_match('left').ignore_parsed(MoveDirection.LEFT)
+    right = word_match('right').ignore_parsed(MoveDirection.RIGHT)
 
     return strongest([left, right, forwards, backwards])
+
+
+def object_relative_direction() -> Parser:
+    """
+    :return: a parser for object relative directions. This defaults to objects in the vicinity if no left, right, etc is found.
+    """
+    return strongest([move_direction(), produce(ObjectRelativeDirection.VICINITY, 1.0)])
+
+
+print(object_relative_direction().parse(['left']))
 
 
 def absolute() -> Parser:
@@ -64,10 +74,7 @@ def positional() -> Parser:
         return ord.map(lambda parsed_num, r2: (acc + [parsed_num], mean(r1, r2)))
 
     def combine_direction(acc: List, r1: Response) -> Parser:
-        # Parses a direction, or defaults to forwards if no direction is found.
-        default = produce(parsed=Direction.FORWARDS, response=0)
-        dir = strongest([anywhere(direction()), default])
-
+        dir = object_relative_direction()
         return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], mean(r1, r2)))
 
     obj = anywhere(object_name()).map_parsed(lambda parsed_name: [parsed_name])
@@ -82,7 +89,7 @@ def directional() -> Parser:
     :return: a parser for directions, e.g. go left, right, forwards, backwards.
     """
     # Half the response to give bias towards positional locations since both use directions.
-    return direction().map(lambda dir, r: (Directional(dir), r/2))
+    return move_direction().map(lambda dir, r: (Directional(dir), r/2))
 
 
 def stairs() -> Parser:
