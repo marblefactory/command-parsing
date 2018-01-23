@@ -39,4 +39,4 @@ class Move(Action):
         self.location = location
 
     def __str__(self):
-        return 'go to {} at {} while {}'.format(self.location, self.speed, self.stance)
+        return 'go to {} at {} speed while {}'.format(self.location, self.speed, self.stance)

@@ -6,7 +6,7 @@ def object_name() -> Parser:
     """
     :return: a parser which parses names of objects which can be moved to, i.e. table, door, desk.
     """
-    object_names = ['table', 'door', 'desk']
+    object_names = ['table', 'door', 'desk', 'server']
 
     def condition(input_word: Word) -> Response:
         return float(input_word in object_names)
@@ -16,10 +16,11 @@ def object_name() -> Parser:
 
 def ordinal_number() -> Parser:
     """
-    :return: a parser for ordinal numbers, e.g. first, second, third, which are converted to their numerical respresentation.
+    :return: a parser for ordinal numbers, e.g. next, first, second, third, which are converted to their numerical
+             respresentation.
     """
     words = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
-    numeric_zipped = zip(words, range(len(words)))
+    numeric_zipped = list(zip(words, range(len(words)))) + [('next', 0)]
 
     word_matchers = [word_match(word).ignore_parsed(num) for word, num in numeric_zipped]
     return strongest(word_matchers)
@@ -63,7 +64,7 @@ def positional() -> Parser:
         return ord.map(lambda parsed_num, r2: (acc + [parsed_num], mean(r1, r2)))
 
     def combine_direction(acc: List, r1: Response) -> Parser:
-        # Parses a direction, or default to forwards if no direction is found.
+        # Parses a direction, or defaults to forwards if no direction is found.
         default = produce(parsed=Direction.FORWARDS, response=0)
         dir = strongest([anywhere(direction()), default])
 
@@ -71,7 +72,8 @@ def positional() -> Parser:
 
     obj = anywhere(object_name()).map_parsed(lambda parsed_name: [parsed_name])
 
-    return obj.then(combine_ordinal_num).then(combine_direction) \
+    return obj.then(combine_ordinal_num) \
+              .then(combine_direction) \
               .map_parsed(lambda p: Positional(p[0], p[1], p[2]))
 
 
@@ -79,7 +81,8 @@ def directional() -> Parser:
     """
     :return: a parser for directions, e.g. go left, right, forwards, backwards.
     """
-    return direction().map_parsed(lambda dir: Directional(dir))
+    # Half the response to give bias towards positional locations since both use directions.
+    return direction().map(lambda dir, r: (Directional(dir), r/2))
 
 
 def stairs() -> Parser:
@@ -92,18 +95,8 @@ def stairs() -> Parser:
     return strongest([up, down])
 
 
-# s = 'go to the third desk behind you'.split()
-# result = positional().parse(s)
-# if result:
-#     print(result.parsed)
-#     print(result.response)
-# else:
-#     print("None")
-
-s = 'go down the stairs'.split()
-result = stairs().parse(s)
-if result:
-    print(result.parsed)
-    print(result.response)
-else:
-    print("None")
+def location() -> Parser:
+    """
+    :return: a parser which parses locations.
+    """
+    return strongest([absolute(), positional(), directional(), stairs()])
