@@ -52,12 +52,20 @@ def composite() -> Parser:
     return Parser(parse)
 
 
+def action() -> Parser:
+    """
+    :return: a parser for single or composite actions.
+    """
+    return strongest([composite(), single_action()])
+
+
 if __name__ == '__main__':
     #s = 'stand up and run to the door on your right'.split()
-    s = 'throw the rock to the desk behind you'.split()
+    #s = 'throw the rock to the desk behind you'.split()
     #s = 'run upstairs'.split()
+    s = 'go to the next door then pick up the rock'.split()
 
-    result = single_action().parse(s)
+    result = action().parse(s)
 
     if result:
         print(result.parsed)

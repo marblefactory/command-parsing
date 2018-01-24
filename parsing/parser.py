@@ -298,4 +298,3 @@ def inverse(parser: Parser) -> Parser:
     :return: a parser with a response which is the inverse of the supplied parser, i.e. 1 - response.
     """
     return parser.map_response(lambda r: 1 - r)
-
