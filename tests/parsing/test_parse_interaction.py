@@ -41,3 +41,8 @@ class ThrowTestCase(unittest.TestCase):
 
         expected_loc = Directional(MoveDirection.FORWARDS)
         assert throw().parse(s).parsed == Throw(expected_loc)
+
+    def test_fails(self):
+        s = 'nan'.split()
+
+        assert throw().parse(s) is None
