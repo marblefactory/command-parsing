@@ -27,7 +27,7 @@ class PickUpEncoder(json.JSONEncoder):
         return {
             'type': 'pickup',
             'name': obj.object_name,
-            'direction': json.loads(json.dumps(obj.direction, cls=ObjectRelativeDirectionEncoder))
+            'direction': obj.direction
         }
 
 

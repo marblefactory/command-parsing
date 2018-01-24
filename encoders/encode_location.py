@@ -2,33 +2,6 @@ import json
 from actions.location import *
 
 
-class MoveDirectionEncoder(json.JSONEncoder):
-    """
-    Encodes a MoveDirection.
-
-    Fields:
-        'direction'    : The direction
-    """
-    def default(self, obj):
-        return obj
-
-
-class ObjectRelativeDirectionEncoder(json.JSONEncoder):
-    """
-    Encodes a ObjectRelativeDirection.
-    """
-    def default(self, obj):
-        return obj
-
-
-class FloorDirectionEncoder(json.JSONEncoder):
-    """
-    Encodes a FloorDirection.
-    """
-    def default(self, obj):
-        return obj
-
-
 class AbsoluteEncoder(json.JSONEncoder):
     """
     Encodes a Absolute location.
@@ -55,7 +28,7 @@ class PositionalEncoder(json.JSONEncoder):
             'type': 'positional',
             'index': obj.position,
             'name':  obj.object_name,
-            'direction': json.loads(json.dumps(obj.direction, cls=MoveDirectionEncoder))
+            'direction': obj.direction
         }
 
 
@@ -70,7 +43,7 @@ class DirectionalEncoder(json.JSONEncoder):
     def default(self, obj):
         return {
             'type': 'directional',
-            'direction': json.loads(json.dumps(obj.direction, cls=MoveDirectionEncoder))
+            'direction': obj.direction
         }
 
 
@@ -85,7 +58,7 @@ class StairsEncoder(json.JSONEncoder):
     def default(self, obj):
         return {
             'type': 'stairs',
-            'direction': json.loads(json.dumps(obj.direction, cls=FloorDirectionEncoder))
+            'direction': obj.direction
         }
 
 

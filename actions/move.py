@@ -18,6 +18,7 @@ class ChangeStance(Action):
     """
     Tells the spy to change their stance.
     """
+
     stance: Stance
 
     def __init__(self, stance: Stance):
