@@ -3,6 +3,8 @@ from collections import namedtuple
 import nltk
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
+from utils import split_list
+
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
 ParseResult = namedtuple('ParseResult', 'parsed response remaining')
@@ -297,40 +299,3 @@ def inverse(parser: Parser) -> Parser:
     """
     return parser.map_response(lambda r: 1 - r)
 
-
-def many(parser: Parser) -> Parser:
-    """
-    :return: a parser which uses `parser` zero or more times on the input.
-    """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
-        result = parser.parse(input)
-        if not result:
-            return ParseResult([], 1.0, input)
-
-        parsed, _, remaining = result
-
-        return many(parser).map_parsed(lambda p: [parsed] + p).parse(remaining)
-
-    return Parser(parse)
-
-
-def some(parser: Parser) -> Parser:
-    """
-    :return: a parser which uses `parser` one or more times on the input.
-    """
-    def op(parsed: List[Any], response: Response) -> Parser:
-        return many(parser).map_parsed(lambda lst: [parsed] + lst)
-
-    return parser.then(op)
-
-
-def sep_by(parser: Parser, separator: Parser) -> Parser:
-    """
-    :return: a parser which parses one or more occurrences of `parser` separated by `separator`.
-    """
-    sep = separator.ignore_then(parser)
-
-    def op(parsed: Any, response: Response) -> Parser:
-        return many(sep).map_parsed(lambda lst: [parsed] + lst)
-
-    return parser.then(op)

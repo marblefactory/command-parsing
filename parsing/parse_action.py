@@ -23,14 +23,33 @@ def single_action() -> Parser:
         pick_up(),
         throw()
     ]
+
     return strongest(parsers)
 
 
 def composite() -> Parser:
     """
-    :return: a parser which parses composite actions, e.g. actions connected with the word 'then' or 'and'.
+    :return: a parser which parses composite actions, e.g. actions connected with the word 'then' or 'and'. The
+             response is the mean of all parsed actions.
     """
-    pass
+    separators = ['then', 'and']
+
+    def parse(full_input: List[Word]) -> Optional[ParseResult]:
+        inputs = split_list(full_input, separators)
+
+        if len(inputs) == 1:
+            # There were no occurrences of the separators.
+            return None
+
+        results = [single_action().parse(words) for words in inputs]
+        filtered = [result for result in results if result is not None]
+
+        actions = [r.parsed for r in filtered]
+        mean_response = sum([r.response for r in filtered]) / len(filtered)
+
+        return ParseResult(Composite(actions), mean_response, [])
+
+    return Parser(parse)
 
 
 if __name__ == '__main__':
