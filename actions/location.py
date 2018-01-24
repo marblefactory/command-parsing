@@ -1,4 +1,4 @@
-from abc import ABC
+from equatable import EquatableMixin
 
 
 class MoveDirection:
@@ -30,7 +30,7 @@ class FloorDirection:
     DOWN = 'down'
 
 
-class Location(ABC):
+class Location(EquatableMixin):
     """
     Base class for locations.
     """
@@ -59,9 +59,9 @@ class Positional(Location):
     The location of an object, out of many, relative to the player. E.g. the third door on the left.
     """
 
-    position: int                       # e.g. third
-    object_name: str                    # e.g. door
-    direction: ObjectRelativeDirection  # e.g. on the right
+    position: int             # e.g. third
+    object_name: str          # e.g. door
+    direction: MoveDirection  # e.g. on the right
 
     def __init__(self,  object_name: str, position: int, direction: ObjectRelativeDirection):
         self.position = position

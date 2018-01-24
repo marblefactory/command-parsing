@@ -69,7 +69,9 @@ def positional() -> Parser:
         return ord.map(lambda parsed_num, r2: (acc + [parsed_num], r1))
 
     def combine_direction(acc: List, r1: Response) -> Parser:
-        dir = anywhere(object_relative_direction())
+        default = produce(parsed=MoveDirection.FORWARDS, response=0)
+        dir = strongest([anywhere(move_direction()), default])
+
         return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], r1))
 
     obj = anywhere(move_object_name()).map_parsed(lambda parsed_name: [parsed_name])

@@ -1,7 +1,7 @@
 from typing import List
 
 
-class Action():
+class Action:
     """
     An action that the player can command the spy to make.
     """
