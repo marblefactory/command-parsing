@@ -37,8 +37,8 @@ class ChangeStanceTestCase(unittest.TestCase):
 
 class MoveTestCase(unittest.TestCase):
     def test_parses_go(self):
-        s = 'go left crouching'.split()
-        assert move().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
+        s = 'go left standing'.split()
+        assert move().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.STAND)
 
     def test_parses_walk(self):
         s = 'walk left crouching'.split()
@@ -47,3 +47,15 @@ class MoveTestCase(unittest.TestCase):
     def test_stance_defaults_to_none(self):
         s = 'go left'.split()
         assert move().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None)
+
+    def test_fast(self):
+        s = 'run to the next door'.split()
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        assert move().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
+
+    def test_slow(self):
+        s = 'slowly go to the next door'.split()
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        assert move().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)
