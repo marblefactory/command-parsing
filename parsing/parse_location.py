@@ -95,7 +95,7 @@ def stairs() -> Parser:
     up = strongest_word(['up', 'upstairs']).ignore_parsed(FloorDirection.UP)
     down = strongest_word(['down', 'downstairs']).ignore_parsed(FloorDirection.DOWN)
 
-    return strongest([up, down])
+    return strongest([up, down]).map_parsed(lambda dir: Stairs(dir))
 
 
 def location() -> Parser:
@@ -103,5 +103,5 @@ def location() -> Parser:
     :return: a parser which parses locations.
     """
     # Half the response to give bias towards positional locations since both use directions.
-    dir = directional().map(lambda dir, r: (Directional(dir), r/2))
+    dir = directional().map_response(lambda r: r/2)
     return strongest([absolute(), positional(), dir, stairs()])

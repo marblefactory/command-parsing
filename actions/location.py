@@ -1,7 +1,7 @@
 from equatable import EquatableMixin
 
 
-class MoveDirection:
+class MoveDirection(EquatableMixin):
     """
     The different the directions that the user can travel in on a single floor.
     """
@@ -83,7 +83,7 @@ class Directional(Location):
         self.direction = direction
 
     def __str__(self):
-        return str(self.direction)
+        return "location(" + str(self.direction) + ')'
 
 
 class Stairs(Location):

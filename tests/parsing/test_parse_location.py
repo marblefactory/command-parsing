@@ -111,3 +111,57 @@ class PositionalTestCase(unittest.TestCase):
         r2 = positional().parse(s2).response
 
         assert r1 == r2
+
+
+class DirectionalTestCase(unittest.TestCase):
+    def test_parses_left(self):
+        s = 'go left'.split()
+        assert directional().parse(s).parsed == Directional(MoveDirection.LEFT)
+
+    def test_parses_right(self):
+        s = 'go right'.split()
+        assert directional().parse(s).parsed == Directional(MoveDirection.RIGHT)
+
+    def test_parses_forwards(self):
+        s = 'go forwards'.split()
+        assert directional().parse(s).parsed == Directional(MoveDirection.FORWARDS)
+
+    def test_parses_backwards(self):
+        s = 'go backwards'.split()
+        assert directional().parse(s).parsed == Directional(MoveDirection.BACKWARDS)
+
+
+class StairsTestCase(unittest.TestCase):
+    def test_parses_up(self):
+        s = 'go up the stairs'.split()
+        assert stairs().parse(s).parsed == Stairs(FloorDirection.UP)
+
+    def test_parses_upstairs(self):
+        s = 'go upstairs'.split()
+        assert stairs().parse(s).parsed == Stairs(FloorDirection.UP)
+
+    def test_parses_down(self):
+        s = 'go down the stairs'.split()
+        assert stairs().parse(s).parsed == Stairs(FloorDirection.DOWN)
+
+    def test_parses_downstairs(self):
+        s = 'go downstairs'.split()
+        assert stairs().parse(s).parsed == Stairs(FloorDirection.DOWN)
+
+
+class LocationTestCase(unittest.TestCase):
+    def test_parses_absolute(self):
+        s = 'go to 304'.split()
+        assert location().parse(s).parsed == Absolute('room 304')
+
+    def test_parses_positional(self):
+        s = 'go to the server on the left'.split()
+        assert location().parse(s).parsed == Positional('server', 0, MoveDirection.LEFT)
+
+    def test_parses_directional(self):
+        s = 'go right'.split()
+        assert location().parse(s).parsed == Directional(MoveDirection.RIGHT)
+
+    def test_parses_stairs(self):
+        s = 'go up the stairs'.split()
+        assert location().parse(s).parsed == Stairs(FloorDirection.UP)
