@@ -10,10 +10,10 @@ s = 'go forwards'.split()
 parsed, response, remaining = action().parse(s)
 
 print('Sending :', json.dumps(parsed, cls=ActionEncoder))
-server = 'http://192.168.43.24:8080/action'
+server = 'http://192.168.0.16:8080/action'
 
 server_response = requests.post(server, json=json.loads(json.dumps(parsed, cls=ActionEncoder)))
-print(server_response.json())
+print(server_response)
 
 
 # # this is called from the background thread

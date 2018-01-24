@@ -1,48 +1,64 @@
 import unittest
-from actions.location import Absolute, Directional, MoveDirection
-from actions.move import *
-import json
-from encoders.encode_move import MoveEncoder
+from encoders.encode_location import *
 
 
-class ConversionToCPPJSONTestCase(unittest.TestCase):
-    """
-    Tests converting location in a move to JSON the c++ game can handle.
-    """
-    def test_no_object_name(self):
-        loc = Directional(MoveDirection.LEFT)
-        move = Move(Speed.NORMAL, loc, Stance.STAND)
+class AbsoluteEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        absolute = Absolute('room 302')
 
         expected = {
-            'type': 'move',
-            'speed': 'normal',
-            'stance': 'stand',
-            'dest': {
-                'name': 'no_object',
-                'location': {
-                    'type': 'directional',
-                    'direction': 'left'
-                }
-            }
+            'type': 'absolute',
+            'name': 'room 302'
         }
 
-        assert expected == json.loads(json.dumps(move, cls=MoveEncoder))
+        assert expected == json.loads(json.dumps(absolute, cls=LocationEncoder))
 
 
-    def test_object_name(self):
-        loc = Absolute(place_name='room 201')
-        move = Move(Speed.NORMAL, loc, Stance.STAND)
+class PositionalEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        positional = Positional('door', 1, MoveDirection.BACKWARDS)
 
         expected = {
-            'type': 'move',
-            'speed': 'normal',
-            'stance': 'stand',
-            'dest': {
-                'name': 'room 201',
-                'location': {
-                    'type': 'absolute'
-                }
-            }
+            'type': 'positional',
+            'index': 1,
+            'name': 'door',
+            'direction': 'backwards'
         }
 
-        assert expected == json.loads(json.dumps(move, cls=MoveEncoder))
+        assert expected == json.loads(json.dumps(positional, cls=LocationEncoder))
+
+
+class DirectionalEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        directional = Directional(MoveDirection.RIGHT)
+
+        expected = {
+            'type': 'directional',
+            'direction': 'right'
+        }
+
+        assert expected == json.loads(json.dumps(directional, cls=LocationEncoder))
+
+
+class StairsEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        stairs = Stairs(FloorDirection.UP)
+
+        expected = {
+            'type': 'stairs',
+            'direction': 'up'
+        }
+
+        assert expected == json.loads(json.dumps(stairs, cls=LocationEncoder))
+
+
+class BehindEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        behind = Behind('desk')
+
+        expected = {
+            'type': 'behind',
+            'name': 'desk'
+        }
+
+        assert expected == json.loads(json.dumps(behind, cls=LocationEncoder))

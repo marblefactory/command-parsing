@@ -1,21 +1,32 @@
 import unittest
-import json
-from actions.interaction import *
-from actions.move import *
-from actions.location import *
-from actions.action import *
-
 from encoders.encode_action import *
-from encoders.encode_move import *
-from encoders.encode_interaction import *
 from encoders.encode_location import *
 
 
 class StopEncoderTestCase(unittest.TestCase):
+    def test_encodes(self):
+        expected = {
+            'type': 'stop'
+        }
 
-    def test_stop(self):
-        a = Stop()
+        assert expected == json.loads(json.dumps(Stop(), cls=ActionEncoder))
 
-        a_json = {'type': 'stop'}
 
-        assert json.dumps(a_json) == str(json.dumps(a, cls=StopEncoder))
+class CompositeEncoderTestCase(unittest.TestCase):
+    def test_encodes(self):
+        actions = [Stop(), Stop()]
+        composite = Composite(actions)
+
+        expected = {
+            'type': 'composite',
+            'actions': [
+                {
+                    'type': 'stop'
+                },
+                {
+                    'type': 'stop'
+                }
+            ]
+        }
+
+        assert expected == json.loads(json.dumps(composite, cls=ActionEncoder))
