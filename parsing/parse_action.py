@@ -18,7 +18,7 @@ def single_action() -> Parser:
     parsers = [
         stop(),
         move(),
-        change_stance().map_response(lambda r: r / 2),
+        change_stance().map_response(lambda r: r / 2), # Half because move also looks for stances.
         through_door(),
         pick_up(),
         throw()
@@ -28,7 +28,7 @@ def single_action() -> Parser:
 
 def composite() -> Parser:
     """
-    :return: a parser which parses composite actions, e.g. actions connected with the word 'then'.
+    :return: a parser which parses composite actions, e.g. actions connected with the word 'then' or 'and'.
     """
     pass
 

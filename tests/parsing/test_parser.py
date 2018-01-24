@@ -173,3 +173,32 @@ class MaybeTestCase(unittest.TestCase):
         """
         parser = maybe(produce('a', 0.5))
         assert parser.parse(['b', 'c']) == ParseResult(parsed='a', response=0.5, remaining=['b', 'c'])
+
+
+class ManyTestCase(unittest.TestCase):
+    def test_non_parsed(self):
+        """
+        Tests the base case of the many parser.
+        """
+        p = word_match('a')
+        s = 'b c d'.split()
+
+        assert many(p).parse(s).parsed == []
+
+    def test_single_parsed(self):
+        p = word_match('a')
+        s = 'a b c'.split()
+
+        assert many(p).parse(s).parsed == ['a']
+
+    def test_multiple_parsed(self):
+        p = word_match('a')
+        s = 'a b a c a d'.split()
+
+        assert many(p).parse(s).parsed == ['a', 'a', 'a']
+
+    def test_order(self):
+        p = word_meaning('hello')
+        s = 'hi x hello y'.split()
+
+        assert many(p).parse(s).parsed == ['hi', 'hello']

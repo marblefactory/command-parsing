@@ -296,3 +296,19 @@ def inverse(parser: Parser) -> Parser:
     :return: a parser with a response which is the inverse of the supplied parser, i.e. 1 - response.
     """
     return parser.map_response(lambda r: 1 - r)
+
+
+def many(parser: Parser) -> Parser:
+    """
+    :return: a parser which parsers using `parser` zero or more times on the input.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        result = parser.parse(input)
+        if not result:
+            return ParseResult([], 1.0, input)
+
+        parsed, _, remaining = result
+
+        return many(parser).map_parsed(lambda p: [parsed] + p).parse(remaining)
+
+    return Parser(parse)
