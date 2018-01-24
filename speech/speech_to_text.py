@@ -77,7 +77,7 @@ if __name__ == '__main__':
             if result:
                 print("Sending :", json.dumps(result.parsed, cls=ActionEncoder))
                 server = "http://192.168.0.1:8080"
-                #requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
+                requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
 
         except sr.UnknownValueError:
             print("Oops! Didn't catch that")
