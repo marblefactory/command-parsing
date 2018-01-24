@@ -18,3 +18,6 @@ class SplitListTestCase(unittest.TestCase):
 
     def test_split_last(self):
         assert split_list([1, 2, 3], 3) == [[1, 2]]
+
+    def test_split_next_to(self):
+        assert split_list([1, 4, 2, 2, 3], 2) == [[1, 4], [3]]
