@@ -41,8 +41,6 @@ def composite() -> Parser:
             # There were no occurrences of the separators.
             return None
 
-        print(inputs)
-
         results = [single_action().parse(words) for words in inputs]
         filtered = [result for result in results if result is not None]
 
