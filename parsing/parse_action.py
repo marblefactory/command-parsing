@@ -45,9 +45,8 @@ def composite() -> Parser:
         filtered = [result for result in results if result is not None]
 
         actions = [r.parsed for r in filtered]
-        mean_response = sum([r.response for r in filtered]) / len(filtered)
 
-        return ParseResult(Composite(actions), mean_response, [])
+        return ParseResult(Composite(actions), 1, [])
 
     return Parser(parse)
 
@@ -64,7 +63,8 @@ if __name__ == '__main__':
     #s = 'stand up and run to the door on your right'.split()
     #s = 'go to the third room on your right then pick up the hammer'.split()
     #s = 'run upstairs'.split()
-    s = 'go to the fourth room behind you and pick up the rock'.split()
+    #s = 'go to the fourth room behind you and pick up the rock'.split()
+    s = 'go to the toilet and pick up the rock'.split()
 
     result = action().parse(s)
 

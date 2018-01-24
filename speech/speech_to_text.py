@@ -79,6 +79,7 @@ if __name__ == '__main__':
                 server = "http://192.168.0.1:8080"
                 requests.get(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
 
+
         except sr.UnknownValueError:
             print("Oops! Didn't catch that")
         except sr.RequestError as e:
