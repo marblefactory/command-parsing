@@ -62,8 +62,9 @@ def action() -> Parser:
 
 if __name__ == '__main__':
     #s = 'stand up and run to the door on your right'.split()
-    s = 'throw the rock to the desk behind you'.split()
+    #s = 'go to the third room on your right then pick up the hammer'.split()
     #s = 'run upstairs'.split()
+    s = 'go to the fourth room behind you and pick up the rock'.split()
 
     result = action().parse(s)
 

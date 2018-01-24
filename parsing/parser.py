@@ -201,8 +201,8 @@ def word_match(word: Word) -> Parser:
 
 
 def word_meaning(word: Word,
-                 semantic_similarity_threshold: Response = 0.5,
-                 similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
+                 semantic_similarity_threshold: Response = 0.7,
+                 similarity_measure: Callable[[Synset, Synset], Response] = Synset.wup_similarity) -> Parser:
     """
     :param word: the word to find similar words to.
     :param semantic_similarity_threshold: the minimum semantic distance for an input word to be from the supplied word.

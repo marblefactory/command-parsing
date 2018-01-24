@@ -54,7 +54,7 @@ class PositionalEncoder(json.JSONEncoder):
         return {
             'type': 'positional',
             'index': obj.position,
-            'name':  obj.objext_name,
+            'name':  obj.object_name,
             'direction': json.loads(json.dumps(obj.direction, cls=MoveDirectionEncoder))
         }
 
