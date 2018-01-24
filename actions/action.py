@@ -1,7 +1,8 @@
 from typing import List
+from equatable import EquatableMixin
 
 
-class Action:
+class Action(EquatableMixin):
     """
     An action that the player can command the spy to make.
     """

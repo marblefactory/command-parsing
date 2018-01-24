@@ -1,5 +1,6 @@
 import unittest
 from parsing.parse_location import *
+from actions.location import *
 
 
 class OrdinalNumberTestCase(unittest.TestCase):

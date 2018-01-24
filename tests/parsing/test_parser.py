@@ -1,5 +1,4 @@
 import unittest
-
 from parsing.parser import *
 
 
