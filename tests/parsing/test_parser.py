@@ -183,25 +183,25 @@ class ManyTestCase(unittest.TestCase):
         p = word_match('a')
         s = 'b c d'.split()
 
-        assert many(p).parse(s).parsed == []
+        assert many(p).parse(s) == ParseResult([], 1, ['b', 'c', 'd'])
 
     def test_single_parsed(self):
         p = word_match('a')
         s = 'a b c'.split()
 
-        assert many(p).parse(s).parsed == ['a']
+        assert many(p).parse(s) == ParseResult(['a'], 1, ['b', 'c'])
 
     def test_multiple_parsed(self):
         p = word_match('a')
         s = 'a b a c a d'.split()
 
-        assert many(p).parse(s).parsed == ['a', 'a', 'a']
+        assert many(p).parse(s) == ParseResult(['a', 'a', 'a'], 1, ['d'])
 
     def test_order(self):
         p = word_meaning('hello')
         s = 'hi x hello y'.split()
 
-        assert many(p).parse(s).parsed == ['hi', 'hello']
+        assert many(p).parse(s) == ParseResult(['hi', 'hello'], 1, ['y'])
 
 
 class SomeTestCase(unittest.TestCase):
@@ -214,20 +214,54 @@ class SomeTestCase(unittest.TestCase):
 
         assert some(p).parse(s) is None
 
-    def test_single(self):
+    def test_single_parsed(self):
         p = word_match('a')
-        s = 'a b c'
+        s = 'a b c'.split()
 
-        assert some(p).parse(s).parsed == ['a']
+        assert some(p).parse(s) == ParseResult(['a'], 1, ['b', 'c'])
 
     def test_multiple_parsed(self):
         p = word_match('a')
         s = 'a b a c a d'.split()
 
-        assert some(p).parse(s).parsed == ['a', 'a', 'a']
+        assert some(p).parse(s) == ParseResult(['a', 'a', 'a'], 1, ['d'])
 
     def test_order(self):
         p = word_meaning('hello')
         s = 'hi x hello y'.split()
 
-        assert some(p).parse(s).parsed == ['hi', 'hello']
+        assert some(p).parse(s) == ParseResult(['hi', 'hello'], 1, ['y'])
+
+
+class SepByTestCase(unittest.TestCase):
+    def test_failure(self):
+        p = word_match('a')
+        sep = word_match(',')
+
+        s = 'b c'.split()
+
+        assert sep_by(p, sep).parse(s) is None
+
+    def test_single(self):
+        p = word_match('a')
+        sep = word_match('X')
+
+        s = 'a b c'.split()
+
+        assert sep_by(p, sep).parse(s) == ParseResult(['a'], 1, ['b', 'c'])
+
+    def test_multiple(self):
+        p = word_match('a')
+        sep = word_match('X')
+
+        s = 'a X a b c'.split()
+
+        assert sep_by(p, sep).parse(s) == ParseResult(['a', 'a'], 1, ['b', 'c'])
+
+    def test_separator_at_end(self):
+        p = word_match('a')
+        sep = word_match('X')
+
+        s = 'a X a X b c'.split()
+
+        assert sep_by(p, sep).parse(s) == ParseResult(['a', 'a'], 1, ['X', 'b', 'c'])
