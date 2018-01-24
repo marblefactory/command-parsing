@@ -2,6 +2,8 @@ import speech_recognition as sr
 import json
 from parsing.parse_action import action
 from parsing.parse_action import ParseResult
+from encoders.encode_action import ActionEncoder
+
 
 # this is called from the background thread
 def callback(recognizer, audio):
@@ -69,6 +71,9 @@ if __name__ == '__main__':
 
             print('TEXT:', text)
             print_parsed(result)
+
+            if result:
+                print(json.dumps(result.parsed, cls=ActionEncoder))
 
         except sr.UnknownValueError:
             print("Oops! Didn't catch that")

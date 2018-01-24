@@ -3,30 +3,6 @@ import json
 from encoders.encode_location import *
 
 
-class StanceEncoder(json.JSONEncoder):
-    """
-    Encodes a Stance.
-
-    Fields:
-        'stance'  : The stance
-    """
-
-    def default(self, obj):
-        return obj
-
-
-class SpeedEncoder(json.JSONEncoder):
-    """
-    Encodes a Speed.
-
-    Fields:
-        'speed'  : The speed
-    """
-
-    def default(self, obj):
-        return obj
-
-
 class ChangeStanceEncoder(json.JSONEncoder):
     """
     Encodes a ChangeStance action.
@@ -39,7 +15,7 @@ class ChangeStanceEncoder(json.JSONEncoder):
     def default(self, obj):
         return {
             'type': 'change_stance',
-            'stance': json.loads(json.dumps(obj.stance, cls=StanceEncoder))
+            'stance': obj.stance
         }
 
 
@@ -58,6 +34,6 @@ class MoveEncoder(json.JSONEncoder):
         return {
             'type': 'move',
             'dest': json.loads(json.dumps(obj.location, cls=LocationEncoder)),
-            'stance': json.loads(json.dumps(obj.stance, cls=StanceEncoder)),
-            'speed': json.loads(json.dumps(obj.speed, cls=SpeedEncoder))
+            'stance': obj.stance or 'no_change',
+            'speed': obj.speed
         }
