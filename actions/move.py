@@ -23,6 +23,9 @@ class ChangeStance(Action):
     def __init__(self, stance: Stance):
         self.stance = stance
 
+    def __str__(self):
+        return self.stance
+
 
 class Move(Action):
     """

@@ -1,23 +1,69 @@
 import unittest
 from parsing.parse_action import *
-from actions.action import *
+from actions.interaction import *
+from actions.move import *
+from actions.location import *
 
 
 class CompositeTestCase(unittest.TestCase):
     def test_parses_then(self):
-        pass
+        s = 'go left then go right'.split()
+
+        expected_actions = [
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
+            Move(Speed.NORMAL, Directional(MoveDirection.RIGHT), None),
+        ]
+
+        assert composite().parse(s).parsed == Composite(expected_actions)
 
     def test_parses_and(self):
-        pass
+        s = 'go left and pick up the rock'.split()
+
+        expected_actions = [
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
+            PickUp('rock', ObjectRelativeDirection.VICINITY)
+        ]
+
+        assert composite().parse(s).parsed == Composite(expected_actions)
 
     def test_parses_and_then(self):
-        pass
+        s = 'go left and then pick up the rock'.split()
+
+        expected_actions = [
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
+            PickUp('rock', ObjectRelativeDirection.VICINITY)
+        ]
+
+        assert composite().parse(s).parsed == Composite(expected_actions)
 
     def test_removes_non_parses(self):
         """
         Tests that single action parses that fail are not included in the final composite action.
         """
-        pass
+        s = 'go left and NAN then pick up the rock'.split()
+
+        expected_actions = [
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
+            PickUp('rock', ObjectRelativeDirection.VICINITY)
+        ]
+
+        assert composite().parse(s).parsed == Composite(expected_actions)
 
     def test_failure(self):
-        pass
+        """
+        Tests the composite parser fails if it couldn't find 'then' or 'and'.
+        """
+        s = 'nothing to see here'.split()
+        assert composite().parse(s) is None
+
+    def test_reduced_response(self):
+        """
+        Tests the response is the mean of all action responses.
+        """
+        s1 = 'go to 201 then go right'.split()
+        s2 = 'go to room 201 then go right'.split()
+
+        r1 = composite().parse(s1).response
+        r2 = composite().parse(s2).response
+
+        assert r1 < r2

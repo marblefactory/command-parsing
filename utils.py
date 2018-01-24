@@ -1,7 +1,7 @@
 from typing import List
 
 
-def split_list(lst: List, element) -> List[List]:
+def split_list(lst: List, separators: List) -> List[List]:
     """
     :return: splits list on element and returns a list of the sub-lists created.
     """
@@ -9,7 +9,7 @@ def split_list(lst: List, element) -> List[List]:
     curr_acc = []
 
     for elem in lst:
-        if elem == element:
+        if elem in separators:
             if curr_acc != []:
                 sub_lists.append(curr_acc)
                 curr_acc = []

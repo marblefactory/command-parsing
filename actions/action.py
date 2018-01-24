@@ -28,4 +28,4 @@ class Composite(Action):
 
     def __str__(self):
         descriptions = [str(action) for action in self.actions]
-        return ' then '.join(descriptions)
+        return ', then '.join(descriptions)
