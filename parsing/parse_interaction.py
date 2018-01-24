@@ -13,10 +13,11 @@ def interaction_object_name() -> Parser:
 
 def through_door() -> Parser:
     """
-    :return: a parser which parses instructions to go through a door.
+    :return: a parser which parses instructions to go through a door, e.g. 'go through'.
     """
     open = strongest_word(['open', 'through'])
-    return anywhere(word_match('door')).ignore_then(open).ignore_parsed(ThroughDoor())
+    parser = open.ignore_then(maybe(word_match('door')), mean)
+    return parser.ignore_parsed(ThroughDoor())
 
 
 def pick_up() -> Parser:
