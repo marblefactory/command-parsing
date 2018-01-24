@@ -46,7 +46,7 @@ def throw() -> Parser:
         produce(Directional(MoveDirection.FORWARDS), 1)
     ]
     target = strongest(target_location_parsers)
-    throw_verb = word_meaning('throw')
+    throw_verb = strongest_word(['chuck', 'throw'])
 
     return throw_verb.ignore_then(target) \
                      .map_parsed(lambda loc: Throw(loc))

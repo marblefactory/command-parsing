@@ -56,7 +56,8 @@ def action() -> Parser:
     """
     :return: a parser for single or composite actions.
     """
-    return strongest([composite(), single_action()])
+    act = strongest([composite(), single_action()])
+    return threshold(act, 0.5)
 
 
 if __name__ == '__main__':

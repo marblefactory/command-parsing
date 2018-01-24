@@ -173,3 +173,17 @@ class MaybeTestCase(unittest.TestCase):
         """
         parser = maybe(produce('a', 0.5))
         assert parser.parse(['b', 'c']) == ParseResult(parsed='a', response=0.5, remaining=['b', 'c'])
+
+
+class ThresholdTestCase(unittest.TestCase):
+    def test_below_threshold(self):
+        parser = threshold(produce('a', 0.1), response_threshold=0.5)
+        assert parser.parse([]) is None
+
+    def test_on_threshold(self):
+        parser = threshold(produce('a', 0.5), response_threshold=0.5)
+        assert parser.parse([]) is None
+
+    def test_above_threshold(self):
+        parser = threshold(produce('a', 0.6), response_threshold=0.5)
+        assert parser.parse(['a', 'b']) == ParseResult('a', 0.6, ['a', 'b'])
