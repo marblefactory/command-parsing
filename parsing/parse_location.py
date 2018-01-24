@@ -20,7 +20,7 @@ def ordinal_number() -> Parser:
              representation.
     """
     words = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
-    word_matchers = [word_match(word).ignore_parsed(num) for num, word in enumerate(words)]
+    word_matchers = [word_match(word).ignore_parsed(num) for num, word in enumerate(words)] + [word_match('next').ignore_parsed(0)]
     return strongest(word_matchers)
 
 
