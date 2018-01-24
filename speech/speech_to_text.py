@@ -4,6 +4,8 @@ from parsing.parse_action import action
 from parsing.parse_action import ParseResult
 from encoders.encode_action import ActionEncoder
 
+import requests
+
 
 # this is called from the background thread
 def callback(recognizer, audio):
@@ -73,7 +75,9 @@ if __name__ == '__main__':
             print_parsed(result)
 
             if result:
-                print(json.dumps(result.parsed, cls=ActionEncoder))
+                print("Sending :", json.dumps(result.parsed, cls=ActionEncoder))
+                server = "http://192.168.0.1:8080"
+                requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
 
         except sr.UnknownValueError:
             print("Oops! Didn't catch that")
