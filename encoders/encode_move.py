@@ -12,9 +12,7 @@ class StanceEncoder(json.JSONEncoder):
     """
 
     def default(self, obj):
-        return {
-            'stance': obj
-        }
+        return obj
 
 
 class SpeedEncoder(json.JSONEncoder):
@@ -22,13 +20,11 @@ class SpeedEncoder(json.JSONEncoder):
     Encodes a Speed.
 
     Fields:
-        'stance'  : The stance
+        'speed'  : The speed
     """
 
     def default(self, obj):
-        return {
-            'stance': obj
-        }
+        return obj
 
 
 class ChangeStanceEncoder(json.JSONEncoder):

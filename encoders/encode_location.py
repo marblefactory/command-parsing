@@ -1,6 +1,7 @@
 import json
 from actions.location import *
 
+
 class MoveDirectionEncoder(json.JSONEncoder):
     """
     Encodes a MoveDirection.
@@ -9,22 +10,15 @@ class MoveDirectionEncoder(json.JSONEncoder):
         'direction'    : The direction
     """
     def default(self, obj):
-        return {
-            'direction': obj
-        }
+        return obj
 
 
 class ObjectRelativeDirectionEncoder(json.JSONEncoder):
     """
     Encodes a ObjectRelativeDirection.
-
-    Fields:
-        'type'    : The type of action
     """
     def default(self, obj):
-        return {
-            'direction': obj
-        }
+        return obj
 
 
 class FloorDirectionEncoder(json.JSONEncoder):
@@ -32,9 +26,7 @@ class FloorDirectionEncoder(json.JSONEncoder):
     Encodes a FloorDirection.
     """
     def default(self, obj):
-        return {
-            'direction': obj
-        }
+        return obj
 
 
 class AbsoluteEncoder(json.JSONEncoder):

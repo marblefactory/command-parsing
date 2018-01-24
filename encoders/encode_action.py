@@ -2,10 +2,8 @@ import json
 from actions.action import *
 from actions.interaction import *
 from actions.move import *
-from encoders.encode_location import *
 from encoders.encode_interaction import *
 from encoders.encode_move import *
-
 
 
 class StopEncoder(json.JSONEncoder):

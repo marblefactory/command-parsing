@@ -17,7 +17,7 @@ class ThroughDoorEncoder(json.JSONEncoder):
 
 class PickUpEncoder(json.JSONEncoder):
     """
-    Encodes a ThroughDoor action.
+    Encodes a PickUp action.
 
     Fields:
         'type'    : The type of action
