@@ -3,6 +3,24 @@ import json
 from encoders.encode_location import *
 
 
+def make_cpp_json(location_json):
+    """
+    :param location_json: the json dictionary representation a location.
+    :return: the new jankey json to fit with the c++ side.
+    """
+
+    if 'name' in location_json:
+        obj_name = location_json['name']
+        del location_json['name']
+    else:
+        obj_name = 'no_object'
+
+    return {
+        'name': obj_name,
+        'location': location_json
+    }
+
+
 class ChangeStanceEncoder(json.JSONEncoder):
     """
     Encodes a ChangeStance action.
@@ -33,7 +51,7 @@ class MoveEncoder(json.JSONEncoder):
     def default(self, obj):
         return {
             'type': 'move',
-            'dest': json.loads(json.dumps(obj.location, cls=LocationEncoder)),
+            'dest': make_cpp_json(json.loads(json.dumps(obj.location, cls=LocationEncoder))),
             'stance': obj.stance or 'no_change',
             'speed': obj.speed
         }
