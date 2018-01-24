@@ -25,7 +25,7 @@ class PickUpTestCase(unittest.TestCase):
 
 class ThrowTestCase(unittest.TestCase):
     def test_parse_directional(self):
-        s = 'throw to your left'.split()
+        s = 'chuck to your left'.split()
 
         expected_loc = Directional(MoveDirection.LEFT)
         assert throw().parse(s).parsed == Throw(expected_loc)
@@ -43,6 +43,6 @@ class ThrowTestCase(unittest.TestCase):
         assert throw().parse(s).parsed == Throw(expected_loc)
 
     def test_fails(self):
-        s = 'nan'.split()
+        s = 'what is going on'.split()
 
         assert throw().parse(s) is None

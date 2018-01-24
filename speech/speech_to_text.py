@@ -1,16 +1,37 @@
 import speech_recognition as sr
-import pyaudio
 import json
 from parsing.parse_action import action
-from parsing.parser import ParseResult
+from parsing.parse_action import ParseResult
+from encoders.encode_action import ActionEncoder
 
 
-r = sr.Recognizer()
-r.pause_threshold = 0.8
+# this is called from the background thread
+def callback(recognizer, audio):
+    # received audio data, now we'll recognize it using Google Speech Recognition
+    print('Parsing')
+    try:
+        print("Google Speech Recognition thinks you said " + recognizer.recognize_google(audio))
+    except sr.UnknownValueError:
+        print("Google Speech Recognition could not understand audio")
+    except sr.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
-# Get the USB mic
-m = sr.Microphone(device_index=0)
-print(m.list_microphone_names())
+
+def choose_mic():
+    print("Choose a microphone:")
+
+    mic_names = sr.Microphone.list_microphone_names()
+
+    for i, mic_name in enumerate(mic_names):
+        print('\t[', i + 1, '] ', mic_name)
+
+    chosen_index = -1
+    while not (0 <= chosen_index < len(mic_names)):
+        chosen_index = int(input('Index: ')) - 1
+
+    print('Chose:', mic_names[chosen_index])
+
+    return sr.Microphone(device_index=chosen_index)
 
 
 def print_parsed(parse_result: ParseResult):
@@ -25,31 +46,44 @@ def print_parsed(parse_result: ParseResult):
 
 
 if __name__ == '__main__':
-    try:
-        print("Geting ambinent noise")
-        with m as source:
-            r.adjust_for_ambient_noise(source)
+    rec = sr.Recognizer()
+    mic = choose_mic()
 
-        print("Energy threshold established")
-        GOOGLE_CLOUD_SPEECH_CREDENTIALS = json.dumps(json.load(open('../google_cloud_speech_credentials.json')))
+    with mic as source:
+        print('Adjusting for ambient noise')
+        rec.adjust_for_ambient_noise(mic)
+        print('Done adjusting')
 
-        while True:
-            print("Say something:")
-            with m as source:
-                audio = r.listen(source, phrase_time_limit=10)
-            print("Will now convert to text...")
-            try:
-                text = r.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS)
-                words = text.lower().split()
-                result = action().parse(words)
+    GOOGLE_CLOUD_SPEECH_CREDENTIALS = json.dumps(json.load(open('../google_cloud_speech_credentials.json')))
 
-                print('TEXT:', text)
-                print_parsed(result)
+    while True:
+        print("Say something:")
 
-            except sr.UnknownValueError:
-                print("Oops! Didn't catch that")
-            except sr.RequestError as e:
-                print("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
+        with mic as source:
+            audio = rec.listen(source)
 
-    except KeyboardInterrupt:
-        pass
+        print("Will now convert to text...")
+
+        try:
+            text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS)
+            words = text.lower().split()
+            result = action().parse(words)
+
+            print('TEXT:', text)
+            print_parsed(result)
+
+            if result:
+                print(json.dumps(result.parsed, cls=ActionEncoder))
+
+        except sr.UnknownValueError:
+            print("Oops! Didn't catch that")
+        except sr.RequestError as e:
+            print("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
+
+        # while True:
+        #     input()
+        #     print('Listening')
+        #     stop_listening = rec.listen_in_background(source, callback)
+        #     input()
+        #     print('Stopped')
+        #     stop_listening()
