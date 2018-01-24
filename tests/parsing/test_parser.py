@@ -176,7 +176,7 @@ class MaybeTestCase(unittest.TestCase):
 
 
 class ManyTestCase(unittest.TestCase):
-    def test_non_parsed(self):
+    def test_none_parsed(self):
         """
         Tests the base case of the many parser.
         """
@@ -202,3 +202,32 @@ class ManyTestCase(unittest.TestCase):
         s = 'hi x hello y'.split()
 
         assert many(p).parse(s).parsed == ['hi', 'hello']
+
+
+class SomeTestCase(unittest.TestCase):
+    def test_failure(self):
+        """
+        Tests the parser fails if the parser doesn't match at least once.
+        """
+        p = word_match('a')
+        s = 'b c'
+
+        assert some(p).parse(s) is None
+
+    def test_single(self):
+        p = word_match('a')
+        s = 'a b c'
+
+        assert some(p).parse(s).parsed == ['a']
+
+    def test_multiple_parsed(self):
+        p = word_match('a')
+        s = 'a b a c a d'.split()
+
+        assert some(p).parse(s).parsed == ['a', 'a', 'a']
+
+    def test_order(self):
+        p = word_meaning('hello')
+        s = 'hi x hello y'.split()
+
+        assert some(p).parse(s).parsed == ['hi', 'hello']

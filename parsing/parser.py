@@ -300,7 +300,7 @@ def inverse(parser: Parser) -> Parser:
 
 def many(parser: Parser) -> Parser:
     """
-    :return: a parser which parsers using `parser` zero or more times on the input.
+    :return: a parser which uses `parser` zero or more times on the input.
     """
     def parse(input: List[Word]) -> Optional[ParseResult]:
         result = parser.parse(input)
@@ -312,3 +312,13 @@ def many(parser: Parser) -> Parser:
         return many(parser).map_parsed(lambda p: [parsed] + p).parse(remaining)
 
     return Parser(parse)
+
+
+def some(parser: Parser) -> Parser:
+    """
+    :return: a parser which uses `parser` one or more times on the input.
+    """
+    def op(parsed: List[Any], response: Response) -> Parser:
+        return many(parser).map_parsed(lambda lst: [parsed] + lst)
+
+    return parser.then(op)
