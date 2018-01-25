@@ -6,7 +6,7 @@ def move_object_name() -> Parser:
     """
     :return: a parser which parses names of objects which can be moved to, i.e. table, door, desk.
     """
-    object_names = ['table', 'door', 'desk', 'server', 'room']
+    object_names = ['table', 'door', 'desk', 'server', 'room', 'toilet']
 
     def condition(input_word: Word) -> Response:
         return float(input_word in object_names)
@@ -51,15 +51,39 @@ def absolute() -> Parser:
     """
     :return: a parser for absolute locations, e.g. '[go to] lab 201'.
     """
+    # When describing a storage room, the player can optionally say 'room' too.xX
+    storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
+    storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number()))
 
-    # Lab X, storage room X, office X, reception, computer lab X, meeting room X, toilet, workshop X, kitchen, gun range, server room X, mortuary, security office
-    return maybe(word_match('room')) \
-          .ignore_then(number(), mean) \
-          .map_parsed(lambda room_num: Absolute('room ' + room_num))
+    office_x = word_match('office').then(append(number()))
+    computer_lab_x = word_match('computer').then(append(word_match('lab'))).then(append(number()))
+    lab_x = word_match('lab').then(append(number()))
+    meeting_room_x = word_match('meeting').then(append(word_match('room'))).then(append(number()))
+    workshop_x = word_match('workshop').then(append(number()))
+    server_room_x = word_match('server').then(append(word_match('room'))).then(append(number()))
 
-    # lab_x = word_match('lab').ignore_then(number()).map_parsed(lambda n: Absolute('lab' + n))
-    # storage_x = word_match('storage').ignore_then(number()).map_parsed(lambda n: Absolute(''))
+    reception = word_match('reception')
+    kitchen = word_match('kitchen')
+    gun_range = maybe(word_match('gun')).ignore_then(word_match('range')).ignore_parsed('gun range')
+    mortuary = word_match('mortuary')
+    security_office = word_match('security').then(append(word_match('office')))
 
+    places = [
+        storage_x,
+        office_x,
+        computer_lab_x,
+        lab_x,
+        meeting_room_x,
+        workshop_x,
+        server_room_x,
+        reception,
+        kitchen,
+        gun_range,
+        mortuary,
+        security_office
+    ]
+
+    return strongest(places).map_parsed(lambda place_name: Absolute(place_name))
 
 
 def positional() -> Parser:

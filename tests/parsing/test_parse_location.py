@@ -52,26 +52,79 @@ class ObjectRelativeDirectionTestCase(MoveDirectionTestCase):
 
 
 class AbsoluteTestCase(unittest.TestCase):
-    def test_parses_room_and_number(self):
-        s = 'go to room 201'.split()
-        assert absolute().parse(s).parsed == Absolute('room 201')
+    def test_parses_storage(self):
+        s = 'go to storage room 5'.split()
+        assert absolute().parse(s).parsed == Absolute('storage room 5')
 
-    def test_parses_if_missing_room(self):
-        s = 'go to 201'.split()
-        assert absolute().parse(s).parsed == Absolute('room 201')
+    def test_parses_storage_no_room(self):
+        s = 'go to storage 5'.split()
+        assert absolute().parse(s).parsed == Absolute('storage room 5')
 
-    def test_fails_if_missing_number(self):
-        s = 'go to room'.split()
-        assert absolute().parse(s) is None
-
-    def test_lower_response_if_missing_room(self):
-        s1 = 'go to room 201'.split()
-        s2 = 'go to 201'.split()
+    def test_parses_storage_same_response(self):
+        s1 = 'go to storage 5'.split()
+        s2 = 'go to storage room 5'.split()
 
         r1 = absolute().parse(s1).response
         r2 = absolute().parse(s2).response
 
-        assert r1 > r2
+        assert r1 == r2
+
+    def test_parses_office(self):
+        s = 'go to office 10'.split()
+        assert absolute().parse(s).parsed == Absolute('office 10')
+
+    def test_parses_computer_lab(self):
+        s = 'go to computer lab 6'.split()
+        assert absolute().parse(s).parsed == Absolute('computer lab 6')
+
+    def test_parses_lab(self):
+        s = 'go to lab 3'.split()
+        assert absolute().parse(s).parsed == Absolute('lab 3')
+
+    def test_parses_meeting_room(self):
+        s = 'go to meeting room 89'.split()
+        assert absolute().parse(s).parsed == Absolute('meeting room 89')
+
+    def test_parses_workshop(self):
+        s = 'go to workshop 2'.split()
+        assert absolute().parse(s).parsed == Absolute('workshop 2')
+
+    def test_parses_server_room(self):
+        s = 'go to server room 78'.split()
+        assert absolute().parse(s).parsed == Absolute('server room 78')
+
+    def test_parses_reception(self):
+        s = 'go to reception'.split()
+        assert absolute().parse(s).parsed == Absolute('reception')
+
+    def test_parses_kitchen(self):
+        s = 'go to the kitchen'.split()
+        assert absolute().parse(s).parsed == Absolute('kitchen')
+
+    def test_parses_gun_range(self):
+        s = 'go to the gun range'.split()
+        assert absolute().parse(s).parsed == Absolute('gun range')
+
+    def test_parses_gun_range_no_gun(self):
+        s = 'go to the range'.split()
+        assert absolute().parse(s).parsed == Absolute('gun range')
+
+    def test_parses_gun_range_same_response(self):
+        s1 = 'go to the range'.split()
+        s2 = 'go to the gun range'.split()
+
+        r1 = absolute().parse(s1).response
+        r2 = absolute().parse(s2).response
+
+        assert r1 == r2
+
+    def test_parses_mortuary(self):
+        s = 'go to the mortuary'.split()
+        assert absolute().parse(s).parsed == Absolute('mortuary')
+
+    def test_parses_security_office(self):
+        s = 'go to the security office'.split()
+        assert absolute().parse(s).parsed == Absolute('security office')
 
 
 class PositionalTestCase(unittest.TestCase):
@@ -152,8 +205,8 @@ class StairsTestCase(unittest.TestCase):
 
 class LocationTestCase(unittest.TestCase):
     def test_parses_absolute(self):
-        s = 'go to 304'.split()
-        assert location().parse(s).parsed == Absolute('room 304')
+        s = 'go to lab 304'.split()
+        assert location().parse(s).parsed == Absolute('lab 304')
 
     def test_parses_positional(self):
         s = 'go to the server on the left'.split()

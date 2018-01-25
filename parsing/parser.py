@@ -313,16 +313,18 @@ def threshold(parser: Parser, response_threshold: Response) -> Parser:
     return parser.then(check_threshold)
 
 
-def append(parser: Parser, combine_responses: Callable[[Response, Response], Response] = None) -> Callable[[Any, Response], Parser]:
+def append(parser: Parser, combine_responses: Callable[[Response, Response], Response] = None, spaces = True) -> Callable[[Any, Response], Parser]:
     """
     :param parser: the parser to run after the current parser.
     :param combine_responses: the function uses to combine the results of the parsers. Defaults to use the response of the current parser.
+    :param spaces: whether to put spaces between appended words.
     :return: a operation which can be given to `then` to append a parsed string to the parsed string of the next parser.
     """
     if not combine_responses:
         combine_responses = lambda r1, r2: r1
 
     def op(parsed_str: str, response: Response) -> Parser:
-        return parser.map(lambda p, r: (parsed_str + p, combine_responses(response, r)))
+        sep = ' ' if spaces else ''
+        return parser.map(lambda p, r: (parsed_str + sep + p, combine_responses(response, r)))
 
     return op

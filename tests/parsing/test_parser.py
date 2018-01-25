@@ -209,7 +209,17 @@ class AppendTestCase(unittest.TestCase):
         p = p1.then(append(p2)).then(append(p3))
         s = ['hello', 'world', '!', 'c']
 
-        assert p.parse(s) == ParseResult('helloworld!', 1, ['c'])
+        assert p.parse(s) == ParseResult('hello world !', 1, ['c'])
+
+    def test_parse_no_spaces(self):
+        p1 = word_match('hello')
+        p2 = word_match('world')
+        p3 = word_match('!')
+
+        p = p1.then(append(p2)).then(append(p3, spaces=False))
+        s = ['hello', 'world', '!', 'c']
+
+        assert p.parse(s) == ParseResult('hello world!', 1, ['c'])
 
     def test_combine_responses(self):
         p1 = produce('x', 0.5)
@@ -217,7 +227,7 @@ class AppendTestCase(unittest.TestCase):
 
         p = p1.then(append(p2, mean))
 
-        assert p.parse([]) == ParseResult('xy', 0.75, [])
+        assert p.parse([]) == ParseResult('x y', 0.75, [])
 
     def test_response_default(self):
         p1 = produce('x', 0.5)
@@ -225,4 +235,4 @@ class AppendTestCase(unittest.TestCase):
 
         p = p1.then(append(p2))
 
-        assert p.parse([]) == ParseResult('xy', 0.5, [])
+        assert p.parse([]) == ParseResult('x y', 0.5, [])
