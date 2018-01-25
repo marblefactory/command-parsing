@@ -17,9 +17,9 @@ def single_action() -> Parser:
     """
     parsers = [
         stop(),
-        move(),
-        change_stance().map_response(lambda r: r / 2), # Half because move also looks for stances.
         through_door(),
+        change_stance().map_response(lambda r: r * 0.6),  # Half because move also looks for stances.
+        move(),
         pick_up(),
         throw()
     ]

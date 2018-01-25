@@ -6,14 +6,21 @@ from encoders.encode_action import ActionEncoder
 
 import requests
 
-s = 'go forwards'.split()
-parsed, response, remaining = action().parse(s)
+s = 'crouch down'.split()
 
-print('Sending :', json.dumps(parsed, cls=ActionEncoder))
-server = 'http://192.168.0.16:8080/action'
+if s:
+    parsed, response, remaining = action().parse(s)
 
-server_response = requests.post(server, json=json.loads(json.dumps(parsed, cls=ActionEncoder)))
-print(server_response)
+    action_json = json.loads(json.dumps(parsed, cls=ActionEncoder))
+
+    print('Sending :', action_json)
+    server = 'http://192.168.0.16:8080/action'
+
+    server_response = requests.post(server, json=action_json)
+    print(server_response)
+
+else:
+    print('No parse')
 
 
 # # this is called from the background thread
