@@ -103,11 +103,7 @@ class AbsoluteTestCase(unittest.TestCase):
 
     def test_parses_gun_range(self):
         s = 'go to the gun range'.split()
-        assert absolute().parse(s).parsed == Absolute('gun range')
-
-    def test_parses_gun_range_no_gun(self):
-        s = 'go to the range'.split()
-        assert absolute().parse(s).parsed == Absolute('gun range')
+        assert absolute().parse(s).parsed == Absolute('range')
 
     def test_parses_gun_range_same_response(self):
         s1 = 'go to the range'.split()

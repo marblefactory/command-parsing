@@ -35,7 +35,7 @@ def move_direction() -> Parser:
     backwards = backwards_matcher.ignore_parsed(MoveDirection.BACKWARDS)
 
     left = word_match('left').ignore_parsed(MoveDirection.LEFT)
-    right = word_match('right').ignore_parsed(MoveDirection.RIGHT)
+    right = strongest_word(['right', 'rights']).ignore_parsed(MoveDirection.RIGHT)  # Look for 'rights' due to speech to text.
 
     return strongest([left, right, forwards, backwards])
 
@@ -64,7 +64,7 @@ def absolute() -> Parser:
 
     reception = word_match('reception')
     kitchen = word_match('kitchen')
-    gun_range = maybe(word_match('gun')).ignore_then(word_match('range')).ignore_parsed('gun range')
+    gun_range = word_match('range')
     mortuary = word_match('mortuary')
     security_office = word_match('security').then(append(word_match('office')))
 
