@@ -49,12 +49,17 @@ def object_relative_direction() -> Parser:
 
 def absolute() -> Parser:
     """
-    :return: a parser for absolute locations, e.g. '[go to] room 201'.
-             Can also parse just the number, e.g. '[go to] 201' but this gives a lower response.
+    :return: a parser for absolute locations, e.g. '[go to] lab 201'.
     """
+
+    # Lab X, storage room X, office X, reception, computer lab X, meeting room X, toilet, workshop X, kitchen, gun range, server room X, mortuary, security office
     return maybe(word_match('room')) \
           .ignore_then(number(), mean) \
           .map_parsed(lambda room_num: Absolute('room ' + room_num))
+
+    # lab_x = word_match('lab').ignore_then(number()).map_parsed(lambda n: Absolute('lab' + n))
+    # storage_x = word_match('storage').ignore_then(number()).map_parsed(lambda n: Absolute(''))
+
 
 
 def positional() -> Parser:

@@ -18,11 +18,21 @@ class ParserTestCase(unittest.TestCase):
 
         assert parser.parse([]) == ParseResult(parsed='a', response=0.5, remaining=[])
 
+    def test_then_ignore_default_response(self):
+        parser = produce('a', 0.5).then_ignore(produce('b', 1.0))
+
+        assert parser.parse([]) == ParseResult(parsed='a', response=0.5, remaining=[])
+
     def test_ignore_then(self):
         # Ignore the parsed 'a', but average the responses.
         parser = produce('a', 1.0).ignore_then(produce('b', 0.0), mean)
 
         assert parser.parse([]) == ParseResult(parsed='b', response=0.5, remaining=[])
+
+    def test_ignore_then_default_response(self):
+        parser = produce('a', 0.5).ignore_then(produce('b', 1.0))
+
+        assert parser.parse([]) == ParseResult(parsed='b', response=1.0, remaining=[])
 
     def test_map(self):
         parser = produce('a', 1.0).map(lambda p, r: (p + 'bc', r / 2))
@@ -107,7 +117,8 @@ class WordMeaningTestCase(unittest.TestCase):
         """
         Tests the similar word is parsed.
         """
-        assert word_meaning('go').parse(['boat', 'walk', 'hello']) == ParseResult(parsed='walk', response=0.5, remaining=['hello'])
+        p = word_meaning('go')
+        assert p.parse(['boat', 'walk', 'hello']) == ParseResult(parsed='walk', response=0.5, remaining=['hello'])
 
 
 class WordTaggedTestCase(unittest.TestCase):
@@ -187,3 +198,31 @@ class ThresholdTestCase(unittest.TestCase):
     def test_above_threshold(self):
         parser = threshold(produce('a', 0.6), response_threshold=0.5)
         assert parser.parse(['a', 'b']) == ParseResult('a', 0.6, ['a', 'b'])
+
+
+class AppendTestCase(unittest.TestCase):
+    def test_parse(self):
+        p1 = word_match('hello')
+        p2 = word_match('world')
+        p3 = word_match('!')
+
+        p = p1.then(append(p2)).then(append(p3))
+        s = ['hello', 'world', '!', 'c']
+
+        assert p.parse(s) == ParseResult('helloworld!', 1, ['c'])
+
+    def test_combine_responses(self):
+        p1 = produce('x', 0.5)
+        p2 = produce('y', 1.0)
+
+        p = p1.then(append(p2, mean))
+
+        assert p.parse([]) == ParseResult('xy', 0.75, [])
+
+    def test_response_default(self):
+        p1 = produce('x', 0.5)
+        p2 = produce('y', 1.0)
+
+        p = p1.then(append(p2))
+
+        assert p.parse([]) == ParseResult('xy', 0.5, [])

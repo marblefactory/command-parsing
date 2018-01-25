@@ -55,15 +55,3 @@ class CompositeTestCase(unittest.TestCase):
         """
         s = 'nothing to see here'.split()
         assert composite().parse(s) is None
-
-    def test_reduced_response(self):
-        """
-        Tests the response is the mean of all action responses.
-        """
-        s1 = 'go to 201 then go right'.split()
-        s2 = 'go to room 201 then go right'.split()
-
-        r1 = composite().parse(s1).response
-        r2 = composite().parse(s2).response
-
-        assert r1 < r2

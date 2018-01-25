@@ -105,7 +105,7 @@ class Parser:
                                   using `combine_responses`.
         """
         if not combine_responses:
-            combine_responses = lambda r1, r2: r1
+            combine_responses = lambda r1, r2: r2
 
         def op(ignored_parsed: Any, r1: Response) -> Parser:
             return next_parser.map(lambda parsed, r2: (parsed, combine_responses(r1, r2)))
@@ -201,8 +201,8 @@ def word_match(word: Word) -> Parser:
 
 
 def word_meaning(word: Word,
-                 semantic_similarity_threshold: Response = 0.7,
-                 similarity_measure: Callable[[Synset, Synset], Response] = Synset.wup_similarity) -> Parser:
+                 semantic_similarity_threshold: Response = 0.5,
+                 similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
     """
     :param word: the word to find similar words to.
     :param semantic_similarity_threshold: the minimum semantic distance for an input word to be from the supplied word.
@@ -311,3 +311,18 @@ def threshold(parser: Parser, response_threshold: Response) -> Parser:
         return produce(parsed, response)
 
     return parser.then(check_threshold)
+
+
+def append(parser: Parser, combine_responses: Callable[[Response, Response], Response] = None) -> Callable[[Any, Response], Parser]:
+    """
+    :param parser: the parser to run after the current parser.
+    :param combine_responses: the function uses to combine the results of the parsers. Defaults to use the response of the current parser.
+    :return: a operation which can be given to `then` to append a parsed string to the parsed string of the next parser.
+    """
+    if not combine_responses:
+        combine_responses = lambda r1, r2: r1
+
+    def op(parsed_str: str, response: Response) -> Parser:
+        return parser.map(lambda p, r: (parsed_str + p, combine_responses(response, r)))
+
+    return op
