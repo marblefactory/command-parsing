@@ -42,3 +42,16 @@ class ThrowEncoderTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(throw, cls=ActionEncoder))
+
+
+class HackEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        hack = Hack('computer', ObjectRelativeDirection.RIGHT)
+
+        expected = {
+            'type': 'hack',
+            'name': 'computer',
+            'direction': 'right'
+        }
+
+        assert expected == json.loads(json.dumps(hack, cls=ActionEncoder))

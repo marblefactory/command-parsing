@@ -66,4 +66,3 @@ class HackTestCase(unittest.TestCase):
     def test_fails_if_no_object(self):
         s = 'hack something'.split()
         assert interaction().parse(s) is None
-

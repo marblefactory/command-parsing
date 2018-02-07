@@ -39,21 +39,20 @@ class ActionEncoder(json.JSONEncoder):
     Encodes an action into JSON for sending
     """
     def default(self, obj):
-        if isinstance(obj, Stop):
-            return json.loads(json.dumps(obj, cls=StopEncoder))
-        elif isinstance(obj, Composite):
-            return json.loads(json.dumps(obj, cls=CompositeEncoder))
-        elif isinstance(obj, ThroughDoor):
-            return json.loads(json.dumps(obj, cls=ThroughDoorEncoder))
-        elif isinstance(obj, PickUp):
-            return json.loads(json.dumps(obj, cls=PickUpEncoder))
-        elif isinstance(obj, Throw):
-            return json.loads(json.dumps(obj, cls=ThrowEncoder))
-        elif isinstance(obj, ChangeStance):
-            return json.loads(json.dumps(obj, cls=ChangeStanceEncoder))
-        elif isinstance(obj, Move):
-            return json.loads(json.dumps(obj, cls=MoveEncoder))
-        return json.JSONEncoder.default(self, obj)
+        encoders = {
+            Stop: StopEncoder,
+            Composite: CompositeEncoder,
+            ThroughDoor: ThroughDoorEncoder,
+            PickUp: PickUpEncoder,
+            Throw: ThrowEncoder,
+            Hack: HackEncoder,
+            ChangeStance: ChangeStanceEncoder,
+            Move: MoveEncoder
+        }
+
+        encoder = encoders.get(type(obj)) or json.JSONEncoder
+
+        return encoder.default(self, obj)
 
 
 

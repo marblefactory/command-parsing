@@ -44,3 +44,16 @@ class ThrowEncoder(json.JSONEncoder):
             'type': 'throw',
             'location': json.loads(json.dumps(obj.target, cls=LocationEncoder))
         }
+
+
+class HackEncoder(json.JSONEncoder):
+    """
+    Encodes a Hack action.
+    """
+
+    def default(self, obj):
+        return {
+            'type': 'hack',
+            'name': obj.object_name,
+            'direction': obj.direction
+        }
