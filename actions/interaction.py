@@ -39,3 +39,18 @@ class Throw(Action):
     def __str__(self):
         return 'throw to "{}"'.format(self.target)
 
+
+class Hack(Action):
+    """
+    Tells the spy to hack an object.
+    """
+
+    object_name: str
+    direction: ObjectRelativeDirection
+
+    def __init__(self, object_name: str, direction: ObjectRelativeDirection):
+        self.object_name = object_name
+        self.direction = direction
+
+    def __str__(self):
+        return 'hack "{}" "{}"'.format(self.object_name, self.direction)

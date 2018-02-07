@@ -95,13 +95,13 @@ def positional() -> Parser:
         default = produce(parsed=0, response=0)
         ord = strongest([anywhere(ordinal_number()), default])
 
-        return ord.map(lambda parsed_num, r2: (acc + [parsed_num], r1))
+        return ord.map(lambda parsed_num, r2: (acc + [parsed_num], mix(r1, r2, 0.8)))
 
     def combine_direction(acc: List, r1: Response) -> Parser:
         default = produce(parsed=MoveDirection.FORWARDS, response=0)
         dir = strongest([anywhere(move_direction()), default])
 
-        return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], r1))
+        return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], mix(r1, r2, 0.8)))
 
     obj = anywhere(move_object_name()).map_parsed(lambda parsed_name: [parsed_name])
 
@@ -127,10 +127,20 @@ def stairs() -> Parser:
     return strongest([up, down]).map_parsed(lambda dir: Stairs(dir))
 
 
+def behind() -> Parser:
+    """
+    :return: a parser for behind object locations, e.g. behind the sofas.
+    """
+    other_side_verb = word_match('other').ignore_then(word_match('side'))
+    verb = strongest([word_match('behind'), word_match('around'), other_side_verb])
+
+    return verb.ignore_then(move_object_name()).map_parsed(lambda obj_name: Behind(obj_name))
+
+
 def location() -> Parser:
     """
     :return: a parser which parses locations.
     """
     # Half the response to give bias towards positional locations since both use directions.
     dir = directional().map_response(lambda r: r/2)
-    return strongest([absolute(), positional(), dir, stairs()])
+    return strongest([absolute(), positional(), dir, stairs(), behind()])

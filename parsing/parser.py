@@ -17,11 +17,12 @@ Word = str
 Response = float
 
 
-def mean(r1: Response, r2: Response) -> Response:
+def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
     """
+    :param proportion:
     :return: the mean response of r1 and r2.
     """
-    return (r1 + r2) / 2.0
+    return r1 * proportion + r2 * (1 - proportion)
 
 
 def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
@@ -235,13 +236,17 @@ def number() -> Parser:
     return word_tagged(['CD'])
 
 
-def strongest(parsers: List[Parser]) -> Parser:
+def strongest(parsers: List[Parser], debug = False) -> Parser:
     """
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
              then the parser to occur first in the list is returned.
     """
     def parse(input: List[Word]) -> Optional[ParseResult]:
         results = [parser.parse(input) for parser in parsers]
+
+        if debug:
+            print(results)
+
         filtered = [r for r in results if r is not None]
 
         if filtered == []:

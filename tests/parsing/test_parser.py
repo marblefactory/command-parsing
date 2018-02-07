@@ -14,7 +14,7 @@ class ParserTestCase(unittest.TestCase):
 
     def test_then_ignore(self):
         # Ignore the parsed 'b', but average the responses.
-        parser = produce('a', 0.0).then_ignore(produce('b', 1.0), mean)
+        parser = produce('a', 0.0).then_ignore(produce('b', 1.0), mix)
 
         assert parser.parse([]) == ParseResult(parsed='a', response=0.5, remaining=[])
 
@@ -25,7 +25,7 @@ class ParserTestCase(unittest.TestCase):
 
     def test_ignore_then(self):
         # Ignore the parsed 'a', but average the responses.
-        parser = produce('a', 1.0).ignore_then(produce('b', 0.0), mean)
+        parser = produce('a', 1.0).ignore_then(produce('b', 0.0), mix)
 
         assert parser.parse([]) == ParseResult(parsed='b', response=0.5, remaining=[])
 
@@ -225,7 +225,7 @@ class AppendTestCase(unittest.TestCase):
         p1 = produce('x', 0.5)
         p2 = produce('y', 1.0)
 
-        p = p1.then(append(p2, mean))
+        p = p1.then(append(p2, mix))
 
         assert p.parse([]) == ParseResult('x y', 0.75, [])
 

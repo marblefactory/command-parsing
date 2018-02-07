@@ -53,7 +53,7 @@ def move() -> Parser:
     move_verb = anywhere(strongest_word(verbs, make_parser=word_meaning))
     loc_parser = anywhere(location()).map_parsed(lambda loc: [loc])
 
-    return move_verb.ignore_then(loc_parser, mean) \
+    return move_verb.ignore_then(loc_parser, mix) \
                     .then(combine_speed) \
                     .then(combine_stance) \
                     .map_parsed(lambda p: Move(p[1], p[0], p[2]))
