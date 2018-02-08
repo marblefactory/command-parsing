@@ -3,9 +3,10 @@ from speech.transcribe import transcribe_file
 from parsing.parse_action import action
 from parsing.pre_processing import pre_process
 from encoders.encode_action import ActionEncoder
+from speech.voice import say
+from actions.action import Action
 import requests
 import json
-import os
 
 
 if __name__ == '__main__':
@@ -21,20 +22,22 @@ if __name__ == '__main__':
         transcript = transcribe_file('output.wav')
         print('Transcribed:', transcript)
 
-        if (transcript):
+        if transcript:
             tokens = pre_process(transcript)
             result = action().parse(tokens)
 
             if result:
-                print('Parsed        :', result.parsed)
-                print('Certainty     :', result.response)
-                print('All Responses :', result.parsed.responses())
-
-                command = "say '{}'".format(result.parsed.random_response())
-                os.system(command)
+                print('Parsed             :', result.parsed)
+                print('Certainty          :', result.response)
+                print('Positive Responses :', result.parsed.responses())
 
                 response = requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
                 print('From server:', response)
+
+                if response.status_code == 200:
+                    say(result.parsed.random_response())
+                else:
+                    say(Action.random_negative_response())
 
             else:
                 print('Failed to parse')

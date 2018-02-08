@@ -48,4 +48,4 @@ class Move(Action):
         return 'go "{}" at "{}" speed while "{}"'.format(self.location, self.speed, self.stance or 'no change')
 
     def specific_responses(self) -> List[str]:
-        return ['moving into position', 'on my way']
+        return ['moving to that position', 'on my way']

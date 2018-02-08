@@ -27,6 +27,20 @@ class Action(EquatableMixin, Respondable):
         """
         return random.choice(self.responses())
 
+    @staticmethod
+    def negative_responses() -> List[str]:
+        """
+        :return: responses to indicate that the command was not understood.
+        """
+        return ['repeat?', 'can you repeat?', 'what was that command?']
+
+    @staticmethod
+    def random_negative_response() -> str:
+        """
+        :return: a random negative response from all available.
+        """
+        return random.choice(Action.negative_responses())
+
 
 class Stop(Action):
     """
