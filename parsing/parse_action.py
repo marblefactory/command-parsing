@@ -57,4 +57,4 @@ def action() -> Parser:
     :return: a parser for single or composite actions.
     """
     act = strongest([composite(), single_action()])
-    return threshold(act, 0.5)
+    return threshold(act, 0.25)
