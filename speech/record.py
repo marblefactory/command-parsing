@@ -25,7 +25,7 @@ class Recorder:
         can be used to save the recording.
         """
         with sd.InputStream(samplerate=self.sample_rate, channels=1, callback=self.callback):
-             input('Press to stop')
+             input('Press Enter to stop\n')
 
     def write(self, file_name: str):
         """
