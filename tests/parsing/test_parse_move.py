@@ -4,6 +4,8 @@ from parsing.parse_action import action
 from actions.move import *
 from actions.location import *
 
+from parsing.parser import word_meaning
+
 
 class SpeedTestCase(unittest.TestCase):
     def test_fast(self):

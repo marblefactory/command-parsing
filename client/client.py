@@ -31,7 +31,7 @@ def action_parse_failure_responses(transcript: str) -> List[str]:
     return [
         "I don't know how to '{}'".format(transcript),
         "I'm not sure how to do that",
-        "that was not part of my training",
+        "that's not part of my training",
         "that's coming in a future update"
     ]
 
@@ -81,11 +81,11 @@ def run_client(server: str):
 
         print('Parsed          :', result.parsed)
 
-        response = requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
+        response = 200 #requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
 
         print('Server Response :', response)
 
-        if response.status_code != 200:
+        if response != 200:
             speech = random.choice(action_perform_failure_response(ActionFailureResponse.NOT_FOUND))
             say(speech)
             print()
