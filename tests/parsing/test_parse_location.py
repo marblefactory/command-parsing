@@ -190,6 +190,10 @@ class BehindTestCase(unittest.TestCase):
         s = 'go around the server'.split()
         assert location().parse(s).parsed == Behind('server')
 
+    def test_fails_if_missing_object(self):
+        s = 'go around the'.split()
+        assert location().parse(s) is None
+
     def test_other_side(self):
         s = 'go to the other side of the table'.split()
         assert location().parse(s).parsed == Behind('table')

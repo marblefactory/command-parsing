@@ -1,6 +1,6 @@
 from actions.move import *
 from parsing.parser import *
-from parsing.parse_location import location
+from parsing.parse_location import location, move_direction
 
 
 def speed() -> Parser:
@@ -27,9 +27,20 @@ def stance() -> Parser:
     return strongest([crouched, standing])
 
 
+def turn() -> Parser:
+    """
+    :return: a parser for turning instructions, e.g. turn around, defaults to turning around (i.e. backwards).
+    """
+    turn_verb = word_match('turn')
+    direction = strongest([move_direction(), produce(MoveDirection.BACKWARDS, 1)])
+
+    return turn_verb.ignore_then(direction) \
+                    .map_parsed(lambda dir: Turn(dir))
+
+
 def change_stance() -> Parser:
     """
-    :return: a parser for change stance, i.e. crouch, stand.
+    :return: a parser for stance changes, i.e. crouch, stand up.
     """
     # Half the response to give bias towards move actions since both use stances.
     return stance().map_parsed(lambda s: ChangeStance(s))

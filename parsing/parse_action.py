@@ -1,6 +1,6 @@
 from actions.action import Stop, Composite
 from parsing.parser import *
-from parsing.parse_move import move, change_stance
+from parsing.parse_move import move, change_stance, turn
 from parsing.parse_interaction import through_door, pick_up, throw, hack
 from utils import split_list
 
@@ -20,10 +20,11 @@ def single_action() -> Parser:
         stop(),
         through_door(),
         change_stance().map_response(lambda r: r * 0.6),  # Half because move also looks for stances.
+        turn(),
         move(),
         pick_up(),
         throw(),
-        hack()
+        hack(),
     ]
 
     return strongest(parsers)

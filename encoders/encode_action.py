@@ -47,7 +47,8 @@ class ActionEncoder(json.JSONEncoder):
             Throw: ThrowEncoder,
             Hack: HackEncoder,
             ChangeStance: ChangeStanceEncoder,
-            Move: MoveEncoder
+            Move: MoveEncoder,
+            Turn: TurnEncoder
         }
 
         encoder = encoders.get(type(obj)) or json.JSONEncoder

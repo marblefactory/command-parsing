@@ -26,6 +26,16 @@ class StanceTestCase(unittest.TestCase):
         assert stance().parse(['stand']).parsed == Stance.STAND
 
 
+class TurnTestCase(unittest.TestCase):
+    def test_parse(self):
+        s = 'turn to your left'.split()
+        assert action().parse(s).parsed == Turn(MoveDirection.LEFT)
+
+    def test_defaults_backwards(self):
+        s = 'turn around'.split()
+        assert action().parse(s).parsed == Turn(MoveDirection.BACKWARDS)
+
+
 class ChangeStanceTestCase(unittest.TestCase):
     def test_stand_up(self):
         s = 'stand up'.split()
@@ -60,3 +70,11 @@ class MoveTestCase(unittest.TestCase):
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)
+
+    def test_parses_behind(self):
+        s = 'go around the desk'.split()
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Behind('desk'), None)
+
+    def test_parses_turn_backwards(self):
+        s = 'turn around'.split()
+        assert action().parse(s).parsed == Turn(MoveDirection.BACKWARDS)

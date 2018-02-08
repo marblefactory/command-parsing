@@ -21,6 +21,22 @@ def make_cpp_json(location_json):
     }
 
 
+class TurnEncoder(json.JSONEncoder):
+    """
+    Encodes a Turn action.
+
+    Fields:
+        'type'      : The type of action
+        'direction' : The direction to turn to
+    """
+
+    def default(self, obj):
+        return {
+            'type': 'turn',
+            'direction': obj.direction
+        }
+
+
 class ChangeStanceEncoder(json.JSONEncoder):
     """
     Encodes a ChangeStance action.

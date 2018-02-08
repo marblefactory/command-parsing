@@ -48,6 +48,18 @@ class ConversionToCPPJSONTestCase(unittest.TestCase):
         assert expected == json.loads(json.dumps(move, cls=ActionEncoder))
 
 
+class TurnEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        turn = Turn(MoveDirection.RIGHT)
+
+        expected = {
+            'type': 'turn',
+            'direction': 'right'
+        }
+
+        assert expected == json.loads(json.dumps(turn, cls=ActionEncoder))
+
+
 class ChangeStanceEncoderTestCase(unittest.TestCase):
     def test_encode(self):
         change_stance = ChangeStance(Stance.CROUCH)

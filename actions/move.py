@@ -1,5 +1,5 @@
 from actions.action import Action
-from actions.location import Location
+from actions.location import Location, MoveDirection
 from typing import Optional
 from typing import List
 
@@ -13,6 +13,20 @@ class Speed:
 class Stance:
     CROUCH = 'crouch'
     STAND = 'stand'
+
+
+class Turn(Action):
+    """
+    Tells the spy to turn to a particular direction.
+    """
+
+    direction: MoveDirection
+
+    def __init__(self, direction: MoveDirection):
+        self.direction = direction
+
+    def __str__(self):
+        return 'turn {}'.format(self.direction)
 
 
 class ChangeStance(Action):
