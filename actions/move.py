@@ -1,6 +1,7 @@
 from actions.action import Action
 from actions.location import Location
 from typing import Optional
+from typing import List
 
 
 class Speed:
@@ -45,3 +46,6 @@ class Move(Action):
 
     def __str__(self):
         return 'go "{}" at "{}" speed while "{}"'.format(self.location, self.speed, self.stance or 'no change')
+
+    def specific_responses(self) -> List[str]:
+        return ['moving into position', 'on my way']

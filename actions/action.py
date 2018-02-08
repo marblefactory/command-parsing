@@ -1,12 +1,31 @@
 from typing import List
 from equatable import EquatableMixin
+from actions.respondable import Respondable
+import random
 
 
-class Action(EquatableMixin):
+class Action(EquatableMixin, Respondable):
     """
     An action that the player can command the spy to make.
     """
-    pass
+
+    def responses(self) -> List[str]:
+        """
+        :return: default responses that apply to all actions, plus any responses specific to the action.
+        """
+        return ['ok', 'affirmative', ''] + self.specific_responses()
+
+    def specific_responses(self):
+        """
+        :return: responses specific to the action.
+        """
+        return []
+
+    def random_response(self) -> str:
+        """
+        :return: a random response from all possible responses to the action.
+        """
+        return random.choice(self.responses())
 
 
 class Stop(Action):
@@ -16,6 +35,9 @@ class Stop(Action):
 
     def __str__(self):
         return 'stop'
+
+    def specific_responses(self) -> List[str]:
+        return ['stopping']
 
 
 class Composite(Action):
