@@ -15,13 +15,14 @@ if __name__ == '__main__':
         transcript = transcribe_file('output.wav')
         print('Transcribed:', transcript)
 
-        tokens = pre_process(transcript)
-        result = action().parse(tokens)
+        if (transcript):
+            tokens = pre_process(transcript)
+            result = action().parse(tokens)
 
-        if result:
-            print('Parsed   :', result.parsed)
-            print('Certanity:', result.response)
-        else:
-            print('Failed to parse')
+            if result:
+                print('Parsed   :', result.parsed)
+                print('Certanity:', result.response)
+            else:
+                print('Failed to parse')
 
         print('\n')
