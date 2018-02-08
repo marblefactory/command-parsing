@@ -1,4 +1,3 @@
-import json
 from encoders.encode_location import *
 
 

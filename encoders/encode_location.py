@@ -96,4 +96,3 @@ class LocationEncoder(json.JSONEncoder):
         elif isinstance(obj, Behind):
             return json.loads(json.dumps(obj, cls=BehindEncoder))
         return json.JSONEncoder.default(self, obj)
-

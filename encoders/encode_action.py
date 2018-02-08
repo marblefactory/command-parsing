@@ -54,11 +54,3 @@ class ActionEncoder(json.JSONEncoder):
         encoder = encoders.get(type(obj)) or json.JSONEncoder
 
         return encoder.default(self, obj)
-
-
-
-
-
-
-
-
