@@ -105,6 +105,12 @@ class WordMatchTestCase(unittest.TestCase):
         """
         assert word_match('a').parse(['b', 'a', 'c']) == ParseResult(parsed='a', response=1.0, remaining=['c'])
 
+    def test_matches_plural_default(self):
+        assert word_match('hack').parse(['hacks', 'hello']).parsed == 'hacks'
+
+    def test_does_not_match_plural(self):
+        assert word_match('hack', match_plural=False).parse(['hacks', 'hello']) is None
+
 
 class WordMeaningTestCase(unittest.TestCase):
     def test_no_match(self):

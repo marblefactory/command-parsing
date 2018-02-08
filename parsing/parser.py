@@ -3,7 +3,7 @@ from collections import namedtuple
 import nltk
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
-from utils import split_list
+import inflect
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -190,13 +190,20 @@ def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) 
     return Parser(parse)
 
 
-def word_match(word: Word) -> Parser:
+def word_match(word: Word, match_plural = True) -> Parser:
     """
+    :param match_plural: whether to match on the plural of the word as well as the word.
     :return: a parser which matches on the first occurrence of the supplied word.
     """
 
-    def condition(input_word: Word) -> Response:
-        return float(input_word == word)
+    if match_plural:
+        plural = inflect.engine().plural(word)
+        def condition(input_word: Word) -> Response:
+            return float(input_word == word or input_word == plural)
+
+    else:
+        def condition(input_word: Word) -> Response:
+            return float(input_word == word)
 
     return predicate(condition)
 

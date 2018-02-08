@@ -2,6 +2,7 @@ from actions.action import Stop, Composite
 from parsing.parser import *
 from parsing.parse_move import move, change_stance
 from parsing.parse_interaction import through_door, pick_up, throw, hack
+from utils import split_list
 
 
 def stop() -> Parser:
