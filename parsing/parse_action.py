@@ -1,7 +1,7 @@
 from actions.action import Stop, Composite
 from parsing.parser import *
 from parsing.parse_move import move, change_stance
-from parsing.parse_interaction import through_door, pick_up, throw
+from parsing.parse_interaction import through_door, pick_up, throw, hack
 
 
 def stop() -> Parser:
@@ -21,7 +21,8 @@ def single_action() -> Parser:
         change_stance().map_response(lambda r: r * 0.6),  # Half because move also looks for stances.
         move(),
         pick_up(),
-        throw()
+        throw(),
+        hack()
     ]
 
     return strongest(parsers)
@@ -57,19 +58,3 @@ def action() -> Parser:
     """
     act = strongest([composite(), single_action()])
     return threshold(act, 0.5)
-
-
-if __name__ == '__main__':
-    #s = 'stand up and run to the door on your right'.split()
-    #s = 'go to the third room on your right then pick up the hammer'.split()
-    #s = 'run upstairs'.split()
-    #s = 'go to the fourth room behind you and pick up the rock'.split()
-    s = 'go to the toilet and pick up the rock'.split()
-
-    result = action().parse(s)
-
-    if result:
-        print(result.parsed)
-        print(result.response)
-    else:
-        print("None")
