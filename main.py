@@ -33,7 +33,8 @@ if __name__ == '__main__':
                 command = "say '{}'".format(result.parsed.random_response())
                 os.system(command)
 
-                #requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
+                response = requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
+                print('From server:', response)
 
             else:
                 print('Failed to parse')

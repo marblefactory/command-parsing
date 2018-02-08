@@ -55,9 +55,11 @@ def absolute() -> Parser:
     storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
     storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number()))
 
+    lab = strongest_word(['lab', 'live']) # Because of speech parsing by Google.
+
     office_x = word_match('office').then(append(number()))
-    computer_lab_x = word_match('computer').then(append(word_match('lab'))).then(append(number()))
-    lab_x = word_match('lab').then(append(number()))
+    computer_lab_x = word_match('computer').then(append(lab)).then(append(number()))
+    lab_x = lab.then(append(number()))
     meeting_room_x = word_match('meeting').then(append(word_match('room'))).then(append(number()))
     workshop_x = word_match('workshop').then(append(number()))
     server_room_x = word_match('server').then(append(word_match('room'))).then(append(number()))
