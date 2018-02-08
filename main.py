@@ -37,9 +37,11 @@ if __name__ == '__main__':
                 if response.status_code == 200:
                     say(result.parsed.random_response())
                 else:
-                    say(Action.random_negative_response())
+                    say('I cant perform that action at the moment')
 
             else:
-                print('Failed to parse')
+                say('I dont know how to do that')
+        else:
+            say('I didnt understand that')
 
         print('\n')

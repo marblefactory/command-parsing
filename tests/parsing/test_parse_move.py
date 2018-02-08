@@ -1,5 +1,6 @@
 import unittest
-from parsing.parse_move import *
+from parsing.parse_move import speed, stance
+from parsing.parse_action import action
 from actions.move import *
 from actions.location import *
 
@@ -28,34 +29,34 @@ class StanceTestCase(unittest.TestCase):
 class ChangeStanceTestCase(unittest.TestCase):
     def test_stand_up(self):
         s = 'stand up'.split()
-        assert change_stance().parse(s).parsed == ChangeStance(Stance.STAND)
+        assert action().parse(s).parsed == ChangeStance(Stance.STAND)
 
     def test_crouch(self):
         s = 'crouch down'.split()
-        assert change_stance().parse(s).parsed == ChangeStance(Stance.CROUCH)
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
 
 class MoveTestCase(unittest.TestCase):
     def test_parses_go(self):
         s = 'go left standing'.split()
-        assert move().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.STAND)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.STAND)
 
     def test_parses_walk(self):
         s = 'walk left crouching'.split()
-        assert move().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
 
     def test_stance_defaults_to_none(self):
         s = 'go left'.split()
-        assert move().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None)
 
     def test_fast(self):
         s = 'run to the next door'.split()
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
-        assert move().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
+        assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
 
     def test_slow(self):
         s = 'slowly go to the next door'.split()
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
-        assert move().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)
+        assert action().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)

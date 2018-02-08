@@ -11,9 +11,9 @@ class Action(EquatableMixin, Respondable):
 
     def responses(self) -> List[str]:
         """
-        :return: default responses that apply to all actions, plus any responses specific to the action.
+        :return: default affirmative responses that apply to all actions, plus any responses specific to the action.
         """
-        return ['ok', 'affirmative', ''] + self.specific_responses()
+        return ['ok', 'affirmative', 'roger', 'roger that', 'copy', 'copy that'] + self.specific_responses()
 
     def specific_responses(self):
         """
@@ -26,20 +26,6 @@ class Action(EquatableMixin, Respondable):
         :return: a random response from all possible responses to the action.
         """
         return random.choice(self.responses())
-
-    @staticmethod
-    def negative_responses() -> List[str]:
-        """
-        :return: responses to indicate that the command was not understood.
-        """
-        return ['repeat?', 'can you repeat?', 'what was that command?']
-
-    @staticmethod
-    def random_negative_response() -> str:
-        """
-        :return: a random negative response from all available.
-        """
-        return random.choice(Action.negative_responses())
 
 
 class Stop(Action):

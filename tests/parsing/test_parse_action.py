@@ -1,8 +1,15 @@
 import unittest
-from parsing.parse_action import *
+from parsing.parse_action import action
+from actions.action import *
 from actions.interaction import *
 from actions.move import *
 from actions.location import *
+
+
+class StopTestCase(unittest.TestCase):
+    def test_parses(self):
+        s = 'stop'.split()
+        assert action().parse(s).parsed == Stop()
 
 
 class CompositeTestCase(unittest.TestCase):
@@ -14,7 +21,7 @@ class CompositeTestCase(unittest.TestCase):
             Move(Speed.NORMAL, Directional(MoveDirection.RIGHT), None),
         ]
 
-        assert composite().parse(s).parsed == Composite(expected_actions)
+        assert action().parse(s).parsed == Composite(expected_actions)
 
     def test_parses_and(self):
         s = 'go left and pick up the rock'.split()
@@ -24,7 +31,7 @@ class CompositeTestCase(unittest.TestCase):
             PickUp('rock', ObjectRelativeDirection.VICINITY)
         ]
 
-        assert composite().parse(s).parsed == Composite(expected_actions)
+        assert action().parse(s).parsed == Composite(expected_actions)
 
     def test_parses_and_then(self):
         s = 'go left and then pick up the rock'.split()
@@ -34,7 +41,7 @@ class CompositeTestCase(unittest.TestCase):
             PickUp('rock', ObjectRelativeDirection.VICINITY)
         ]
 
-        assert composite().parse(s).parsed == Composite(expected_actions)
+        assert action().parse(s).parsed == Composite(expected_actions)
 
     def test_removes_non_parses(self):
         """
@@ -47,11 +54,11 @@ class CompositeTestCase(unittest.TestCase):
             PickUp('rock', ObjectRelativeDirection.VICINITY)
         ]
 
-        assert composite().parse(s).parsed == Composite(expected_actions)
+        assert action().parse(s).parsed == Composite(expected_actions)
 
     def test_failure(self):
         """
         Tests the composite parser fails if it couldn't find 'then' or 'and'.
         """
         s = 'nothing to see here'.split()
-        assert composite().parse(s) is None
+        assert action().parse(s) is None
