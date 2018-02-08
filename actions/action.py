@@ -1,10 +1,9 @@
 from typing import List
 from equatable import EquatableMixin
-from actions.respondable import Respondable
 import random
 
 
-class Action(EquatableMixin, Respondable):
+class Action(EquatableMixin):
     """
     An action that the player can command the spy to make.
     """

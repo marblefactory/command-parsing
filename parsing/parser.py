@@ -341,13 +341,6 @@ def maybe(parser: Parser) -> Parser:
     return Parser(parse)
 
 
-def inverse(parser: Parser) -> Parser:
-    """
-    :return: a parser with a response which is the inverse of the supplied parser, i.e. 1 - response.
-    """
-    return parser.map_response(lambda r: 1 - r)
-
-
 def threshold(parser: Parser, response_threshold: Response) -> Parser:
     """
     :return: a parser which returns the result of `parser` if the response is above the threshold, otherwise returns None.

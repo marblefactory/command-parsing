@@ -10,18 +10,15 @@ import random
 from typing import List
 
 
-class ActionFailureResponse:
-    """
-    Responses from the server indicating why an action could not be performed.
-    """
-    NOT_FOUND = 0 # The object referred to could not be found.
-
-
 def text_to_speech_failure_responses() -> List[str]:
     """
     :return: responses that can be said if the audio file could not be parsed.
     """
-    return ['repeat?', 'can you repeat?', 'what was that command?']
+    return [
+        'repeat?',
+        'can you repeat?',
+        'what was that command?'
+    ]
 
 
 def action_parse_failure_responses(transcript: str) -> List[str]:
@@ -36,7 +33,7 @@ def action_parse_failure_responses(transcript: str) -> List[str]:
     ]
 
 
-def action_perform_failure_response(code: int) -> List[str]:
+def action_perform_failure_response() -> List[str]:
     """
     :return: responses that can be said if the action could not be performed, e.g. there isn't a computer in the
              vicinity to hack.
@@ -48,6 +45,10 @@ def run_client(server: str):
     """
     Runs an infinite loop of recording, transcribing, parsing, and sending to the server.
     """
+
+    # Preload the wordnet dictionary.
+    print('Loading WordNet...')
+    action().parse(['a'])
 
     recorder = Recorder(sample_rate=16000)
     output_file_name = 'output.wav'
@@ -81,12 +82,12 @@ def run_client(server: str):
 
         print('Parsed          :', result.parsed)
 
-        response = 200 #requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
+        response = requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
 
         print('Server Response :', response)
 
-        if response != 200:
-            speech = random.choice(action_perform_failure_response(ActionFailureResponse.NOT_FOUND))
+        if response.status_code != 200:
+            speech = random.choice(action_perform_failure_response())
             say(speech)
             print()
             continue
