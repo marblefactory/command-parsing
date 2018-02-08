@@ -81,6 +81,10 @@ class AbsoluteTestCase(unittest.TestCase):
         s = 'go to lab 3'.split()
         assert location().parse(s).parsed == Absolute('lab 3')
 
+    def test_parses_live_as_lab(self):
+        s = 'go to live 3'.split()
+        assert location().parse(s).parsed == Absolute('lab 3')
+
     def test_parses_meeting_room(self):
         s = 'go to meeting room 89'.split()
         assert location().parse(s).parsed == Absolute('meeting room 89')
