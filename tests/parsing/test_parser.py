@@ -137,6 +137,39 @@ class WordTaggedTestCase(unittest.TestCase):
         assert parser.parse(['go', 'tree', 'listening']) == ParseResult(parsed='tree', response=1.0, remaining=['listening'])
 
 
+class CardinalNumberTestCase(unittest.TestCase):
+    def test_match(self):
+        assert cardinal_number().parse(['201', 'hello']) == ParseResult(parsed='201', response=1.0, remaining=['hello'])
+
+
+class StringNumberTestCase(unittest.TestCase):
+    def test_match_one(self):
+        assert string_number().parse(['one']).parsed == '1'
+
+    def test_match_two(self):
+        assert string_number().parse(['two']).parsed == '2'
+
+    def test_match_two_alt1(self):
+        assert string_number().parse(['to']).parsed == '2'
+
+    def test_match_two_alt2(self):
+        assert string_number().parse(['too']).parsed == '2'
+
+    def test_match_four(self):
+        assert string_number().parse(['four']).parsed == '4'
+
+    def test_match_four_alt1(self):
+        assert string_number().parse(['for']).parsed == '4'
+
+
+class NumberTestCase(unittest.TestCase):
+    def test_match_cardinal(self):
+        assert number().parse(['201', 'hello']).parsed == '201'
+
+    def test_match_string(self):
+        assert number().parse(['three', 'hello']).parsed == '3'
+
+
 class StrongestTestCase(unittest.TestCase):
     def test_chooses_strongest_from_unique(self):
         p1 = produce('a', 0.1)

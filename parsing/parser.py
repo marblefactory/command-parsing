@@ -229,11 +229,47 @@ def word_tagged(tags: List[str]) -> Parser:
     return predicate(condition)
 
 
-def number() -> Parser:
+def cardinal_number() -> Parser:
     """
     :return: a parser which matches on cardinal numbers, e.g. 102. The parse result is a string of the number.
     """
     return word_tagged(['CD'])
+
+
+def string_number() -> Parser:
+    """
+    :return: a parser which matches on string numbers, e.g. three parses to '3'
+    """
+    all_words = [
+        ['one'],
+        ['to', 'two', 'too'],
+        ['three'],
+        ['four', 'for'],
+        ['five'],
+        ['six'],
+        ['seven'],
+        ['eight'],
+        ['nine'],
+        ['ten']
+    ]
+
+    # [word_match(word).ignore_parsed(num) for num, word in enumerate(words)]
+
+    parsers: List[Parser]= []
+
+    for num, words in enumerate(all_words):
+        for word in words:
+            parser = word_match(word).ignore_parsed(str(num + 1))
+            parsers.append(parser)
+
+    return strongest(parsers)
+
+
+def number() -> Parser:
+    """
+    :return: a parser which parses string numbers, e.g. one, up to 10. Or, any cardinal number, e.g. 201.
+    """
+    return strongest([string_number(), cardinal_number()])
 
 
 def strongest(parsers: List[Parser], debug = False) -> Parser:
