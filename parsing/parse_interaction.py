@@ -42,8 +42,8 @@ def throw() -> Parser:
     # Defaults to throwing forwards.
     target_location_parsers = [
         positional(),
-        directional(),
         behind(),
+        directional(),
         produce(Directional(ObjectRelativeDirection.FORWARDS), 0.5)
     ]
     target = strongest(target_location_parsers)

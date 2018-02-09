@@ -1,13 +1,9 @@
 import os
 
 
-def say(text: str):
+def say(text: str, speaker = 'tom', words_per_min = 218):
     """
     Speaks the supplied text.
     """
-    speaker = 'tom'
-    word_per_min = 218
-
-    command = 'say -v "{}" -r {} "{}"'.format(speaker, word_per_min, text)
-
+    command = 'say -v "{}" -r {} "{}"'.format(speaker, words_per_min, text)
     os.system(command)

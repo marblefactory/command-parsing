@@ -38,10 +38,12 @@ class ThrowTestCase(unittest.TestCase):
     def test_parse_positional(self):
         s = 'throw to the next door'.split()
 
-        print(action().parse(s).parsed)
-
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Throw(expected_loc)
+
+    def test_throw_behind_object(self):
+        s = 'throw behind the desk'.split()
+        assert action().parse(s).parsed == Throw(Behind('desk'))
 
     def test_defaults_forwards(self):
         s = 'throw'.split()
