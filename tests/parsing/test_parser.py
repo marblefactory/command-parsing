@@ -58,38 +58,28 @@ class ParserTestCase(unittest.TestCase):
 
 
 class PredicateTestCase(unittest.TestCase):
-    def test_condition_below_threshold(self):
-        """
-        Tests None is returned if the condition is below the threshold.
-        """
+    def test_none_if_all_zero(self):
         def condition(input_word: Word) -> Response:
-            return 0.1
+            return 0.0
 
-        parser = predicate(condition, threshold=0.5)
+        assert predicate(condition).parse(['a']) is None
 
-        assert parser.parse([]) is None
-
-    def test_condition_on_threshold(self):
-        """
-        Tests the parse result is returned if condition is on the threshold.
-        """
+    def test_none_if_empty(self):
         def condition(input_word: Word) -> Response:
-            return 0.5
+            return 1.0
 
-        parser = predicate(condition, threshold=0.5)
+        assert predicate(condition).parse([]) is None
 
-        assert parser.parse(['a', 'b']) == ParseResult(parsed='a', response=0.5, remaining=['b'])
-
-    def test_condition_above_threshold(self):
-        """
-        Tests the parse result is returned if the condition is over the threshold.
-        """
+    def test_matches_highest(self):
         def condition(input_word: Word) -> Response:
-            return 0.51
+            if input_word == 'a':
+                return 0.1
+            elif input_word == 'b':
+                return 0.8
+            else:
+                return 0.2
 
-        parser = predicate(condition, threshold=0.5)
-
-        assert parser.parse(['a', 'b']) == ParseResult(parsed='a', response=0.51, remaining=['b'])
+        assert predicate(condition).parse(['a', 'b', 'c']) == ParseResult('b', 0.8, ['c'])
 
 
 class WordMatchTestCase(unittest.TestCase):
@@ -117,7 +107,7 @@ class WordMeaningTestCase(unittest.TestCase):
         """
         Tests None is returned if no similar words are found.
         """
-        assert word_meaning('go').parse(['boat', 'hello']) is None
+        assert word_meaning('orange').parse(['boat', 'hello']) is None
 
     def test_match(self):
         """

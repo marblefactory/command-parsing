@@ -176,17 +176,21 @@ def failure() -> Parser:
     return Parser(lambda input: None)
 
 
-def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) -> Parser:
+def predicate(condition: Callable[[Word], Response]) -> Parser:
     """
-    :return: a parser which matches on the first word to give a value of condition higher than the threshold.
+    :return: a parser which matches on the word which gives the highest response to the condition.
     """
     def parse(input: List[Word]) -> Optional[ParseResult]:
-        for i, word in enumerate(input):
-            response = condition(word)
-            if response >= threshold:
-                return ParseResult(word, response, input[i + 1:])
+        if len(input) == 0:
+            return None
 
-        return None
+        responses = [(i, word, condition(word)) for i, word in enumerate(input)]
+        i, word, max_response = max(responses, key=lambda r: r[2])
+
+        if max_response == 0:
+            return None
+
+        return ParseResult(word, max_response, input[i + 1:])
 
     return Parser(parse)
 
@@ -196,11 +200,12 @@ def word_edit_dist(word: Word) -> Parser:
     :return: a parser which matches words where the edit distance between the word and an input word determines the
              response.
     """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
-        for i, input_word in enumerate(input):
-            max_word_len = max(len(input_word), len(word))
-            edit_dist = editdistance.eval(word, input_word)
-            response = (max_word_len - edit_dist) / max_word_len
+    def condition(input_word: Word) -> Response:
+        max_word_len = max(len(input_word), len(word))
+        edit_dist = editdistance.eval(word, input_word)
+        return (max_word_len - edit_dist) / max_word_len
+
+    return predicate(condition)
 
 
 def word_match(word: Word, match_plural = True) -> Parser:
@@ -221,8 +226,8 @@ def word_match(word: Word, match_plural = True) -> Parser:
     return predicate(condition)
 
 
-def word_meaning(word: Word,g
-                 semantic_similarity_threshold: Response = 0.5,
+def word_meaning(word: Word,
+                 semantic_similarity_threshold: Response = 0.45,
                  similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
     """
     :param word: the word to find similar words to.
@@ -234,7 +239,7 @@ def word_meaning(word: Word,g
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, similarity_measure)
 
-    return predicate(condition, semantic_similarity_threshold)
+    return threshold(predicate(condition), semantic_similarity_threshold)
 
 
 def word_tagged(tags: List[str]) -> Parser:
