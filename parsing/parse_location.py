@@ -28,8 +28,8 @@ def move_direction() -> Parser:
     """
     :return: a parser for movement directions, e.g. left, right, forwards, backwards, which are converted to Direction enums.
     """
-    forwards_matcher = strongest_word(['forward', 'front'], make_parser=word_meaning)
-    backwards_matcher = strongest_word(['backward', 'behind'], make_parser=word_meaning)
+    forwards_matcher = strongest_word(['forward', 'front'], parser_constructors=[word_meaning])
+    backwards_matcher = strongest_word(['backward', 'behind'], parser_constructors=[word_meaning])
 
     forwards = forwards_matcher.ignore_parsed(MoveDirection.FORWARDS)
     backwards = backwards_matcher.ignore_parsed(MoveDirection.BACKWARDS)
@@ -55,7 +55,7 @@ def absolute() -> Parser:
     storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
     storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number()))
 
-    lab = strongest_word(['lab', 'live']).ignore_parsed('lab') # Because of speech parsing by Google.
+    lab = word_edit_dist('lab') # Because of speech parsing by Google.
 
     office_x = word_match('office').then(append(number()))
     computer_lab_x = word_match('computer').then(append(lab)).then(append(number()))

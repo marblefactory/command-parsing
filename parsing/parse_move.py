@@ -7,12 +7,12 @@ def speed() -> Parser:
     """
     :return: a parser for different speeds, i.e. slow, normal, fast.
     """
-    fast_word_parsers = [word_meaning('quick'), word_meaning('fast'), word_match('run')]
+    fast_word_parsers = [word_meaning('quick'), word_meaning('fast'), word_edit_dist('run')]
 
     slow = strongest_word(['slow', 'slowly']).ignore_parsed(Speed.SLOW)
     fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
     # Deduce that if the speed is neither slow nor fast, then it must be normal speed.
-    normal = strongest([slow, fast, produce(Speed.NORMAL, 1.0)])
+    normal = strongest([slow, fast, produce(Speed.NORMAL, 0.5)])
 
     return strongest([slow, normal, fast])
 
@@ -60,8 +60,8 @@ def move() -> Parser:
         # Passes through the response, ignoring the response of the stance parser.
         return stance_parser.map(lambda parsed_stance, _: (acc + [parsed_stance], r))
 
-    verbs = ['go', 'walk']
-    move_verb = anywhere(strongest_word(verbs, make_parser=word_meaning))
+    verbs = ['go', 'walk', 'run']
+    move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_meaning, word_edit_dist]))
     loc_parser = anywhere(location()).map_parsed(lambda loc: [loc])
 
     return move_verb.ignore_then(loc_parser, mix) \

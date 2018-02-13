@@ -5,6 +5,7 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
 import inflect
 import editdistance
+from itertools import product
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -195,17 +196,18 @@ def predicate(condition: Callable[[Word], Response]) -> Parser:
     return Parser(parse)
 
 
-def word_edit_dist(word: Word) -> Parser:
+def word_edit_dist(word: Word, dist_threshold: Response = 0.24) -> Parser:
     """
     :return: a parser which matches words where the edit distance between the word and an input word determines the
-             response.
+             response. The parser has no response if the first letters of the input word and supplied word don't match.
+             If matches then `word` is the parsed string, not the word from the input text.
     """
     def condition(input_word: Word) -> Response:
         max_word_len = max(len(input_word), len(word))
         edit_dist = editdistance.eval(word, input_word)
-        return (max_word_len - edit_dist) / max_word_len
+        return ((max_word_len - edit_dist) / max_word_len) * (input_word[0] == word[0])
 
-    return predicate(condition)
+    return threshold(predicate(condition).ignore_parsed(word), dist_threshold)
 
 
 def word_match(word: Word, match_plural = True) -> Parser:
@@ -317,14 +319,20 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
     return Parser(parse)
 
 
-def strongest_word(words: List[Word], make_parser: Callable[[Word], Parser] = word_match) -> Parser:
+def strongest_word(words: List[Word], parser_constructors: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
     """
     :param words: the list of words to compare to the input.
-    :param make_parser: the function used to create a parser from a word.
+    :param parser_constructors: the functions used to create a parser from a word. For each word a parser will be
+                                created using each parser in the list.
     :return: created parser which matches most strongly on the input.
     """
-    parsers = [make_parser(word) for word in words]
-    return strongest(parsers)
+    if parser_constructors is None:
+        parser_constructors = [word_match]
+
+    # Each word matched with each type of parser (i.e. Cartesian product)
+    constructors_and_words = product(parser_constructors, words)
+    parsers = [constructor(word) for (constructor, word) in constructors_and_words]
+    return strongest(parsers, debug)
 
 
 def anywhere(parser: Parser) -> Parser:

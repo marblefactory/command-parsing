@@ -67,6 +67,12 @@ class MoveTestCase(unittest.TestCase):
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
 
+    def test_ron_as_run(self):
+        s = 'ron to the next door'.split()
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
+
     def test_slow(self):
         s = 'slowly go to the next door'.split()
 

@@ -1,7 +1,15 @@
 import unittest
+from parsing.parse_interaction import interaction_object_name
 from parsing.parse_action import action
 from actions.interaction import *
 from actions.location import *
+
+
+class InteractionObjectTestCase(unittest.TestCase):
+    def test_rope_as_rock(self):
+        s = 'rope'.split()
+        print(interaction_object_name().parse(s).parsed)
+        assert interaction_object_name().parse(s).parsed == 'rock'
 
 
 class ThroughDoorTestCase(unittest.TestCase):
@@ -65,6 +73,10 @@ class HackTestCase(unittest.TestCase):
         s = 'hack the camera'.split()
         assert action().parse(s).parsed == Hack('camera', ObjectRelativeDirection.VICINITY)
 
-    def test_fails_if_no_object(self):
+    def test_fails_if_no_object1(self):
+        s = 'hack'.split()
+        assert action().parse(s) is None
+
+    def test_fails_if_no_object2(self):
         s = 'hack something'.split()
         assert action().parse(s) is None

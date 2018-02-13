@@ -83,17 +83,23 @@ class PredicateTestCase(unittest.TestCase):
 
 
 class WordEditDistTestCase(unittest.TestCase):
-    def test_no_match(self):
+    def test_no_match1(self):
         """
         Tests None is returned if the words share no similarities.
         """
         assert word_edit_dist('aaa').parse(['bbb', 'ccc']) is None
 
+    def test_no_match_not_same_first(self):
+        """
+        Tests None is returned if the words do not have the same first letter.
+        """
+        assert word_edit_dist('hello').parse(['dello', 'mello']) is None
+
     def test_match_some(self):
         """
         Tests the parser matches when some of the letters are correct.
         """
-        assert word_edit_dist('aaaa').parse(['abbb', 'cccc']) == ParseResult('abbb', 0.25, ['cccc'])
+        assert word_edit_dist('aaaa').parse(['abbb', 'cccc']) == ParseResult('aaaa', 0.25, ['cccc'])
 
     def test_match_all(self):
         """
@@ -105,7 +111,7 @@ class WordEditDistTestCase(unittest.TestCase):
         """
         Tests the parse matches on the word with the lowest edit distance.
         """
-        assert word_edit_dist('aaa').parse(['abbb', 'aacc']) == ParseResult('aacc', 0.5, [])
+        assert word_edit_dist('aaaa').parse(['abbb', 'aacc']) == ParseResult('aaaa', 0.5, [])
 
 
 class WordMatchTestCase(unittest.TestCase):
@@ -210,6 +216,28 @@ class StrongestTestCase(unittest.TestCase):
         parser = strongest([p1, p2, p3])
 
         assert parser.parse([]) == ParseResult(parsed='a', response=0.8, remaining=[])
+
+
+class StrongestWordTestCase(unittest.TestCase):
+    def test_match_strongest_word(self):
+        s = 'a b c'.split()
+        assert strongest_word(['b', 'x']).parse(s).parsed == 'b'
+
+    def test_cartesian_product_of_parser_constructors1(self):
+        """
+        Tests that every parser constructor is combined with every word to match on.
+        """
+        s = 'orange hillo'.split()
+        parser = strongest_word(['blue', 'hello'], parser_constructors=[word_edit_dist, word_meaning])
+        assert parser.parse(s).parsed == 'hello'
+
+    def test_cartesian_product_of_parser_constructors2(self):
+        """
+        Tests that every parser constructor is combined with every word to match on.
+        """
+        s = 'run whale'.split()
+        parser = strongest_word(['go', 'hi'], parser_constructors=[word_edit_dist, word_meaning])
+        assert parser.parse(s).parsed == 'run'
 
 
 class AnywhereTestCase(unittest.TestCase):

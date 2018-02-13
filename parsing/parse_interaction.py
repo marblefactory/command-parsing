@@ -8,7 +8,7 @@ def interaction_object_name() -> Parser:
     """
     :return: a parser for names of objects that can be interacted with.
     """
-    return strongest_word(['rock', 'hammer', 'terminal', 'computer', 'camera', 'console'])
+    return strongest_word(['rock', 'hammer', 'terminal', 'computer', 'camera', 'console'], parser_constructors=[word_edit_dist])
 
 
 def through_door() -> Parser:
