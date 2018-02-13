@@ -82,6 +82,32 @@ class PredicateTestCase(unittest.TestCase):
         assert predicate(condition).parse(['a', 'b', 'c']) == ParseResult('b', 0.8, ['c'])
 
 
+class WordEditDistTestCase(unittest.TestCase):
+    def test_no_match(self):
+        """
+        Tests None is returned if the words share no similarities.
+        """
+        assert word_edit_dist('aaa').parse(['bbb', 'ccc']) is None
+
+    def test_match_some(self):
+        """
+        Tests the parser matches when some of the letters are correct.
+        """
+        assert word_edit_dist('aaaa').parse(['abbb', 'cccc']) == ParseResult('abbb', 0.25, ['cccc'])
+
+    def test_match_all(self):
+        """
+        Tests the parse matches when all of the letters are correct.
+        """
+        assert word_edit_dist('aaaa').parse(['aaaa', 'cccc']) == ParseResult('aaaa', 1.0, ['cccc'])
+
+    def test_matches_strongest(self):
+        """
+        Tests the parse matches on the word with the lowest edit distance.
+        """
+        assert word_edit_dist('aaa').parse(['abbb', 'aacc']) == ParseResult('aacc', 0.5, [])
+
+
 class WordMatchTestCase(unittest.TestCase):
     def test_no_match(self):
         """

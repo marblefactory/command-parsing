@@ -239,7 +239,7 @@ def word_meaning(word: Word,
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, similarity_measure)
 
-    return threshold(predicate(condition), semantic_similarity_threshold)
+    return predicate(condition)
 
 
 def word_tagged(tags: List[str]) -> Parser:
