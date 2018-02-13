@@ -57,6 +57,11 @@ class MoveTestCase(unittest.TestCase):
         s = 'walk left crouching'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
 
+    def test_whats_as_walk(self):
+        s = 'whats the next room'.split()
+        expected_loc = Positional('room', 0, MoveDirection.FORWARDS)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, expected_loc, None)
+
     def test_stance_defaults_to_none(self):
         s = 'go left'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None)
@@ -69,12 +74,6 @@ class MoveTestCase(unittest.TestCase):
 
     def test_ron_as_run(self):
         s = 'ron to the next door'.split()
-
-        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
-        assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
-
-    def test_road_as_run(self):
-        s = 'road to the next door'.split()
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)

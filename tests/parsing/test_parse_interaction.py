@@ -8,7 +8,6 @@ from actions.location import *
 class InteractionObjectTestCase(unittest.TestCase):
     def test_rope_as_rock(self):
         s = 'rope'.split()
-        print(interaction_object_name().parse(s).parsed)
         assert interaction_object_name().parse(s).parsed == 'rock'
 
 

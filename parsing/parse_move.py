@@ -7,12 +7,13 @@ def speed() -> Parser:
     """
     :return: a parser for different speeds, i.e. slow, normal, fast.
     """
-    fast_word_parsers = [word_meaning('quick'), word_meaning('fast'), word_edit_dist('run')]
+    normal_speed_response = 0.5
+    fast_word_parsers = [word_meaning('quick', normal_speed_response), word_meaning('fast', normal_speed_response), word_edit_dist('run')]
 
     slow = strongest_word(['slow', 'slowly']).ignore_parsed(Speed.SLOW)
     fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
     # Deduce that if the speed is neither slow nor fast, then it must be normal speed.
-    normal = strongest([slow, fast, produce(Speed.NORMAL, 0)])
+    normal = strongest([slow, fast, produce(Speed.NORMAL, normal_speed_response)])
 
     return strongest([slow, normal, fast])
 
