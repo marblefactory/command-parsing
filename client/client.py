@@ -95,7 +95,3 @@ def run_client(server: str):
         say(result.parsed.random_response())
 
         print()
-
-
-if __name__ == '__main__':
-    run_client("http://192.168.0.30:8080/action")

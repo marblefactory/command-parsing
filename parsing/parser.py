@@ -4,6 +4,7 @@ import nltk
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
 import inflect
+import editdistance
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -190,6 +191,18 @@ def predicate(condition: Callable[[Word], Response], threshold: Response = 1.0) 
     return Parser(parse)
 
 
+def word_edit_dist(word: Word) -> Parser:
+    """
+    :return: a parser which matches words where the edit distance between the word and an input word determines the
+             response.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        for i, input_word in enumerate(input):
+            max_word_len = max(len(input_word), len(word))
+            edit_dist = editdistance.eval(word, input_word)
+            response = (max_word_len - edit_dist) / max_word_len
+
+
 def word_match(word: Word, match_plural = True) -> Parser:
     """
     :param match_plural: whether to match on the plural of the word as well as the word.
@@ -208,7 +221,7 @@ def word_match(word: Word, match_plural = True) -> Parser:
     return predicate(condition)
 
 
-def word_meaning(word: Word,
+def word_meaning(word: Word,g
                  semantic_similarity_threshold: Response = 0.5,
                  similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
     """
