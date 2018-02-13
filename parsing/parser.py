@@ -213,7 +213,6 @@ def word_match(word: Word, match_plural = True) -> Parser:
     :param match_plural: whether to match on the plural of the word as well as the word.
     :return: a parser which matches on the first occurrence of the supplied word.
     """
-
     if match_plural:
         plural = inflect.engine().plural(word)
         def condition(input_word: Word) -> Response:
@@ -239,7 +238,7 @@ def word_meaning(word: Word,
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, similarity_measure)
 
-    return predicate(condition)
+    return threshold(predicate(condition), semantic_similarity_threshold)
 
 
 def word_tagged(tags: List[str]) -> Parser:
