@@ -203,9 +203,12 @@ def word_edit_dist(word: Word, dist_threshold: Response = 0.24) -> Parser:
              If matches then `word` is the parsed string, not the word from the input text.
     """
     def condition(input_word: Word) -> Response:
+        if input_word[0] != word[0]:
+            return 0
+
         max_word_len = max(len(input_word), len(word))
         edit_dist = editdistance.eval(word, input_word)
-        return ((max_word_len - edit_dist) / max_word_len) * (input_word[0] == word[0])
+        return ((max_word_len - edit_dist) / max_word_len)
 
     return threshold(predicate(condition).ignore_parsed(word), dist_threshold)
 
@@ -228,7 +231,7 @@ def word_match(word: Word, match_plural = True) -> Parser:
 
 
 def word_meaning(word: Word,
-                 semantic_similarity_threshold: Response = 0.45,
+                 semantic_similarity_threshold: Response = 0.5,
                  similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
     """
     :param word: the word to find similar words to.

@@ -145,8 +145,8 @@ class WordMeaningTestCase(unittest.TestCase):
         """
         Tests the similar word is parsed.
         """
-        p = word_meaning('go')
-        assert p.parse(['boat', 'walk', 'hello']) == ParseResult(parsed='walk', response=0.5, remaining=['hello'])
+        p = word_meaning('hi')
+        assert p.parse(['boat', 'walk', 'hello']) == ParseResult(parsed='hello', response=1.0, remaining=[])
 
 
 class WordTaggedTestCase(unittest.TestCase):
