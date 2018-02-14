@@ -60,7 +60,7 @@ def hack() -> Parser:
     def combine_direction(acc: List, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: acc + [dir])
 
-    hack_verb = strongest_word(['hack', 'hacks'])
+    hack_verb = word_match('hack')
     obj_name = interaction_object_name().map_parsed(lambda name: [name])
 
     return hack_verb.ignore_then(obj_name) \
