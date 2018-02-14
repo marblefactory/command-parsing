@@ -27,7 +27,7 @@ def pick_up() -> Parser:
     def combine_direction(acc: List, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: acc + [dir])
 
-    pick_up_verb = word_meaning('pick')
+    pick_up_verb = strongest_word(['pick', 'take'], parser_constructors=[word_meaning])
     obj_name = interaction_object_name().map_parsed(lambda name: [name])
 
     return pick_up_verb.ignore_then(obj_name) \
