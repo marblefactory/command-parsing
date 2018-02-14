@@ -91,3 +91,11 @@ class MoveTestCase(unittest.TestCase):
     def test_parses_turn_backwards(self):
         s = 'turn around'.split()
         assert action().parse(s).parsed == Turn(MoveDirection.BACKWARDS)
+
+    def test_parses_take_next_door(self):
+        s = 'take the next door'.split()
+        assert action().parse(s) == Move(Speed.NORMAL, Positional('door', 0, MoveDirection.FORWARDS), None)
+
+    def test_fails_if_not_taking_positional(self):
+        s = 'take the forwards'.split()
+        assert action().parse(s) is None

@@ -22,16 +22,24 @@ class ThroughDoorTestCase(unittest.TestCase):
 
 
 class PickUpTestCase(unittest.TestCase):
-    def test_parse(self):
+    def test_parse_pick_up(self):
         s = 'pick up the rock on your left'.split()
+        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.LEFT)
+
+    def test_parse_take(self):
+        s = 'take the rock on your left'.split()
         assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.LEFT)
 
     def test_direction_defaults_to_vicinity(self):
         s = 'pick up the hammer'.split()
         assert action().parse(s).parsed == PickUp('hammer', ObjectRelativeDirection.VICINITY)
 
-    def test_fails_if_no_object(self):
+    def test_pick_up_fails_if_no_object(self):
         s = 'pick up'.split()
+        assert action().parse(s) is None
+
+    def test_take_fails_if_no_object(self):
+        s = 'take the on your left'.split()
         assert action().parse(s) is None
 
 
