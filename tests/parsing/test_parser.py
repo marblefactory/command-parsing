@@ -241,8 +241,11 @@ class ParStrongestTestCase(StrongestTestCase):
         """
         wn.ensure_loaded()
 
-        p1 = word_meaning('hello')
-        p2 = word_meaning('bye')
+        # Because WordNet does not support multi-threading.
+        lock = Lock()
+
+        p1 = locked(word_meaning('hello'), lock)
+        p2 = locked(word_meaning('bye'), lock)
 
         parser = self.strongest_parser([p1, p2])
 

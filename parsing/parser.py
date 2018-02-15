@@ -9,6 +9,7 @@ from itertools import product
 import functools
 import numpy as np
 from multiprocessing.dummy import Pool
+from multiprocessing import Lock
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -241,8 +242,6 @@ def word_meaning(word: Word,
     :param similarity_measure: used to compare the semantic similarity of two words.
     :return: a parser which matches on words which have a similar meaning to the supplied word.
     """
-    similarity_measure = lambda x, y: 0.5
-
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, similarity_measure)
 
@@ -428,3 +427,17 @@ def append(parser: Parser, combine_responses: Callable[[Response, Response], Res
         return parser.map(lambda p, r: (parsed_str + sep + p, combine_responses(response, r)))
 
     return op
+
+
+def locked(parser: Parser, lock: Lock) -> Parser:
+    """
+    :return: a parser where parsing is a critical section, where only one parser with the same lock can enter at once.
+    """
+
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        lock.acquire()
+        result = parser.parse(input)
+        lock.release()
+        return result
+
+    return Parser(parse)
