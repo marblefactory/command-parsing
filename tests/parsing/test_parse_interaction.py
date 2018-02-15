@@ -40,7 +40,7 @@ class PickUpTestCase(unittest.TestCase):
 
     def test_take_fails_if_no_object(self):
         s = 'take the on your left'.split()
-        assert action().parse(s) is None
+        assert type(action().parse(s)) != PickUp
 
 
 class ThrowTestCase(unittest.TestCase):

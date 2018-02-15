@@ -61,7 +61,7 @@ def move() -> Parser:
         # Passes through the response, ignoring the response of the stance parser.
         return stance_parser.map(lambda parsed_stance, _: (acc + [parsed_stance], r))
 
-    verbs = ['go', 'walk', 'run']
+    verbs = ['go', 'walk', 'run', 'take']
     move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_meaning, word_edit_dist]))
     loc_parser = anywhere(location()).map_parsed(lambda loc: [loc])
 

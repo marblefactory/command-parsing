@@ -96,6 +96,6 @@ class MoveTestCase(unittest.TestCase):
         s = 'take the next door'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('door', 0, MoveDirection.FORWARDS), None)
 
-    def test_fails_if_not_taking_positional(self):
-        s = 'take the forwards'.split()
-        assert action().parse(s) is None
+    def test_parses_take_the_stairs(self):
+        s = 'take the stairs up'.split()
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Stairs(FloorDirection.UP), None)
