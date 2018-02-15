@@ -231,23 +231,23 @@ class StrongestTestCase(unittest.TestCase):
         assert parser.parse(s) is None
 
 
-# class ParStrongestTestCase(StrongestTestCase):
-#     def strongest_parser(self, parsers: List[Parser]) -> Parser:
-#         return par_strongest(parsers, debug=True)
-#
-#     def test_parallel_semantic(self):
-#         """
-#         Tests WordNet can be used in parallel.
-#         """
-#         wn.ensure_loaded()
-#
-#         p1 = word_meaning('hello')
-#         p2 = word_meaning('bye')
-#
-#         parser = self.strongest_parser([p1, p2])
-#
-#         s = 'hi'.split()
-#         assert parser.parse(s).parsed == 'hi'
+class ParStrongestTestCase(StrongestTestCase):
+    def strongest_parser(self, parsers: List[Parser]) -> Parser:
+        return par_strongest(parsers)
+
+    def test_parallel_semantic(self):
+        """
+        Tests WordNet can be used in parallel.
+        """
+        wn.ensure_loaded()
+
+        p1 = word_meaning('hello')
+        p2 = word_meaning('bye')
+
+        parser = self.strongest_parser([p1, p2])
+
+        s = 'hi'.split()
+        assert parser.parse(s).parsed == 'hi'
 
 
 class StrongestWordTestCase(unittest.TestCase):

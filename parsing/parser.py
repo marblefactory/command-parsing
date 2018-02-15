@@ -6,8 +6,9 @@ from nltk.corpus.reader.wordnet import Synset
 import inflect
 import editdistance
 from itertools import product
-from multiprocessing.dummy import Pool as ThreadPool
 import functools
+import numpy as np
+from multiprocessing.dummy import Pool
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -35,19 +36,17 @@ def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset
     :param similarity_measure: a word net function which give the semantic distance between two synsets.
     :return: the semantic similarity between the words using a `similarity` distance function defined by WordNet.
     """
-    w1_synsets: List[Synset] = wn.synsets(w1)
-    w2_synsets: List[Synset] = wn.synsets(w2)
 
     # Each synset contains different meanings of the word, e.g. fly is a noun and verb.
     # We'll find the maximum semantic similarity between any pairing of words from both synsets.
-    maximum: Response = 0
+    w1_synsets: List[Synset] = wn.synsets(w1)
+    w2_synsets: List[Synset] = wn.synsets(w2)
 
-    for s1 in w1_synsets:
-        for s2 in w2_synsets:
-            similarity_value = similarity_measure(s1, s2) or 0
-            maximum = similarity_value if similarity_value > maximum else maximum
+    if len(w1_synsets) == 0 or len(w2_synsets) == 0:
+        return 0.0
 
-    return maximum
+    similarities = [similarity_measure(s1, s2) or 0.0 for s1 in w1_synsets for s2 in w2_synsets]
+    return np.max(similarities)
 
 
 class Parser:
@@ -242,6 +241,7 @@ def word_meaning(word: Word,
     :param similarity_measure: used to compare the semantic similarity of two words.
     :return: a parser which matches on words which have a similar meaning to the supplied word.
     """
+    similarity_measure = lambda x, y: 0.5
 
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, similarity_measure)
@@ -326,21 +326,20 @@ def _strongest(make_results: Callable[[List[Word]], List[ParseResult]], debug = 
     return Parser(parse)
 
 
-# def par_strongest(parsers: List[Parser], debug = False) -> Parser:
-#     """
-#     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
-#              then the parser to occur first in the list is returned. The parsers are run on each CPU available.
-#     """
-#     def make_results(input: List[Word]) -> List[ParseResult]:
-#         parse_fs = [parser.parse for parser in parsers]
-#
-#         def f(parse_f: Callable) -> Optional[ParseResult]:
-#             return parse_f(input)
-#
-#         pool = ThreadPool(2)
-#         return pool.map(f, parse_fs)
-#
-#     return _strongest(make_results, debug)
+def par_strongest(parsers: List[Parser], debug = False) -> Parser:
+    """
+    :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
+             then the parser to occur first in the list is returned. The parsers are run on each CPU available.
+    """
+    def make_results(input: List[Word]) -> List[ParseResult]:
+        def f(parser: Parser) -> Optional[ParseResult]:
+            return parser.parse(input)
+
+        with Pool() as pool:
+            results = pool.map(f, parsers)
+        return results
+
+    return _strongest(make_results, debug)
 
 
 def strongest(parsers: List[Parser], debug = False) -> Parser:
