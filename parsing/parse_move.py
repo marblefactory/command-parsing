@@ -22,7 +22,7 @@ def stance() -> Parser:
     """
     :return: a parser for different stances, i.e. crouched, standing.
     """
-    crouched = word_meaning('crouch').ignore_parsed(Stance.CROUCH)
+    crouched = strongest_word(['crouch'], parser_constructors=[word_meaning, word_edit_dist]).ignore_parsed(Stance.CROUCH)
     standing = word_meaning('stand').ignore_parsed(Stance.STAND)
 
     return strongest([crouched, standing])

@@ -22,10 +22,16 @@ class SpeedTestCase(unittest.TestCase):
 
 class StanceTestCase(unittest.TestCase):
     def test_crouch(self):
-        assert stance().parse(['crouch']).parsed == Stance.CROUCH
+        s = 'crouch'.split()
+        assert stance().parse(s).parsed == Stance.CROUCH
+
+    def test_couch_as_crouch(self):
+        s = 'couch'.split()
+        assert stance().parse(s).parsed == Stance.CROUCH
 
     def test_stand(self):
-        assert stance().parse(['stand']).parsed == Stance.STAND
+        s = 'stand'.split()
+        assert stance().parse(s).parsed == Stance.STAND
 
 
 class TurnTestCase(unittest.TestCase):

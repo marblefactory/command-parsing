@@ -353,3 +353,17 @@ class AppendTestCase(unittest.TestCase):
         p = p1.then(append(p2))
 
         assert p.parse([]) == ParseResult('x y', 0.5, [])
+
+
+class NoneTestCase(unittest.TestCase):
+    def test_parse_causes_fail(self):
+        s = 'b a c'.split()
+        p = none(word_match('a'))
+
+        assert p.parse(s) is None
+
+    def test_no_parse_causes_empty_parse(self):
+        s = 'x y z'.split()
+        p = none(word_match('a'), response=0.5)
+
+        assert p.parse(s) == ParseResult(None, 0.5, ['x', 'y', 'z'])

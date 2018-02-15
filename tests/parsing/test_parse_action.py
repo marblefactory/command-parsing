@@ -62,3 +62,12 @@ class CompositeTestCase(unittest.TestCase):
         """
         s = 'nothing to see here'.split()
         assert action().parse(s) is None
+
+
+class DontTestCase(unittest.TestCase):
+    def test_no_parse(self):
+        """
+        Tests that if the player says "don't" no action is performed.
+        """
+        s = "don't go forwards".split()
+        assert action().parse(s) is None

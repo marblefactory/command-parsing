@@ -394,7 +394,6 @@ def maybe(parser: Parser, response: Response = 0.0) -> Parser:
         result = parser.parse(input)
         if not result:
             return ParseResult(parsed=None, response=response, remaining=input)
-
         return result
 
     return Parser(parse)
@@ -440,5 +439,19 @@ def locked(parser: Parser, lock: Lock) -> Parser:
         result = parser.parse(input)
         lock.release()
         return result
+
+    return Parser(parse)
+
+
+def none(parser: Parser, response: Response = 1.0) -> Parser:
+    """
+    :param response: the response of the returned parser if the supplied parser succeeds.
+    :return: a parser which fails if the supplied parser parses. Otherwise returns the empty response.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        result = parser.parse(input)
+        if result:
+            return None
+        return ParseResult(parsed=None, response=response, remaining=input)
 
     return Parser(parse)

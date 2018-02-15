@@ -5,6 +5,13 @@ from parsing.parse_interaction import through_door, pick_up, throw, hack
 from utils import split_list
 
 
+def do_not() -> Parser:
+    """
+    :return: a parser which parses "not" and "don't".
+    """
+    return strongest_word(["not", "don't"])
+
+
 def stop() -> Parser:
     """
     :return: parses stop actions, i.e. saying the word 'stop'.
@@ -57,8 +64,8 @@ def composite() -> Parser:
 
 def action() -> Parser:
     """
-    :return: a parser for single or composite actions.
+    :return: a parser for single or composite actions. Nothing will be parsed if the text contains "not" or "don't".
     """
     act = strongest([composite(), single_action()])
     # Threshold actions out that may not have been parsed correctly.
-    return threshold(act, 0.3)
+    return none(do_not()).ignore_then(threshold(act, 0.3))
