@@ -63,3 +63,15 @@ class Move(Action):
 
     def specific_responses(self) -> List[str]:
         return ['moving to that position', 'on my way']
+
+
+class Hide(Action):
+    """
+    Tells the spy to hide behind an object. If no object is given, the spy will hide behind the closest object.
+    """
+
+    def __init__(self, object_name: Optional[str]):
+        self.object_name = object_name
+
+    def __str__(self):
+        return 'hide behind {}'.format(self.object_name or 'closest')

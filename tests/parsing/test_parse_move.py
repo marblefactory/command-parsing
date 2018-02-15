@@ -99,3 +99,13 @@ class MoveTestCase(unittest.TestCase):
     def test_parses_take_the_stairs(self):
         s = 'take the stairs up'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Stairs(FloorDirection.UP), None)
+
+
+class HideTestCase(unittest.TestCase):
+    def test_parses_object_named(self):
+        s = 'hide behind the table'.split()
+        assert action().parse(s).parsed == Hide('table')
+
+    def test_parses_no_object(self):
+        s = 'hide'.split()
+        assert action().parse(s).parsed == Hide(None)

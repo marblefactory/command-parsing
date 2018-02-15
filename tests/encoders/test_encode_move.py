@@ -109,3 +109,15 @@ class MoveEncoderTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(move, cls=ActionEncoder))
+
+
+class HideEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        hide = Hide('table')
+
+        expected = {
+            'type': 'hide',
+            'name': 'table'
+        }
+
+        assert expected == json.loads(json.dumps(hide, cls=ActionEncoder))

@@ -1,6 +1,6 @@
 from actions.move import *
 from parsing.parser import *
-from parsing.parse_location import location, move_direction
+from parsing.parse_location import location, move_direction, move_object_name
 
 
 def speed() -> Parser:
@@ -69,3 +69,15 @@ def move() -> Parser:
                     .then(combine_speed) \
                     .then(combine_stance) \
                     .map_parsed(lambda p: Move(p[1], p[0], p[2]))
+
+
+def hide() -> Parser:
+    """
+    :return: a parser to recognise hide actions.
+    """
+    verb = word_meaning('hide')
+    # If no object name is given, the spy hides behind the nearest object.
+    obj_name = maybe(move_object_name(), response=1.0)
+
+    return verb.ignore_then(obj_name) \
+               .map_parsed(lambda obj_name: Hide(obj_name))

@@ -383,8 +383,9 @@ def anywhere(parser: Parser) -> Parser:
     return Parser(parse)
 
 
-def maybe(parser: Parser) -> Parser:
+def maybe(parser: Parser, response: Response = 0.0) -> Parser:
     """
+    :param response: the response of the parser if it fails and an empty parse result is created.
     :return: a parser which will produce an empty parse result if the parser returns no result.
              The empty parse result contains no parsed object, a response of 0, and the remaining full input to parser.
     """
@@ -392,7 +393,7 @@ def maybe(parser: Parser) -> Parser:
     def parse(input: List[Word]) -> Optional[ParseResult]:
         result = parser.parse(input)
         if not result:
-            return ParseResult(parsed=None, response=0.0, remaining=input)
+            return ParseResult(parsed=None, response=response, remaining=input)
 
         return result
 

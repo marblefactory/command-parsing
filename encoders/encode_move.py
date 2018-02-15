@@ -71,3 +71,11 @@ class MoveEncoder(json.JSONEncoder):
             'stance': obj.stance or 'no_change',
             'speed': obj.speed
         }
+
+
+class HideEncoder(json.JSONEncoder):
+    def default(self, obj):
+        return {
+            'type': 'hide',
+            'name': obj.object_name
+        }
