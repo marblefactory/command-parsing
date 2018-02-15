@@ -199,12 +199,15 @@ class NumberTestCase(unittest.TestCase):
 
 
 class StrongestTestCase(unittest.TestCase):
+    def strongest_parser(self, parsers: List[Parser]) -> Parser:
+        return strongest(parsers)
+
     def test_chooses_strongest_from_unique(self):
         p1 = produce('a', 0.1)
         p2 = produce('b', 0.8)
         p3 = produce('c', 0.4)
 
-        parser = strongest([p1, p2, p3])
+        parser = self.strongest_parser([p1, p2, p3])
 
         assert parser.parse([]) == ParseResult(parsed='b', response=0.8, remaining=[])
 
@@ -213,9 +216,23 @@ class StrongestTestCase(unittest.TestCase):
         p2 = produce('b', 0.8)
         p3 = produce('c', 0.4)
 
-        parser = strongest([p1, p2, p3])
+        parser = self.strongest_parser([p1, p2, p3])
 
         assert parser.parse([]) == ParseResult(parsed='a', response=0.8, remaining=[])
+
+    def test_no_parse(self):
+        p1 = word_match('a')
+        p2 = word_match('b')
+
+        parser = self.strongest_parser([p1, p2])
+
+        s = 'x y z'.split()
+        assert parser.parse(s) is None
+
+
+class ParStrongestTestCase(StrongestTestCase):
+    def strongest_parser(self, parsers: List[Parser]) -> Parser:
+        return par_strongest(parsers)
 
 
 class StrongestWordTestCase(unittest.TestCase):

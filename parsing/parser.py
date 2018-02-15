@@ -6,6 +6,7 @@ from nltk.corpus.reader.wordnet import Synset
 import inflect
 import editdistance
 from itertools import product
+from multiprocessing.dummy import Pool as ThreadPool
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -301,13 +302,14 @@ def number() -> Parser:
     return strongest([string_number(), cardinal_number()])
 
 
-def strongest(parsers: List[Parser], debug = False) -> Parser:
+def _strongest(make_results: Callable[[List[Word]], List[ParseResult]], debug = False) -> Parser:
     """
-    :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
+    :param make_results: a function which produces a list of parse results for each parser.
+    :return: a parser which gives the strongest response on the input text. If multiple parsers have the same maximum,
              then the parser to occur first in the list is returned.
     """
     def parse(input: List[Word]) -> Optional[ParseResult]:
-        results = [parser.parse(input) for parser in parsers]
+        results: List[ParseResult] = make_results(input)
 
         if debug:
             print(results)
@@ -320,6 +322,34 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
         return max(filtered, key=lambda parse_result: parse_result.response)
 
     return Parser(parse)
+
+
+def par_strongest(parsers: List[Parser], num_threads = 4, debug = False) -> Parser:
+    """
+    :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
+             then the parser to occur first in the list is returned. The parsers are run on the input in parallel.
+    """
+    def make_results(input: List[Word]) -> List[ParseResult]:
+        parse_fs = [parser.parse for parser in parsers]
+
+        def f(parse_f: Callable) -> Optional[ParseResult]:
+            return parse_f(input)
+
+        pool = ThreadPool(num_threads)
+        return pool.map(f, parse_fs)
+
+    return _strongest(make_results)
+
+
+def strongest(parsers: List[Parser], debug = False) -> Parser:
+    """
+    :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
+             then the parser to occur first in the list is returned.
+    """
+    def make_results(input: List[Word]) -> List[ParseResult]:
+        return [parser.parse(input) for parser in parsers]
+
+    return _strongest(make_results)
 
 
 def strongest_word(words: List[Word], parser_constructors: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
