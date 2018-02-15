@@ -235,11 +235,10 @@ class ParStrongestTestCase(StrongestTestCase):
     def strongest_parser(self, parsers: List[Parser]) -> Parser:
         return par_strongest(parsers)
 
-    def test_parallel_semantic(self):
+    def test_parallel_locked_semantic(self):
         """
         Tests WordNet can be used in parallel.
         """
-        wn.ensure_loaded()
 
         # Because WordNet does not support multi-threading.
         lock = Lock()

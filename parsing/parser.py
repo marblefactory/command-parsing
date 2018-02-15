@@ -325,7 +325,7 @@ def _strongest(make_results: Callable[[List[Word]], List[ParseResult]], debug = 
     return Parser(parse)
 
 
-def par_strongest(parsers: List[Parser], debug = False) -> Parser:
+def par_strongest(parsers: List[Parser], num_processes = None, debug = False) -> Parser:
     """
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
              then the parser to occur first in the list is returned. The parsers are run on each CPU available.
@@ -334,7 +334,7 @@ def par_strongest(parsers: List[Parser], debug = False) -> Parser:
         def f(parser: Parser) -> Optional[ParseResult]:
             return parser.parse(input)
 
-        with Pool() as pool:
+        with Pool(processes=num_processes) as pool:
             results = pool.map(f, parsers)
         return results
 
