@@ -6,7 +6,7 @@ def move_object_name() -> Parser:
     """
     :return: a parser which parses names of objects which can be moved to, i.e. table, door, desk.
     """
-    object_names = ['table', 'door', 'desk', 'server', 'room', 'toilet']
+    object_names = ['table', 'door', 'desk', 'server', 'room', 'toilet', 'corridor']
 
     def condition(input_word: Word) -> Response:
         return float(input_word in object_names)
@@ -47,15 +47,15 @@ def object_relative_direction() -> Parser:
     return strongest([move_direction(), produce(ObjectRelativeDirection.VICINITY, 1.0)])
 
 
-def absolute() -> Parser:
+def absolute_place_names() -> Parser:
     """
-    :return: a parser for absolute locations, e.g. '[go to] lab 201'.
+    :return: a parser for absolute location place names, i.e. the result of the parser is a string.
     """
     # When describing a storage room, the player can optionally say 'room' too.xX
     storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
     storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number()))
 
-    lab = word_edit_dist('lab') # Because of speech parsing by Google.
+    lab = word_edit_dist('lab')  # Because of speech parsing by Google.
 
     office_x = word_match('office').then(append(number()))
     computer_lab_x = word_match('computer').then(append(lab)).then(append(number()))
@@ -85,7 +85,14 @@ def absolute() -> Parser:
         security_office
     ]
 
-    return strongest(places).map_parsed(lambda place_name: Absolute(place_name))
+    return strongest(places)
+
+
+def absolute() -> Parser:
+    """
+    :return: a parser for absolute locations, e.g. '[go to] lab 201'.
+    """
+    return absolute_place_names().map_parsed(lambda place_name: Absolute(place_name))
 
 
 def positional() -> Parser:
@@ -133,10 +140,24 @@ def behind() -> Parser:
     """
     :return: a parser for behind object locations, e.g. behind the sofas.
     """
-    other_side_verb = word_match('other').ignore_then(word_match('side'))
-    verb = strongest([word_match('behind'), word_match('around'), other_side_verb])
+    other_side = word_match('other').ignore_then(word_match('side'))
+    verb = strongest([word_match('behind'), word_match('around'), other_side])
 
     return verb.ignore_then(move_object_name()).map_parsed(lambda obj_name: Behind(obj_name))
+
+
+def end_of() -> Parser:
+    """
+    :return: a parser for end of rooms/corridors, e.g. end of room 102.
+    """
+    parser = word_match('end').ignore_then(word_match('of'))
+    # Parses the name of the room/corridor to go to the end of.
+    loc = strongest([
+        move_object_name(),
+        absolute_place_names()
+    ])
+
+    return parser.ignore_then(loc).map_parsed(lambda obj_name: EndOf(obj_name))
 
 
 def location() -> Parser:
@@ -145,4 +166,4 @@ def location() -> Parser:
     """
     # Half the response to give bias towards positional locations since both use directions.
     dir = directional().map_response(lambda r: r/2)
-    return strongest([absolute(), positional(), dir, stairs(), behind()])
+    return strongest([end_of(), absolute(), positional(), dir, stairs(), behind()])

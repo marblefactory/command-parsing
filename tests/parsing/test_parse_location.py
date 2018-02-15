@@ -206,6 +206,20 @@ class BehindTestCase(unittest.TestCase):
         s = 'go to the other side of the table'.split()
         assert location().parse(s).parsed == Behind('table')
 
-    def test_fails_if_side_other(self):
+    def test_fails_if_side_other_incorrect_order(self):
         s = 'go to the side other of the table'.split()
         assert type(location().parse(s)) is not Behind
+
+
+class EndOfTestCase(unittest.TestCase):
+    def test_parse_room(self):
+        s = 'go to the end of the room'.split()
+        assert location().parse(s).parsed == EndOf('room')
+
+    def test_parse_corridor(self):
+        s = 'go to the end of the corridor'.split()
+        assert location().parse(s).parsed == EndOf('corridor')
+
+    def test_parse_absolute(self):
+        s = 'go to the end of the gun range'.split()
+        assert location().parse(s).parsed == EndOf('range')

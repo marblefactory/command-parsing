@@ -112,3 +112,17 @@ class Behind(Location):
 
     def __str__(self):
         return 'behind {}'.format(self.object_name)
+
+
+class EndOf(Location):
+    """
+    E.g. Go to the end of the room, corridor, room 102, etc
+    """
+
+    object_name: str
+
+    def __init__(self, object_name: str):
+        self.object_name = object_name
+
+    def __str__(self):
+        return 'end of {}'.format(self.object_name)

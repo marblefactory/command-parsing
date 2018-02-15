@@ -77,6 +77,21 @@ class BehindEncoder(json.JSONEncoder):
         }
 
 
+class EndOfEncoder(json.JSONEncoder):
+    """
+    Encodes an EndOf location.
+
+    Fields:
+        'type': The type of action.
+        'name': The name of the object to go to the end of.
+    """
+    def default(self, obj):
+        return {
+            'type': 'end_of',
+            'name': obj.object_name
+        }
+
+
 class LocationEncoder(json.JSONEncoder):
     """
     Encodes a ObjectRelativeDirection.
@@ -85,14 +100,16 @@ class LocationEncoder(json.JSONEncoder):
         'type'    : The type of action
     """
     def default(self, obj):
-        if isinstance(obj, Absolute):
-            return json.loads(json.dumps(obj, cls=AbsoluteEncoder))
-        elif isinstance(obj, Positional):
-            return json.loads(json.dumps(obj, cls=PositionalEncoder))
-        elif isinstance(obj, Directional):
-            return json.loads(json.dumps(obj, cls=DirectionalEncoder))
-        elif isinstance(obj, Stairs):
-            return json.loads(json.dumps(obj, cls=StairsEncoder))
-        elif isinstance(obj, Behind):
-            return json.loads(json.dumps(obj, cls=BehindEncoder))
-        return json.JSONEncoder.default(self, obj)
+        encoders = {
+            Absolute: AbsoluteEncoder,
+            Positional: PositionalEncoder,
+            Directional: DirectionalEncoder,
+            Stairs: StairsEncoder,
+            Behind: BehindEncoder,
+            EndOf: EndOfEncoder
+        }
+
+        encoder = encoders.get(type(obj)) or json.JSONEncoder
+
+        return encoder.default(self, obj)
+

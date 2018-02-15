@@ -49,7 +49,7 @@ def composite() -> Parser:
 
         actions = [r.parsed for r in filtered]
 
-        return ParseResult(Composite(actions), 1, [])
+        return ParseResult(Composite(actions), 1.0, [])
 
     return Parser(parse)
 

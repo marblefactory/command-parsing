@@ -62,3 +62,15 @@ class BehindEncoderTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(behind, cls=LocationEncoder))
+
+
+class EndOfEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        end_of = EndOf('room')
+
+        expected = {
+            'type': 'end_of',
+            'name': 'room'
+        }
+
+        assert expected == json.loads(json.dumps(end_of, cls=LocationEncoder))
