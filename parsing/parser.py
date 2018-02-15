@@ -7,6 +7,7 @@ import inflect
 import editdistance
 from itertools import product
 from multiprocessing.dummy import Pool as ThreadPool
+import functools
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -28,6 +29,7 @@ def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
     return r1 * proportion + r2 * (1 - proportion)
 
 
+@functools.lru_cache()
 def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
     """
     :param similarity_measure: a word net function which give the semantic distance between two synsets.
@@ -324,21 +326,21 @@ def _strongest(make_results: Callable[[List[Word]], List[ParseResult]], debug = 
     return Parser(parse)
 
 
-def par_strongest(parsers: List[Parser], debug = False) -> Parser:
-    """
-    :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
-             then the parser to occur first in the list is returned. The parsers are run on each CPU available.
-    """
-    def make_results(input: List[Word]) -> List[ParseResult]:
-        parse_fs = [parser.parse for parser in parsers]
-
-        def f(parse_f: Callable) -> Optional[ParseResult]:
-            return parse_f(input)
-
-        pool = ThreadPool(2)
-        return pool.map(f, parse_fs)
-
-    return _strongest(make_results, debug)
+# def par_strongest(parsers: List[Parser], debug = False) -> Parser:
+#     """
+#     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
+#              then the parser to occur first in the list is returned. The parsers are run on each CPU available.
+#     """
+#     def make_results(input: List[Word]) -> List[ParseResult]:
+#         parse_fs = [parser.parse for parser in parsers]
+#
+#         def f(parse_f: Callable) -> Optional[ParseResult]:
+#             return parse_f(input)
+#
+#         pool = ThreadPool(2)
+#         return pool.map(f, parse_fs)
+#
+#     return _strongest(make_results, debug)
 
 
 def strongest(parsers: List[Parser], debug = False) -> Parser:
