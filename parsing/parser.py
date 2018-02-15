@@ -338,7 +338,7 @@ def par_strongest(parsers: List[Parser], num_threads = 4, debug = False) -> Pars
         pool = ThreadPool(num_threads)
         return pool.map(f, parse_fs)
 
-    return _strongest(make_results)
+    return _strongest(make_results, debug)
 
 
 def strongest(parsers: List[Parser], debug = False) -> Parser:
@@ -349,7 +349,7 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
     def make_results(input: List[Word]) -> List[ParseResult]:
         return [parser.parse(input) for parser in parsers]
 
-    return _strongest(make_results)
+    return _strongest(make_results, debug)
 
 
 def strongest_word(words: List[Word], parser_constructors: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
