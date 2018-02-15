@@ -46,10 +46,6 @@ def run_client(server: str):
     Runs an infinite loop of recording, transcribing, parsing, and sending to the server.
     """
 
-    # Preload the wordnet dictionary.
-    print('Loading WordNet...')
-    action().parse(['a'])
-
     recorder = Recorder(sample_rate=41500)#Recorder(sample_rate=16000)
     output_file_name = 'output.wav'
 
