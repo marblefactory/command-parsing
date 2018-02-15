@@ -2,6 +2,7 @@ from parsing.parse_action import action
 import time
 import numpy as np
 from typing import List
+from nltk.corpus import wordnet as wn
 
 
 action_transcripts = [
@@ -44,7 +45,7 @@ def timed_parse_avg(text: str) -> float:
 if __name__ == '__main__':
     # Preload WordNet so it doesn't affect the first parsed action.
     print('Loading WordNet...')
-    action().parse(['a'])
+    wn.ensure_loaded()
     print('Starting Timing...\n')
 
     times: List[float] = []

@@ -324,10 +324,10 @@ def _strongest(make_results: Callable[[List[Word]], List[ParseResult]], debug = 
     return Parser(parse)
 
 
-def par_strongest(parsers: List[Parser], num_threads = 4, debug = False) -> Parser:
+def par_strongest(parsers: List[Parser], debug = False) -> Parser:
     """
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
-             then the parser to occur first in the list is returned. The parsers are run on the input in parallel.
+             then the parser to occur first in the list is returned. The parsers are run on each CPU available.
     """
     def make_results(input: List[Word]) -> List[ParseResult]:
         parse_fs = [parser.parse for parser in parsers]
@@ -335,7 +335,7 @@ def par_strongest(parsers: List[Parser], num_threads = 4, debug = False) -> Pars
         def f(parse_f: Callable) -> Optional[ParseResult]:
             return parse_f(input)
 
-        pool = ThreadPool(num_threads)
+        pool = ThreadPool(2)
         return pool.map(f, parse_fs)
 
     return _strongest(make_results, debug)
