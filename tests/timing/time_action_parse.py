@@ -11,9 +11,13 @@ action_transcripts = [
     'stand up',
     'turn around',
     'go to the second door on your left',
+    'take the next left',
     'pick up the rock',
     'throw the rock',
-    'hack the terminal behind you'
+    'hack the terminal behind you',
+    'go forwards then go up the stairs',
+    'hack the terminal then take the next left then go up stairs',
+    'stop then turn around then throw the rock'
 ]
 
 
@@ -38,12 +42,12 @@ def timed_parse_avg(text: str) -> float:
     :return: the average time from 20 parses to parse the given text.
     """
     num_iterations = 5
-    times = [timed_parse(text) for i in range(num_iterations)]
+    times = [timed_parse(text) for _ in range(num_iterations)]
     return float(np.mean(times))
 
 
 if __name__ == '__main__':
-    # Preload WordNet so it doesn't affect the first parsed action.
+    # Preload WordNet so it doesn't affect the timing of the first parse.
     print('Loading WordNet...')
     wn.ensure_loaded()
     print('Starting Timing...\n')
