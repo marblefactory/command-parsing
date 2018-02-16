@@ -27,7 +27,7 @@ def stance() -> Parser:
     """
     :return: a parser for different stances, i.e. crouched, standing.
     """
-    crouched = strongest_word(['crouch'], parser_constructors=[word_meaning, word_edit_dist]).ignore_parsed(Stance.CROUCH)
+    crouched = strongest_word(['crouch'], parser_constructors=[word_edit_dist, word_meaning]).ignore_parsed(Stance.CROUCH)
     standing = word_meaning('stand').ignore_parsed(Stance.STAND)
 
     return strongest([crouched, standing])
@@ -71,7 +71,7 @@ def move() -> Parser:
         return stance_parser.map(lambda parsed_stance, _: (acc + [parsed_stance], r))
 
     verbs = ['go', 'walk', 'run', 'take']
-    move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_meaning, word_edit_dist]))
+    move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_edit_dist, word_meaning]))
 
     # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
     defaulted_loc = strongest([location(), produce(Directional(MoveDirection.FORWARDS), response=0.0)])

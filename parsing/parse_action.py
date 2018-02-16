@@ -30,9 +30,9 @@ def single_action() -> Parser:
         turn(),
         move(),
         hide(),
-        pick_up(),
-        throw(),
         hack(),
+        pick_up(),
+        throw()
     ]
 
     return strongest(parsers)

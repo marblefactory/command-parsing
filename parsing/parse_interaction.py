@@ -8,7 +8,7 @@ def interaction_object_name() -> Parser:
     """
     :return: a parser for names of objects that can be interacted with.
     """
-    return strongest_word(['rock', 'hammer', 'terminal', 'computer', 'camera', 'console'], parser_constructors=[word_edit_dist])
+    return strongest_word(['rock', 'hammer', 'terminal', 'computer', 'camera', 'console', 'server'], parser_constructors=[word_edit_dist])
 
 
 def through_door() -> Parser:
@@ -60,12 +60,12 @@ def hack() -> Parser:
     def combine_direction(acc: List, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: acc + [dir])
 
-    hack_verb = word_meaning('hack')
+    hack_verb = strongest_word(['hack'], parser_constructors=[word_edit_dist, word_meaning])
     obj_name = interaction_object_name().map_parsed(lambda name: [name])
 
     return hack_verb.ignore_then(obj_name) \
-                       .then(combine_direction) \
-                       .map_parsed(lambda p: Hack(p[0], p[1]))
+                    .then(combine_direction) \
+                    .map_parsed(lambda p: Hack(p[0], p[1]))
 
 
 def interaction() -> Parser:
