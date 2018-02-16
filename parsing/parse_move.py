@@ -1,4 +1,5 @@
 from actions.move import *
+from actions.location import Directional, MoveDirection
 from parsing.parser import *
 from parsing.parse_location import location, move_direction, move_object_name
 
@@ -71,7 +72,10 @@ def move() -> Parser:
 
     verbs = ['go', 'walk', 'run', 'take']
     move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_meaning, word_edit_dist]))
-    loc_parser = anywhere(location()).map_parsed(lambda loc: [loc])
+
+    # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
+    defaulted_loc = strongest([location(), produce(Directional(MoveDirection.FORWARDS), response=0.0)])
+    loc_parser = anywhere(defaulted_loc).map_parsed(lambda loc: [loc])
 
     return move_verb.ignore_then(loc_parser, mix) \
                     .then(combine_speed) \

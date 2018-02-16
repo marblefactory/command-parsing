@@ -63,7 +63,19 @@ class ChangeStanceTestCase(unittest.TestCase):
 
 
 class MoveTestCase(unittest.TestCase):
-    def test_parses_go(self):
+    def test_parses_go_default_forwards(self):
+        s = 'go'.split()
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS), None)
+
+    def test_fails_if_just_location(self):
+        s = 'next door'.split()
+        assert action().parse(s) is None
+
+    def test_fails_if_just_speed(self):
+        s = 'fast'.split()
+        assert action().parse(s) is None
+
+    def test_parses_go_dir(self):
         s = 'go left standing'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.STAND)
 

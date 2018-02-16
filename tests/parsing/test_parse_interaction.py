@@ -18,6 +18,7 @@ class ThroughDoorTestCase(unittest.TestCase):
 
     def test_missing_door(self):
         s = 'go through'.split()
+        print(action().parse(s).parsed)
         assert action().parse(s).parsed == ThroughDoor()
 
 
@@ -38,7 +39,7 @@ class PickUpTestCase(unittest.TestCase):
         s = 'pick up'.split()
         assert action().parse(s) is None
 
-    def test_take_fails_if_no_object(self):
+    def test_take_fails_if_no_object1(self):
         s = 'take the on your left'.split()
         assert type(action().parse(s)) != PickUp
 
@@ -65,10 +66,6 @@ class ThrowTestCase(unittest.TestCase):
 
         expected_loc = Directional(MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Throw(expected_loc)
-
-    def test_fails(self):
-        s = 'what is going on'.split()
-        assert action().parse(s) is None
 
 
 class HackTestCase(unittest.TestCase):
