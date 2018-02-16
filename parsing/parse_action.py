@@ -16,7 +16,7 @@ def stop() -> Parser:
     """
     :return: parses stop actions, i.e. saying the word 'stop'.
     """
-    return word_match('stop').ignore_parsed(Stop())
+    return strongest_word(['stop', 'freeze'], parser_constructors=[word_meaning]).ignore_parsed(Stop())
 
 
 def single_action() -> Parser:
@@ -48,7 +48,7 @@ def composite() -> Parser:
     def parse(full_input: List[Word]) -> Optional[ParseResult]:
         inputs = split_list(full_input, separators)
 
-        if len(inputs) == 1:
+        if len(inputs) <= 1:
             # There were no occurrences of the separators.
             return None
 

@@ -7,9 +7,18 @@ from actions.location import *
 
 
 class StopTestCase(unittest.TestCase):
-    def test_parses(self):
+    def test_parses_stop(self):
         s = 'stop'.split()
         assert action().parse(s).parsed == Stop()
+
+    def test_parses_freeze(self):
+        s = 'freeze'.split()
+        assert action().parse(s).parsed == Stop()
+
+    def test_parses_halt(self):
+        s = 'halt'.split()
+        assert action().parse(s).parsed == Stop()
+
 
 
 class CompositeTestCase(unittest.TestCase):
