@@ -15,9 +15,6 @@ action_transcripts = [
     'throw the rock',
     'hack the terminal behind you',
     'go forwards then go up the stairs',
-    'hack the terminal',
-    'take the next left',
-    'go up stairs',
     'hack the terminal then take the next left then go up stairs',
     'stop then turn around then throw the rock'
 ]

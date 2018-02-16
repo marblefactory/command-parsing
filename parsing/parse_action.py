@@ -16,7 +16,7 @@ def stop() -> Parser:
     """
     :return: parses stop actions, i.e. saying the word 'stop'.
     """
-    return strongest_word(['stop', 'freeze'], parser_constructors=[word_meaning]).ignore_parsed(Stop())
+    return strongest_word(['stop', 'freeze', 'halt']).ignore_parsed(Stop())
 
 
 def single_action() -> Parser:

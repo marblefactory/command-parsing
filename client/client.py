@@ -78,11 +78,11 @@ def run_client(server: str):
 
         print('Parsed          :', result.parsed)
 
-        response = requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
+        response = 200#requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
 
         print('Server Response :', response)
 
-        if response.status_code != 200:
+        if response != 200:
             speech = random.choice(action_perform_failure_response())
             say(speech)
             print()

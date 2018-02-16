@@ -19,6 +19,9 @@ class StopTestCase(unittest.TestCase):
         s = 'halt'.split()
         assert action().parse(s).parsed == Stop()
 
+    def test_does_not_parse(self):
+        s = 'does the end of the corridor'.split()
+        assert type(action().parse(s).parsed) != Stop
 
 
 class CompositeTestCase(unittest.TestCase):
