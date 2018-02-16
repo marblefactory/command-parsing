@@ -67,6 +67,11 @@ class MoveTestCase(unittest.TestCase):
         s = 'go'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS), None)
 
+    def test_go_slow(self):
+        s = 'go slow'.split()
+        print(action().parse(s).parsed)
+        assert action().parse(s).parsed == Move(Speed.SLOW, Directional(MoveDirection.FORWARDS), None)
+
     def test_fails_if_just_location(self):
         s = 'next door'.split()
         assert action().parse(s) is None
