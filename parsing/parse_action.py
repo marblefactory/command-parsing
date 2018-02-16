@@ -1,4 +1,4 @@
-from actions.action import Stop, Composite
+from actions.action import Stop, Composite, Action
 from parsing.parser import *
 from parsing.parse_move import move, change_stance, turn, hide
 from parsing.parse_interaction import through_door, pick_up, throw, hack
@@ -54,7 +54,6 @@ def composite() -> Parser:
 
         results = [single_action().parse(words) for words in inputs]
         filtered = [result for result in results if result is not None]
-
         actions = [r.parsed for r in filtered]
 
         return ParseResult(Composite(actions), 1.0, [])

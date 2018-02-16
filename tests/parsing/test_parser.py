@@ -231,27 +231,6 @@ class StrongestTestCase(unittest.TestCase):
         assert parser.parse(s) is None
 
 
-class ParStrongestTestCase(StrongestTestCase):
-    def strongest_parser(self, parsers: List[Parser]) -> Parser:
-        return par_strongest(parsers)
-
-    def test_parallel_locked_semantic(self):
-        """
-        Tests WordNet can be used in parallel.
-        """
-
-        # Because WordNet does not support multi-threading.
-        lock = Lock()
-
-        p1 = locked(word_meaning('hello'), lock)
-        p2 = locked(word_meaning('bye'), lock)
-
-        parser = self.strongest_parser([p1, p2])
-
-        s = 'hi'.split()
-        assert parser.parse(s).parsed == 'hi'
-
-
 class StrongestWordTestCase(unittest.TestCase):
     def test_match_strongest_word(self):
         s = 'a b c'.split()

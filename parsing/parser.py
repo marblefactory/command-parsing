@@ -8,8 +8,6 @@ import editdistance
 from itertools import product
 import functools
 import numpy as np
-from multiprocessing.dummy import Pool
-from multiprocessing import Lock
 
 
 # Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
@@ -325,31 +323,32 @@ def _strongest(make_results: Callable[[List[Word]], List[ParseResult]], debug = 
     return Parser(parse)
 
 
-def par_strongest(parsers: List[Parser], num_processes = None, debug = False) -> Parser:
-    """
-    :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
-             then the parser to occur first in the list is returned. The parsers are run on each CPU available.
-    """
-    def make_results(input: List[Word]) -> List[ParseResult]:
-        def f(parser: Parser) -> Optional[ParseResult]:
-            return parser.parse(input)
-
-        with Pool(processes=num_processes) as pool:
-            results = pool.map(f, parsers)
-        return results
-
-    return _strongest(make_results, debug)
-
-
 def strongest(parsers: List[Parser], debug = False) -> Parser:
     """
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
              then the parser to occur first in the list is returned.
     """
-    def make_results(input: List[Word]) -> List[ParseResult]:
-        return [parser.parse(input) for parser in parsers]
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        best_result: Optional[ParseResult] = None
 
-    return _strongest(make_results, debug)
+        for parser in parsers:
+            result = parser.parse(input)
+
+            if debug:
+                print(result)
+
+            if result and result.response == 1.0:
+                return result
+
+            if not best_result:
+                best_result = result
+            else:
+                if result and result.response > best_result.response:
+                    best_result = result
+
+        return best_result
+
+    return Parser(parse)
 
 
 def strongest_word(words: List[Word], parser_constructors: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
@@ -427,20 +426,6 @@ def append(parser: Parser, combine_responses: Callable[[Response, Response], Res
         return parser.map(lambda p, r: (parsed_str + sep + p, combine_responses(response, r)))
 
     return op
-
-
-def locked(parser: Parser, lock: Lock) -> Parser:
-    """
-    :return: a parser where parsing is a critical section, where only one parser with the same lock can enter at once.
-    """
-
-    def parse(input: List[Word]) -> Optional[ParseResult]:
-        lock.acquire()
-        result = parser.parse(input)
-        lock.release()
-        return result
-
-    return Parser(parse)
 
 
 def none(parser: Parser, response: Response = 1.0) -> Parser:

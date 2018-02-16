@@ -10,7 +10,7 @@ class SplitListTestCase(unittest.TestCase):
         assert split_list([2], [2]) == []
 
     def test_split(self):
-        assert split_list([1, 2, 3, 4, 2, 5], [2]) == [[1], [3, 4], [5]]
+        assert split_list([1, 2, 3, 4, 2, 5, 2, 7], [2]) == [[1], [3, 4], [5], [7]]
 
     def test_split_first(self):
         assert split_list([1, 2, 3], [1]) == [[2, 3]]
