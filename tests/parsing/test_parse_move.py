@@ -53,6 +53,14 @@ class ChangeStanceTestCase(unittest.TestCase):
         s = 'crouch down'.split()
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
+    def test_get_up(self):
+        s = 'get up'.split()
+        assert action().parse(s).parsed == ChangeStance(Stance.STAND)
+
+    def test_get_down(self):
+        s = 'get down'.split()
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
+
 
 class MoveTestCase(unittest.TestCase):
     def test_parses_go(self):
@@ -84,8 +92,20 @@ class MoveTestCase(unittest.TestCase):
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
 
+    def test_sprint_as_fast(self):
+        s = 'sprint to the next door'.split()
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
+
     def test_slow(self):
         s = 'slowly go to the next door'.split()
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        assert action().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)
+
+    def test_quietly_as_slow(self):
+        s = 'quietly go to the next door'.split()
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)

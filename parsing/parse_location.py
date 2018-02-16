@@ -130,8 +130,11 @@ def stairs() -> Parser:
     """
     :return: a parser for stair directions, e.g. upstairs, downstairs.
     """
-    up = strongest_word(['up', 'upstairs']).ignore_parsed(FloorDirection.UP)
-    down = strongest_word(['down', 'downstairs']).ignore_parsed(FloorDirection.DOWN)
+    up_stairs = anywhere(word_match('up')).then_ignore(word_match('stairs'))
+    down_stairs = anywhere(word_match('down')).then_ignore(word_match('stairs'))
+
+    up = strongest([up_stairs, word_match('upstairs')]).ignore_parsed(FloorDirection.UP)
+    down = strongest([down_stairs, word_match('downstairs')]).ignore_parsed(FloorDirection.DOWN)
 
     return strongest([up, down]).map_parsed(lambda dir: Stairs(dir))
 

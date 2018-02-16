@@ -80,6 +80,10 @@ class HackTestCase(unittest.TestCase):
         s = 'hack the camera'.split()
         assert action().parse(s).parsed == Hack('camera', ObjectRelativeDirection.VICINITY)
 
+    def test_hacked_as_hack(self):
+        s = 'hacked the camera'.split()
+        assert action().parse(s).parsed == Hack('camera', ObjectRelativeDirection.VICINITY)
+
     def test_fails_if_no_object1(self):
         s = 'hack'.split()
         assert action().parse(s) is None

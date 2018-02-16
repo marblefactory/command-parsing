@@ -75,6 +75,10 @@ class CompositeTestCase(unittest.TestCase):
         s = 'nothing to see here'.split()
         assert action().parse(s) is None
 
+    def test_fails_if_only_then(self):
+        s = 'then'.split()
+        assert action().parse(s) is None
+
 
 class DontTestCase(unittest.TestCase):
     def test_no_parse(self):

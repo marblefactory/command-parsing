@@ -8,9 +8,13 @@ def speed() -> Parser:
     :return: a parser for different speeds, i.e. slow, normal, fast.
     """
     normal_speed_response = 0.5
-    fast_word_parsers = [word_meaning('quick', normal_speed_response), word_meaning('fast', normal_speed_response), word_edit_dist('run')]
+    fast_word_parsers = [
+        word_meaning('quick', normal_speed_response),
+        word_meaning('fast', normal_speed_response),
+        word_meaning('sprint', normal_speed_response),
+        word_edit_dist('run')]
 
-    slow = strongest_word(['slow', 'slowly']).ignore_parsed(Speed.SLOW)
+    slow = strongest_word(['slow', 'quiet'], parser_constructors=[word_meaning]).ignore_parsed(Speed.SLOW)
     fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
     # Deduce that if the speed is neither slow nor fast, then it must be normal speed.
     normal = strongest([slow, fast, produce(Speed.NORMAL, normal_speed_response)])
@@ -44,7 +48,11 @@ def change_stance() -> Parser:
     :return: a parser for stance changes, i.e. crouch, stand up.
     """
     # Half the response to give bias towards move actions since both use stances.
-    return stance().map_parsed(lambda s: ChangeStance(s))
+    get_up = word_match('get').then_ignore(word_match('up')).ignore_parsed(Stance.STAND)
+    get_down = word_match('get').then_ignore(word_match('down')).ignore_parsed(Stance.CROUCH)
+    p = strongest([stance(), get_up, get_down])
+
+    return p.map_parsed(lambda s: ChangeStance(s))
 
 
 def move() -> Parser:
