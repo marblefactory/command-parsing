@@ -145,8 +145,8 @@ class MoveTestCase(unittest.TestCase):
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
-        s = 'hide behind the table'.split()
-        assert action().parse(s).parsed == Hide('table')
+        s = 'hide behind the wall'.split()
+        assert action().parse(s).parsed == Hide('wall')
 
     def test_parses_no_object(self):
         s = 'hide'.split()

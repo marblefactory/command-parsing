@@ -6,7 +6,7 @@ def move_object_name() -> Parser:
     """
     :return: a parser which parses names of objects which can be moved to, i.e. table, door, desk.
     """
-    object_names = ['table', 'door', 'desk', 'server', 'room', 'toilet', 'corridor']
+    object_names = ['table', 'door', 'desk', 'server', 'room', 'toilet', 'corridor', 'wall', 'pillar']
 
     def condition(input_word: Word) -> Response:
         return float(input_word in object_names)
