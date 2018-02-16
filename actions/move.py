@@ -40,7 +40,21 @@ class ChangeStance(Action):
         self.stance = stance
 
     def __str__(self):
-        return self.stance
+        return 'change stance to {}'.format(self.stance)
+
+
+class ChangeSpeed(Action):
+    """
+    Tells the spy to change the speed they're performing their current movement at.
+    """
+
+    speed: Speed
+
+    def __init__(self, speed: Speed):
+        self.speed = speed
+
+    def __str__(self):
+        return 'change speed to {}'.format(self.speed)
 
 
 class Move(Action):

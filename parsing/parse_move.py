@@ -8,11 +8,14 @@ def speed() -> Parser:
     """
     :return: a parser for different speeds, i.e. slow, normal, fast.
     """
+
+    # The response to give if neither fast or slow is specified.
     normal_speed_response = 0.5
+
     fast_word_parsers = [
-        word_meaning('quick', normal_speed_response),
-        word_meaning('fast', normal_speed_response),
-        word_meaning('sprint', normal_speed_response),
+        word_meaning('quick', semantic_similarity_threshold=normal_speed_response),
+        word_meaning('fast', semantic_similarity_threshold=normal_speed_response),
+        word_meaning('sprint', semantic_similarity_threshold=normal_speed_response),
         word_edit_dist('run')]
 
     slow = strongest_word(['slow', 'quiet'], parser_constructors=[word_meaning]).ignore_parsed(Speed.SLOW)
@@ -46,9 +49,8 @@ def turn() -> Parser:
 
 def change_stance() -> Parser:
     """
-    :return: a parser for stance changes, i.e. crouch, stand up.
+    :return: a parser for stance changes, e.g. crouch, stand up, etc
     """
-    # Half the response to give bias towards move actions since both use stances.
     get_up = word_match('get').then_ignore(word_match('up')).ignore_parsed(Stance.STAND)
     get_down = word_match('get').then_ignore(word_match('down')).ignore_parsed(Stance.CROUCH)
     p = strongest([stance(), get_up, get_down])
