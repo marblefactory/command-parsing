@@ -197,11 +197,10 @@ def predicate(condition: Callable[[Word], Response]) -> Parser:
     return Parser(parse)
 
 
-def word_edit_dist(word: Word, dist_threshold: Response = 0.24) -> Parser:
+def word_spelling(word: Word, dist_threshold: Response = 0.49) -> Parser:
     """
-    :return: a parser which matches words where the edit distance between the word and an input word determines the
-             response. The parser has no response if the first letters of the input word and supplied word don't match.
-             If matches then `word` is the parsed string, not the word from the input text.
+    :return: a parser which matches words where the difference in spelling of the word and an input word determines the
+             response. If matches then `word` is the parsed string, not the word from the input text.
     """
     def condition(input_word: Word) -> Response:
         if input_word[0] != word[0]:
@@ -213,6 +212,27 @@ def word_edit_dist(word: Word, dist_threshold: Response = 0.24) -> Parser:
 
     return threshold(predicate(condition).ignore_parsed(word), dist_threshold)
 
+# def word_spelling(word: Word, dist_threshold: Response = 0.3) -> Parser:
+#     """
+#     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
+#              response. If matches then `word` is the parsed string, not the word from the input text.
+#     """
+#     def condition(input_word: Word) -> Response:
+#         # For each letter in the correct place, 1/len(word) is added to the accumulator.
+#         acc: Response = 0.0
+#         delta: Response = 1/len(word)
+#
+#         for c1, c2 in zip(word, input_word):
+#             if c1 != c2:
+#                 break
+#
+#             acc += delta
+#
+#         # max_word_len = max(len(input_word), len(word))
+#         # edit_dist = editdistance.eval(word, input_word)
+#         return acc# * ((max_word_len - edit_dist) / max_word_len)
+#
+#     return threshold(predicate(condition), dist_threshold).ignore_parsed(word)
 
 def word_match(word: Word, match_plural = True) -> Parser:
     """
@@ -282,8 +302,6 @@ def string_number() -> Parser:
         ['ten']
     ]
 
-    # [word_match(word).ignore_parsed(num) for num, word in enumerate(words)]
-
     parsers: List[Parser]= []
 
     for num, words in enumerate(all_words):
@@ -301,28 +319,6 @@ def number() -> Parser:
     return strongest([string_number(), cardinal_number()])
 
 
-def _strongest(make_results: Callable[[List[Word]], List[ParseResult]], debug = False) -> Parser:
-    """
-    :param make_results: a function which produces a list of parse results for each parser.
-    :return: a parser which gives the strongest response on the input text. If multiple parsers have the same maximum,
-             then the parser to occur first in the list is returned.
-    """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
-        results: List[ParseResult] = make_results(input)
-
-        if debug:
-            print(results)
-
-        filtered = [r for r in results if r is not None]
-
-        if filtered == []:
-            return None
-
-        return max(filtered, key=lambda parse_result: parse_result.response)
-
-    return Parser(parse)
-
-
 def strongest(parsers: List[Parser], debug = False) -> Parser:
     """
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
@@ -337,6 +333,7 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
             if debug:
                 print(result)
 
+            # The maximum value of a response is 1, therefore we can exit early.
             if result and result.response == 1.0:
                 return result
 
@@ -438,5 +435,16 @@ def none(parser: Parser, response: Response = 1.0) -> Parser:
         if result:
             return None
         return ParseResult(parsed=None, response=response, remaining=input)
+
+    return Parser(parse)
+
+
+def ignore_words(words: List[Word]) -> Parser:
+    """
+    :return: a parser which removes the given words from the input text. Gives None as the parsed object.
+    """
+    def parse(input: List[Word]) -> Optional[ParseResult]:
+        new_input = [word for word in input if word not in words]
+        return ParseResult(None, 0.0, new_input)
 
     return Parser(parse)

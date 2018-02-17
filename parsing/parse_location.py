@@ -55,7 +55,7 @@ def absolute_place_names() -> Parser:
     storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
     storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number()))
 
-    lab = word_edit_dist('lab')  # Because of speech parsing by Google.
+    lab = word_spelling('lab', dist_threshold=0.24)  # Because of speech parsing by Google.
 
     office_x = word_match('office').then(append(number()))
     computer_lab_x = word_match('computer').then(append(lab)).then(append(number()))

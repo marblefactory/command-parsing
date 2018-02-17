@@ -88,31 +88,31 @@ class WordEditDistTestCase(unittest.TestCase):
         """
         Tests None is returned if the words share no similarities.
         """
-        assert word_edit_dist('aaa').parse(['bbb', 'ccc']) is None
+        assert word_spelling('aaa', dist_threshold=0).parse(['bbb', 'ccc']) is None
 
     def test_no_match_not_same_first(self):
         """
         Tests None is returned if the words do not have the same first letter.
         """
-        assert word_edit_dist('hello').parse(['dello', 'mello']) is None
+        assert word_spelling('hello', dist_threshold=0).parse(['dello', 'mello']) is None
 
     def test_match_some(self):
         """
         Tests the parser matches when some of the letters are correct.
         """
-        assert word_edit_dist('aaaa').parse(['abbb', 'cccc']) == ParseResult('aaaa', 0.25, ['cccc'])
+        assert word_spelling('aaaa', dist_threshold=0).parse(['abbb', 'cccc']) == ParseResult('aaaa', 0.25, ['cccc'])
 
     def test_match_all(self):
         """
         Tests the parse matches when all of the letters are correct.
         """
-        assert word_edit_dist('aaaa').parse(['aaaa', 'cccc']) == ParseResult('aaaa', 1.0, ['cccc'])
+        assert word_spelling('aaaa', dist_threshold=0).parse(['aaaa', 'cccc']) == ParseResult('aaaa', 1.0, ['cccc'])
 
     def test_matches_strongest(self):
         """
         Tests the parse matches on the word with the lowest edit distance.
         """
-        assert word_edit_dist('aaaa').parse(['abbb', 'aacc']) == ParseResult('aaaa', 0.5, [])
+        assert word_spelling('aaaa', dist_threshold=0).parse(['abbb', 'aacc']) == ParseResult('aaaa', 0.5, [])
 
 
 class WordMatchTestCase(unittest.TestCase):
@@ -241,7 +241,7 @@ class StrongestWordTestCase(unittest.TestCase):
         Tests that every parser constructor is combined with every word to match on.
         """
         s = 'orange hillo'.split()
-        parser = strongest_word(['blue', 'hello'], parser_constructors=[word_edit_dist, word_meaning])
+        parser = strongest_word(['blue', 'hello'], parser_constructors=[word_spelling, word_meaning])
         assert parser.parse(s).parsed == 'hello'
 
     def test_cartesian_product_of_parser_constructors2(self):
@@ -249,7 +249,7 @@ class StrongestWordTestCase(unittest.TestCase):
         Tests that every parser constructor is combined with every word to match on.
         """
         s = 'run whale'.split()
-        parser = strongest_word(['go', 'hi'], parser_constructors=[word_edit_dist, word_meaning])
+        parser = strongest_word(['go', 'hi'], parser_constructors=[word_spelling, word_meaning])
         assert parser.parse(s).parsed == 'run'
 
 
@@ -346,3 +346,11 @@ class NoneTestCase(unittest.TestCase):
         p = none(word_match('a'), response=0.5)
 
         assert p.parse(s) == ParseResult(None, 0.5, ['x', 'y', 'z'])
+
+
+class IgnoreWordsTestCase(unittest.TestCase):
+    def test_removes_from_input(self):
+        s = 'a b c d b c a b'.split()
+        p = ignore_words(['b', 'a'])
+
+        assert p.parse(s).remaining == ['c', 'd', 'c']

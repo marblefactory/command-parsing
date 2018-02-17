@@ -18,7 +18,6 @@ class ThroughDoorTestCase(unittest.TestCase):
 
     def test_missing_door(self):
         s = 'go through'.split()
-        print(action().parse(s).parsed)
         assert action().parse(s).parsed == ThroughDoor()
 
 

@@ -16,7 +16,7 @@ def speed() -> Parser:
         word_meaning('quick', semantic_similarity_threshold=normal_speed_response),
         word_meaning('fast', semantic_similarity_threshold=normal_speed_response),
         word_meaning('sprint', semantic_similarity_threshold=normal_speed_response),
-        word_edit_dist('run')]
+        word_spelling('run')]
 
     slow = strongest_word(['slow', 'quiet'], parser_constructors=[word_meaning]).ignore_parsed(Speed.SLOW)
     fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
@@ -30,7 +30,7 @@ def stance() -> Parser:
     """
     :return: a parser for different stances, i.e. crouched, standing.
     """
-    crouched = strongest_word(['crouch'], parser_constructors=[word_edit_dist, word_meaning]).ignore_parsed(Stance.CROUCH)
+    crouched = strongest_word(['crouch'], parser_constructors=[word_spelling, word_meaning]).ignore_parsed(Stance.CROUCH)
     standing = word_meaning('stand').ignore_parsed(Stance.STAND)
 
     return strongest([crouched, standing])
@@ -72,8 +72,8 @@ def move() -> Parser:
         # Passes through the response, ignoring the response of the stance parser.
         return stance_parser.map(lambda parsed_stance, _: (acc + [parsed_stance], r))
 
-    verbs = ['go', 'walk', 'run', 'take']
-    move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_edit_dist, word_meaning]))
+    verbs = ['go', 'walk', 'run', 'take', 'sprint']
+    move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
 
     # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
     defaulted_loc = strongest([location(), produce(Directional(MoveDirection.FORWARDS), response=0.0)])
