@@ -1,65 +1,68 @@
-from functools import partial
+from client.speech_result import *
 from chatterbot import ChatBot
-from chatterbot.trainers import ChatterBotCorpusTrainer
-from client.formulate_result import record, transcribe, parse_action, send_to_server
-from client.speech_result import SpeechSuccess, SpeechFailure
+from functools import partial
 from speech.voice import say
+import random
+import requests
 
 
-class Client:
+def post_action_to_server(server_address: str, action_json: str) -> Response:
     """
-    Holds data used to formulate responses and send data to the server.
+    :return: the response of sending the action json to the server.
+    """
+    return requests.post(server_address, action_json)
+
+
+def mock_post_action_to_server(action_json: str) -> Response:
+    """
+    :return: a successful response.
+    """
+    r = Response()
+    r.status_code = 200
+    return r
+
+
+def random_from_json(filename: str) -> str:
+    """
+    :return: opens the JSON file and chooses a random value from the array. Assumes there is an array at the top level.
+    """
+    with open(filename) as file:
+        entries = json.load(file)
+    return random.choice(entries)
+
+
+def run_client(failure_responses_dir: str, chat_bot: ChatBot, post: Callable[[str], Response]):
+    """
+    :param failure_responses_dir: the path to the directory containing JSON files of failure responses.
+    :param chat_bot: the chat bot used to generate responses for failure to parse actions.
+    :return: infinitely loops recording audio, transcribing, parsing actions, and then sending the action to the server.
     """
 
-    def _get_chatbot(self, spy_name: str) -> ChatBot:
-        chatbot = ChatBot(spy_name)
-        chatbot.set_trainer(ChatterBotCorpusTrainer)
-        chatbot.train("chatterbot.corpus.english")
+    # TODO: Create path correctly (for Windows too)
+    transcribe_fail_filename = failure_responses_dir + '/transcribe.json'
+    server_fail_filename = failure_responses_dir + '/server.json'
 
-        return chatbot
+    while True:
+        input('Press Enter to record...')
 
-    def __init__(self,
-                 server_addr: str,
-                 audio_filename: str,
-                 transcribe_fail_responses_filename: str,
-                 spy_name: str,
-                 server_fail_responses_filename: str):
-        """
-        :server_addr: the address of the game server.
-        :param audio_filename: the name of the audio file used to store recorded speech.
-        :param transcribe_fail_responses_filename: the JSON file containing responses to speech transcription failure.
-        :param spy_name: the name of the spy who the player communicates with.
-        :param server_fail_responses_filename: the JSON file containing responses to the game not being able to perform
-                                               the parsed action.
-        """
-        self.audio_filename = audio_filename
-        self.transcribe = partial(transcribe, transcribe_fail_responses_filename)
-        self.parse_action = partial(parse_action, self._get_chatbot(spy_name))
-        self.send_to_server = partial(send_to_server, server_fail_responses_filename, server_addr)
+        # Records audio and transcribes it.
+        transcribed_result = record('output.wav') \
+                            .then(transcribe) \
+                            .then(partial(print_produce, 'transcribed:')) \
+                            .map_failure(lambda _: random_from_json(transcribe_fail_filename))
 
-    def run(self):
-        """
-        Records audio, then transcribes it, then parses the transcript into an action which is sent to the server.
-        """
-        result = record(self.audio_filename) \
-                .then(self.transcribe) \
-                .then(self.parse_action) \
-                .then(self.send_to_server)
+        # Parses a transcript into an action.
+        parsed_action = transcribed_result \
+                       .then(parse_action) \
+                       .then(partial(print_produce, 'action:')) \
+                       .map_failure(lambda transcript: chat_bot.get_response(transcript))
 
-        if type(result) is SpeechSuccess:
-            response_speech = result.value
-        elif type(result) is SpeechFailure:
-            response_speech = result.speech_err_message
-        else:
-            raise RuntimeError('unrecognised SpeechResult')
+        # Sends the action to the game server.
+        server_response = parsed_action \
+                         .then(partial(send_to_server, post)) \
+                         .then(partial(print_produce, 'server response:')) \
+                         .map_failure(lambda _: random_from_json(server_fail_filename))
 
-        say(response_speech)
+        result = server_response.either(lambda value: value, lambda err: err)
 
-    def run_loop(self):
-        """
-        Records audio, transcribes it, then parses the transcript into an action which is send to the server. This is
-        done performed forever.
-        """
-        while True:
-            input('Press Enter to start recording...')
-            self.run()
+        say(result)

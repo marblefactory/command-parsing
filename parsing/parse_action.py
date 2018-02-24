@@ -5,11 +5,18 @@ from parsing.parse_interaction import through_door, pick_up, throw, hack
 from utils import split_list
 
 
-def do_not() -> Parser:
+def ignored_words() -> List[str]:
     """
-    :return: a parser which parses "not" and "don't".
+    :return: a list of words which should be removed from the input text.
     """
-    return strongest_word(["not", "don't"])
+    return ['the']
+
+
+def failure_words() -> Parser:
+    """
+    :return: a parser which parses words which will cause parsing to fail.
+    """
+    return strongest_word([ "not", "don't", "what's", "what"])
 
 
 def stop() -> Parser:
@@ -66,6 +73,6 @@ def action() -> Parser:
     :return: a parser for single or composite actions. Nothing will be parsed if the text contains "not" or "don't".
     """
     act = strongest([composite(), single_action()])
-    return ignore_words(['the']) \
-          .ignore_then(none(do_not())) \
+    return ignore_words(ignored_words()) \
+          .ignore_then(none(failure_words())) \
           .ignore_then(threshold(act, 0.3))
