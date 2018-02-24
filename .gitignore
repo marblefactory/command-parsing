@@ -104,3 +104,4 @@ ENV/
 client_secret.json
 google_cloud_speech_credentials.json
 *.wav
+*.sqlite3

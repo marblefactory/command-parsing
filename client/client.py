@@ -1,93 +1,65 @@
-from speech.record import Recorder
-from speech.transcribe import transcribe_file
-from parsing.parse_action import action
-from parsing.pre_processing import pre_process
-from encoders.encode_action import ActionEncoder
+from functools import partial
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
+from client.formulate_result import record, transcribe, parse_action, send_to_server
+from client.speech_result import SpeechSuccess, SpeechFailure
 from speech.voice import say
-import requests
-import json
-import random
-from typing import List
 
 
-def text_to_speech_failure_responses() -> List[str]:
+class Client:
     """
-    :return: responses that can be said if the audio file could not be parsed.
-    """
-    return [
-        'repeat?',
-        'can you repeat?',
-        'what was that command?'
-    ]
-
-
-def action_parse_failure_responses(transcript: str) -> List[str]:
-    """
-    :return: responses that can be said if an action could not be parsed from the transcript.
-    """
-    return [
-        "I don't know how to '{}'".format(transcript),
-        "I'm not sure how to do that",
-        "that's not part of my training",
-        "that's coming in a future update"
-    ]
-
-
-def action_perform_failure_response() -> List[str]:
-    """
-    :return: responses that can be said if the action could not be performed, e.g. there isn't a computer in the
-             vicinity to hack.
-    """
-    return ["I can't do that"]
-
-
-def run_client(server: str):
-    """
-    Runs an infinite loop of recording, transcribing, parsing, and sending to the server.
+    Holds data used to formulate responses and send data to the server.
     """
 
-    recorder = Recorder(sample_rate=41500)#Recorder(sample_rate=16000)
-    output_file_name = 'output.wav'
+    def _get_chatbot(self, spy_name: str) -> ChatBot:
+        chatbot = ChatBot(spy_name)
+        chatbot.set_trainer(ChatterBotCorpusTrainer)
+        chatbot.train("chatterbot.corpus.english")
 
-    while True:
-        input('Press Enter start')
+        return chatbot
 
-        recorder.record()
-        recorder.write(output_file_name)
+    def __init__(self,
+                 server_addr: str,
+                 audio_filename: str,
+                 transcribe_fail_responses_filename: str,
+                 spy_name: str,
+                 server_fail_responses_filename: str):
+        """
+        :server_addr: the address of the game server.
+        :param audio_filename: the name of the audio file used to store recorded speech.
+        :param transcribe_fail_responses_filename: the JSON file containing responses to speech transcription failure.
+        :param spy_name: the name of the spy who the player communicates with.
+        :param server_fail_responses_filename: the JSON file containing responses to the game not being able to perform
+                                               the parsed action.
+        """
+        self.audio_filename = audio_filename
+        self.transcribe = partial(transcribe, transcribe_fail_responses_filename)
+        self.parse_action = partial(parse_action, self._get_chatbot(spy_name))
+        self.send_to_server = partial(send_to_server, server_fail_responses_filename, server_addr)
 
-        transcript = transcribe_file(output_file_name)
+    def run(self):
+        """
+        Records audio, then transcribes it, then parses the transcript into an action which is sent to the server.
+        """
+        result = record(self.audio_filename) \
+                .then(self.transcribe) \
+                .then(self.parse_action) \
+                .then(self.send_to_server)
 
-        # If speech to text was unsuccessful.
-        if not transcript:
-            speech = random.choice(text_to_speech_failure_responses())
-            say(speech)
-            print()
-            continue
+        if type(result) is SpeechSuccess:
+            response_speech = result.value
+        elif type(result) is SpeechFailure:
+            response_speech = result.speech_err_message
+        else:
+            raise RuntimeError('unrecognised SpeechResult')
 
-        print('Transcribed     :', transcript)
+        say(response_speech)
 
-        tokens = pre_process(transcript)
-        result = action().parse(tokens)
-
-        # If the text could not be parsed to an action.
-        if not result:
-            speech = random.choice(action_parse_failure_responses(transcript))
-            say(speech)
-            print()
-            continue
-
-        print('Parsed          :', result.parsed)
-
-        response = requests.post(server, json=json.loads(json.dumps(result.parsed, cls=ActionEncoder)))
-
-        print('Server Response :', response)
-
-        if response.status_code != 200:
-            speech = random.choice(action_perform_failure_response())
-            say(speech)
-            print()
-            continue
-
-        say(result.parsed.random_response())
-
-        print()
+    def run_loop(self):
+        """
+        Records audio, transcribes it, then parses the transcript into an action which is send to the server. This is
+        done performed forever.
+        """
+        while True:
+            input('Press Enter to start recording...')
+            self.run()
