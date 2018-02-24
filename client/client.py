@@ -4,6 +4,7 @@ from functools import partial
 from speech.voice import say
 import random
 import requests
+import os
 
 
 def post_action_to_server(server_address: str, action_json: str) -> Response:
@@ -37,10 +38,8 @@ def run_client(failure_responses_dir: str, chat_bot: ChatBot, post: Callable[[st
     :param chat_bot: the chat bot used to generate responses for failure to parse actions.
     :return: infinitely loops recording audio, transcribing, parsing actions, and then sending the action to the server.
     """
-
-    # TODO: Create path correctly (for Windows too)
-    transcribe_fail_filename = failure_responses_dir + '/transcribe.json'
-    server_fail_filename = failure_responses_dir + '/server.json'
+    transcribe_fail_filename = os.path.join(failure_responses_dir, 'transcribe.json')
+    server_fail_filename = os.path.join(failure_responses_dir, 'server.json')
 
     while True:
         input('Press Enter to record...')
