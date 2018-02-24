@@ -7,19 +7,19 @@ import os
 
 if __name__ == '__main__':
     # Preload the WordNet dictionary.
-    print('loading word net...')
+    print('Loading WordNet...')
 
     wn.ensure_loaded()
 
     # Train the ChatBot in case the transcript was not parsed as an action.
-    print('training chat bot...')
+    print('Training chat bot...')
 
-    chat_bot = ChatBot('James')
+    chat_bot = ChatBot('James', read_only=True)
     chat_bot.set_trainer(ChatterBotCorpusTrainer)
     chat_bot.train("chatterbot.corpus.english")
 
     # Run the client in an infinite loop.
-    print('running Client...')
+    print('Running Client...')
     cwd = os.getcwd()
     failure_responses_dir = os.path.join(cwd, 'client', 'failure_responses')
 

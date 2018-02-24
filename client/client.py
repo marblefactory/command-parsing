@@ -46,7 +46,7 @@ def run_client(failure_responses_dir: str, chat_bot: ChatBot, post: Callable[[st
 
         # Records audio and transcribes it.
         transcribed_result = record('output.wav') \
-                            .then(partial(transcribe, lambda _: random_from_json(transcribe_fail_filename))) \
+                            .then(partial(transcribe, lambda: random_from_json(transcribe_fail_filename))) \
                             .then(partial(print_produce, 'transcribed:'))
 
         # Parses a transcript into an action.
@@ -56,8 +56,7 @@ def run_client(failure_responses_dir: str, chat_bot: ChatBot, post: Callable[[st
 
         # Sends the action to the game server.
         server_response = parsed_action \
-                         .then(partial(send_to_server, lambda _: random_from_json(server_fail_filename), post)) \
-                         .then(partial(print_produce, 'success speech:')) \
+                         .then(partial(send_to_server, lambda _: random_from_json(server_fail_filename), post))
 
         result = server_response.either(lambda value: value, lambda err: err)
 
