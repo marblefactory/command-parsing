@@ -20,14 +20,6 @@ class Result:
         """
         raise NotImplementedError
 
-    def map_failure(self, transform: Callable[[str], str]) -> 'Result':
-        """
-        :param transform: used to generate a new failure from the message inside a failure.
-        :return: has no effect on success results. However, replaces the error message inside a failure with the
-                 string returned by transform.
-        """
-        raise NotImplementedError
-
     def either(self, success: Callable[[Any], Any], failure: Callable[[str], Any]) -> Any:
         """
         :param success: the function called on the result if it is a success.
@@ -59,13 +51,6 @@ class Success(Result):
         """
         return operation(self.value)
 
-    def map_failure(self, transform: Callable[[str], str]) -> Result:
-        """
-        :param transform: used to generate a new failure from the message inside a failure.
-        :return: this success result, i.e. it has no effect.
-        """
-        return Success(self.value)
-
 
 class Failure(Result):
     """
@@ -83,13 +68,6 @@ class Failure(Result):
         :return: the error message contained in this failure result.
         """
         return Failure(self.error_msg)
-
-    def map_failure(self, transform: Callable[[str], str]) -> Result:
-        """
-        :param transform: used to generate a new failure from the message inside a failure.
-        :return: this failure result where the the message has been replaced with the value of transform.
-        """
-        return Failure(transform(self.error_msg))
 
 
 def print_produce(post_message: str, value: Any) -> Result:
@@ -114,23 +92,23 @@ def record(filename: str) -> Result:
     return Success(filename)
 
 
-def transcribe(audio_filename: str) -> Result:
+def transcribe(fail_response: Callable[[], str], audio_filename: str) -> Result:
     """
+    :param fail_response: function to create a failure response.
     :return: result of transcribing the speech in the audio file with the given name.
              This fails if no speech could be recognised in the audio file.
     """
     transcript = transcribe_file(audio_filename)
 
-    print(transcript)
-
     if not transcript:
-        return Failure()
+        return Failure(fail_response())
 
     return Success(transcript)
 
 
-def parse_action(transcript: str) -> Result:
+def parse_action(fail_response: Callable[[str], str], transcript: str) -> Result:
     """
+    :param fail_response: function to create a failure response from the transcript.
     :return: result of parsing the speech transcript into actions.
              This fails if an action could not be parsed from the transcript.
     """
@@ -138,14 +116,14 @@ def parse_action(transcript: str) -> Result:
     result = action().parse(words)
 
     if not result:
-        print("FAILED ACTION")
-        return Failure(transcript)
+        return Failure(fail_response(transcript))
 
     return Success(result.parsed)
 
 
-def send_to_server(post: Callable[[str], Response], parsed_action: Action) -> Result:
+def send_to_server(fail_response: Callable[[Action], str], post: Callable[[str], Response], parsed_action: Action) -> Result:
     """
+    :param fail_response: function to create a fail response from the parsed action.
     :param post: takes the JSON string representing the action, and posts it to the server.
     :return: result of sending the action to the game to be performed. This fails if the game could not perform the
              action.
@@ -153,9 +131,7 @@ def send_to_server(post: Callable[[str], Response], parsed_action: Action) -> Re
     action_json = json.loads(json.dumps(parsed_action, cls=ActionEncoder))
     response = post(action_json)
 
-    print(response)
-
     if response.status_code != 200:
-        return Failure()
+        return Failure(fail_response(parsed_action))
 
     return Success(parsed_action.random_response())
