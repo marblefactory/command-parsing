@@ -57,13 +57,18 @@ function displayTitle() {
 // Used to ensure we enter states record, stop, encrypt, in the correct order.
 var state = 0;
 
+let START_STATE = 0;
+let STOP_STATE = 1;
+let ENCRYPT_STATE = 2;
+let SENT_STATE = 3;
+
 /**
  * Prompts the user to record by displaying a message.
  */
 function promptStartRecord() {
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML = `Press any to start recording...<br/>`;
-    state = 0;
+    state = START_STATE;
 }
 
 /**
@@ -71,41 +76,61 @@ function promptStartRecord() {
  */
 function promptStopRecord() {
     // Don't display the message multiple times if the user holding down a key.
-    if (state != 0) {
+    if (state != START_STATE) {
         return;
     }
 
+    state = STOP_STATE;
+
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML += `Release to stop recording...<br/><br/>`;
-    state = 1;
 }
 
 /**
  * Displays an 'encrypting' message to mask any delay from parsing the speech by the server.
  */
 function displayEncryptingMessage() {
-    if (state != 1) {
+    if (state != STOP_STATE) {
         return;
     }
 
-    state = 2;
+    state = ENCRYPT_STATE;
 
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML += `Encrypting: `;
 
     // Adds num '#' to the end of the loading bar, with a randomised delay between adding them.
     function extendLoadingBar(num) {
-        if (num == 0) {
+        // If there is nothing left to add to the loading bar, or we are no longer in the encrypting state.
+        if (num == 0 || state != ENCRYPT_STATE) {
             return;
         }
 
         recordDiv.innerHTML += '#';
 
-        var waitTime = Math.random() * (800 - 200) + 200;
+        var waitTime = Math.random() * (200 - 50) + 50;
         setTimeout(() => extendLoadingBar(num - 1), waitTime);
     }
 
-    extendLoadingBar(30);
+    extendLoadingBar(50);
+
+    setTimeout(displaySentAndRestart, 3000);
+}
+
+/**
+ * Displays a 'sent' message and prompts the user to record a message again.
+ */
+function displaySentAndRestart() {
+    if (state != ENCRYPT_STATE) {
+        return;
+    }
+
+    state = SENT_STATE;
+
+    var recordDiv = document.querySelector('#record');
+    recordDiv.innerHTML += `<br/><br/>Sent`;
+
+    setTimeout(promptStartRecord, 650);
 }
 
 
