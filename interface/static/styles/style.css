@@ -1,0 +1,11 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: 'Cutive Mono', monospace;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+#title {
+    display: none;
+}

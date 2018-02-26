@@ -2,7 +2,6 @@ from client.client import run_client, mock_post_action_to_server, post_action_to
 from nltk.corpus import wordnet as wn
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
-from functools import partial
 import os
 
 
