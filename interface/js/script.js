@@ -54,7 +54,8 @@ function displayTitle() {
     promptStartRecord();
 }
 
-var is_key_down = false;
+// Used to ensure we enter states record, stop, encrypt, in the correct order.
+var state = 0;
 
 /**
  * Prompts the user to record by displaying a message.
@@ -62,7 +63,7 @@ var is_key_down = false;
 function promptStartRecord() {
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML = `Press any to start recording...<br/>`;
-    is_key_down = false;
+    state = 0;
 }
 
 /**
@@ -70,21 +71,50 @@ function promptStartRecord() {
  */
 function promptStopRecord() {
     // Don't display the message multiple times if the user holding down a key.
-    if (is_key_down) {
+    if (state != 0) {
         return;
     }
 
     var recordDiv = document.querySelector('#record');
-    recordDiv.innerHTML += `Release to stop recording...`;
-    is_key_down = true;
+    recordDiv.innerHTML += `Release to stop recording...<br/><br/>`;
+    state = 1;
 }
+
+/**
+ * Displays an 'encrypting' message to mask any delay from parsing the speech by the server.
+ */
+function displayEncryptingMessage() {
+    if (state != 1) {
+        return;
+    }
+
+    state = 2;
+
+    var recordDiv = document.querySelector('#record');
+    recordDiv.innerHTML += `Encrypting: `;
+
+    // Adds num '#' to the end of the loading bar, with a randomised delay between adding them.
+    function extendLoadingBar(num) {
+        if (num == 0) {
+            return;
+        }
+
+        recordDiv.innerHTML += '#';
+
+        var waitTime = Math.random() * (800 - 200) + 200;
+        setTimeout(() => extendLoadingBar(num - 1), waitTime);
+    }
+
+    extendLoadingBar(30);
+}
+
 
 /**
  * Adds event listeners for key up and key down to know when to stop and start recording.
  */
 function setup() {
     document.addEventListener('keydown', promptStopRecord);
-    document.addEventListener('keyup', promptStartRecord);
+    document.addEventListener('keyup', displayEncryptingMessage);
 }
 
 function start() {
