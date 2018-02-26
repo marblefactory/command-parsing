@@ -8,7 +8,7 @@ def send_js(path):
     return send_from_directory('js', path)
 
 
-@app.route("/")
+@app.route('/')
 def index():
     return render_template('index.html')
 

@@ -1,4 +1,20 @@
 
+/**
+ * Sends a GET requst to the server, with the given url_postfix added to the
+ * end of the url of the server.
+ */
+function get(url_postfix, callback) {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (request.readyState == 4 && request.status == 200 && callback != undefined) {
+            callback(request.responseText);
+        }
+    }
+
+    url = window.location.origin + '/' + url_postfix;
+    request.open("GET", url, true);
+    request.send(null);
+}
 
 /**
  * Animates displaying a list of sentences to display on newlines one after the other.
@@ -50,8 +66,6 @@ function displayTitle() {
 
     bootJargonDiv.style.display = 'none';
     bootedDiv.style.display = 'block';
-
-    promptStartRecord();
 }
 
 // Used to ensure we enter states record, stop, encrypt, in the correct order.
@@ -74,12 +88,15 @@ function promptStartRecord() {
 /**
  * Prompts the user to stop recording by displaying a message.
  */
-function promptStopRecord() {
+function promptStopRecord(recogniser) {
     // Don't display the message multiple times if the user holding down a key.
     if (state != START_STATE) {
         return;
     }
 
+    console.log(recogniser);
+
+    recogniser.start();
     state = STOP_STATE;
 
     var recordDiv = document.querySelector('#record');
@@ -89,11 +106,12 @@ function promptStopRecord() {
 /**
  * Displays an 'encrypting' message to mask any delay from parsing the speech by the server.
  */
-function displayEncryptingMessage() {
+function displayEncryptingMessage(recogniser) {
     if (state != STOP_STATE) {
         return;
     }
 
+    recogniser.stop();
     state = ENCRYPT_STATE;
 
     var recordDiv = document.querySelector('#record');
@@ -113,8 +131,6 @@ function displayEncryptingMessage() {
     }
 
     extendLoadingBar(50);
-
-    setTimeout(displaySentAndRestart, 3000);
 }
 
 /**
@@ -134,18 +150,35 @@ function displaySentAndRestart() {
 }
 
 /**
- * Adds event listeners for key up and key down to know when to stop and start recording.
+ * Called when the speech recognition has recognised the text.
  */
-function setup() {
-    document.addEventListener('keydown', promptStopRecord);
-    document.addEventListener('keyup', displayEncryptingMessage);
+function didRecogniseSpeech(event) {
+    if (state != ENCRYPT_STATE) {
+        throw 'unexpected state';
+    }
+
+    console.log(event.results[0][0].transcript);
 }
+
 
 /**
- * Kicks everything off.
+ * Adds event listeners for key up and key down to know when to stop and start recording.
  */
 function start() {
-    animateStartupText(displayTitle);
+    // Used to recognise audio.
+    var recogniser = new webkitSpeechRecognition();
+    recogniser.continuous = true;
+    recogniser.onresult = didRecogniseSpeech;
+
+    document.addEventListener('keydown', () => promptStopRecord(recogniser));
+    document.addEventListener('keyup', () => displayEncryptingMessage(recogniser));
+
+    animateStartupText(didFinishAnimation);
+
+    function didFinishAnimation() {
+        displayTitle();
+        promptStartRecord();
+    }
 }
 
-window.addEventListener('load', function() { setup(); start(); });
+window.addEventListener('load', start);
