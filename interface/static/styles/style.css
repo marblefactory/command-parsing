@@ -13,10 +13,16 @@ pre {
     text-align: center;
 }
 
+#boot_jargon {
+    padding-left: 5%;
+    padding-top: 5%;
+}
+
 #booted {
     display: none;
 }
 
 #record {
     text-align:left;
+    padding-left: 10%;
 }
