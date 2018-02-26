@@ -19,7 +19,7 @@ function animateStartupText(callback) {
         ['512 K Cache Passed', 90],
         ['System BIOS Shadowed', 0],
         ['', 50],
-        ['### Done initialising ###', 600]
+        ['Done initialising', 600]
     ];
 
     var body = document.querySelector('#boot_jargon');
@@ -41,16 +41,54 @@ function animateStartupText(callback) {
     addTexts(0);
 }
 
-function start() {
-    animateStartupText(displayTitle);
+/**
+ * Hides the loading Jargon and displays the SpySpeak title.
+ */
+function displayTitle() {
+    var bootJargonDiv = document.querySelector('#boot_jargon');
+    var bootedDiv = document.querySelector('#booted');
 
-    function displayTitle() {
-        var bootJargonDiv = document.querySelector('#boot_jargon');
-        var titleDiv = document.querySelector('#title');
+    bootJargonDiv.style.display = 'none';
+    bootedDiv.style.display = 'block';
 
-        bootJargonDiv.style.display = 'none';
-        titleDiv.style.display = 'block';
-    }
+    promptStartRecord();
 }
 
-window.addEventListener('load', start);
+var is_key_down = false;
+
+/**
+ * Prompts the user to record by displaying a message.
+ */
+function promptStartRecord() {
+    var recordDiv = document.querySelector('#record');
+    recordDiv.innerHTML = `Press any to start recording...<br/>`;
+    is_key_down = false;
+}
+
+/**
+ * Prompts the user to stop recording by displaying a message.
+ */
+function promptStopRecord() {
+    // Don't display the message multiple times if the user holding down a key.
+    if (is_key_down) {
+        return;
+    }
+
+    var recordDiv = document.querySelector('#record');
+    recordDiv.innerHTML += `Release to stop recording...`;
+    is_key_down = true;
+}
+
+/**
+ * Adds event listeners for key up and key down to know when to stop and start recording.
+ */
+function setup() {
+    document.addEventListener('keydown', promptStopRecord);
+    document.addEventListener('keyup', promptStartRecord);
+}
+
+function start() {
+    animateStartupText(displayTitle);
+}
+
+window.addEventListener('load', function() { setup(); start(); });

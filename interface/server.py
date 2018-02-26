@@ -5,7 +5,6 @@ app = Flask(__name__, static_url_path='')
 
 @app.route('/js/<path:path>')
 def send_js(path):
-    print("FGH")
     return send_from_directory('js', path)
 
 
@@ -15,4 +14,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
