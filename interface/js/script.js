@@ -19,7 +19,7 @@ function animateStartupText(callback) {
         ['512 K Cache Passed', 90],
         ['System BIOS Shadowed', 0],
         ['', 50],
-        ['Done initialising', 600]
+        ['Done initialising', 1000]
     ];
 
     var body = document.querySelector('#boot_jargon');
@@ -133,7 +133,6 @@ function displaySentAndRestart() {
     setTimeout(promptStartRecord, 650);
 }
 
-
 /**
  * Adds event listeners for key up and key down to know when to stop and start recording.
  */
@@ -142,6 +141,9 @@ function setup() {
     document.addEventListener('keyup', displayEncryptingMessage);
 }
 
+/**
+ * Kicks everything off.
+ */
 function start() {
     animateStartupText(displayTitle);
 }
