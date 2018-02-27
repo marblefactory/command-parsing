@@ -1,5 +1,5 @@
 from flask import Flask, render_template, send_from_directory, jsonify, request
-from flask.ext.socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit
 from client.speech_result import Success, print_produce, parse_action, send_to_server
 from functools import partial
 from requests import Response
@@ -102,7 +102,6 @@ def not_recognised_speech():
     """
     Called when the user spoke, but we could not understand.
     """
-
     # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
     thread = Thread(target=process_not_recognised_speech)
     thread.start()

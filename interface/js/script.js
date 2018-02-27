@@ -124,7 +124,7 @@ function promptStopRecord(recogniser) {
     state = STOP_STATE;
 
     // Play a sound when the user presses down a key.
-    play('#radio_beep');
+    play('#radio_start');
 
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML += `Release to stop recording...<br/><br/>`;
@@ -140,6 +140,9 @@ function displayEncryptingMessage(recogniser) {
 
     recogniser.stop();
     state = ENCRYPT_STATE;
+
+    // Play a sound when the user released a key.
+    play('#radio_end');
 
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML += `Encrypting...`;
