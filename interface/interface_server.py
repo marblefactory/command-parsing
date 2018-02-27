@@ -46,6 +46,8 @@ def process_transcript(transcript: str):
     """
     :return: parses the transcript into an action, then sends the action to the game server, then speaks a response.
     """
+    print('transcript:', transcript)
+
     # Parse the transcript into an action.
     parsed_action = Success(transcript) \
         .then(partial(parse_action, lambda transcript: action_failed_chat_bot.get_response(transcript))) \
