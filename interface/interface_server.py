@@ -45,11 +45,11 @@ def random_from_json(filename: str) -> str:
     return random.choice(entries)
 
 
-def say_and_notify(text: str):
+def send_speech_response(speech: str):
     """
-    Speaks the given text and notifies the client when speaking is done.
+    Sends the speech to be said to the player back to the client to be spoken.
     """
-    say(text)
+    pass
 
 
 def process_transcript(transcript: str):
@@ -69,7 +69,7 @@ def process_transcript(transcript: str):
                       mock_post_action_to_game))
 
     speech_response = server_response.either(lambda value: value, lambda err: err)
-    say_and_notify(speech_response)
+    send_speech_response(speech_response)
 
 
 def process_not_recognised_speech():
@@ -77,7 +77,7 @@ def process_not_recognised_speech():
     Speaks a response indicating that it the player was not understood.
     """
     speech_response = random_from_json('failure_responses/transcribe.json')
-    say_and_notify(speech_response)
+    send_speech_response(speech_response)
 
 
 @app.route('/js/<path:path>')

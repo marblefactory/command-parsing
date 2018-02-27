@@ -1,7 +1,7 @@
 "use strict";
 
 // Used to disable/enable animations at startup.
-var debug = false;
+var skipIntro = true;
 
 /**
  * Sends a post request to the server, with the given ulr_postfix added to the
@@ -22,7 +22,6 @@ function post(url_postfix, obj, callback) {
     request.send(JSON.stringify(obj));
 }
 
-
 /**
  * Returns a random number between min and max.
  */
@@ -36,6 +35,25 @@ function random(maxMs, minMs) {
 function play(id) {
     var audioElement = document.querySelector(id);
     audioElement.play();
+}
+
+/**
+ * Speaks the given text in the preferred voice. If the voice does not exist, the text is spoken in the first
+ * available voice.
+ */
+function speak(text, preferred_voice) {
+    var msg = new SpeechSynthesisUtterance();
+	msg.text = text;
+	msg.rate = 218; // words per min.
+
+    // If a voice has been selected, find the voice and set the
+    // utterance instance's voice attribute.
+	if (preferred_voice) {
+		msg.voice = speechSynthesis.getVoices().filter((voice) => voice.name == preferred_voice)[0]
+		         || speechSynthesis.getVoices()[0];
+	}
+
+	window.speechSynthesis.speak(msg);
 }
 
 /**
@@ -95,12 +113,12 @@ function displayTitle() {
 }
 
 // Used to ensure we enter states record, stop, encrypt, in the correct order.
-var state = -1;
+let WAITING_STATE = 0;
+let LISTENING_STATE = 1;
+let ENCRYPTING_STATE = 2;
+let SENDING_STATE = 3;
 
-let START_STATE = 0;
-let STOP_STATE = 1;
-let ENCRYPT_STATE = 2;
-let SENT_STATE = 3;
+var state = -1;
 
 // Needed because onnomatch does not work.
 var didRecognise = false;
@@ -111,7 +129,9 @@ var didRecognise = false;
 function promptStartRecord() {
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML = `Press any to start recording...<br/>`;
-    state = START_STATE;
+
+    // Update state
+    state = WAITING_STATE;
     didRecognise = false;
 }
 
@@ -120,12 +140,12 @@ function promptStartRecord() {
  */
 function promptStopRecord(recogniser) {
     // Don't display the message multiple times if the user holding down a key.
-    if (state != START_STATE) {
+    if (state != WAITING_STATE) {
         return;
     }
 
+    state = LISTENING_STATE;
     recogniser.start();
-    state = STOP_STATE;
 
     // Play a sound when the user presses down a key.
     play('#radio_start');
@@ -138,12 +158,12 @@ function promptStopRecord(recogniser) {
  * Displays an 'encrypting' message to mask any delay from parsing the speech by the server.
  */
 function displayEncryptingMessage(recogniser) {
-    if (state != STOP_STATE) {
+    if (state != LISTENING_STATE) {
         return;
     }
 
+    state = ENCRYPTING_STATE;
     recogniser.stop();
-    state = ENCRYPT_STATE;
 
     // Play a sound when the user released a key.
     play('#radio_end');
@@ -153,29 +173,14 @@ function displayEncryptingMessage(recogniser) {
 }
 
 /**
- * Displays a 'sent' message and prompts the user to record a message again.
- */
-function displaySentAndRestart() {
-    if (state != ENCRYPT_STATE) {
-        return;
-    }
-
-    state = SENT_STATE;
-
-    var recordDiv = document.querySelector('#record');
-    recordDiv.innerHTML += `<br/><br/>Sent`;
-
-    setTimeout(promptStartRecord, 1500);
-}
-
-/**
  * Called when the speech recognition has recognised the text. Sends the recognised text to the server.
  */
 function didRecogniseSpeech(event) {
-    if (state != ENCRYPT_STATE) {
-        throw 'unexpected state';
+    if (state != ENCRYPTING_STATE) {
+        throw 'unexpected state at success';
     }
 
+    // This is called before `checkDidFailToRecognise`.
     didRecognise = true;
 
     // Send the transcript to the server.
@@ -189,6 +194,10 @@ function didRecogniseSpeech(event) {
  * recognised.
  */
 function checkDidFailToRecognise() {
+    if (state != ENCRYPTING_STATE) {
+        throw 'unexpected state at finish';
+    }
+
     if (!didRecognise) {
         // Wait a short time to make it appear like the spy is thinking.
         // Otherwise he replies too quickly.
@@ -197,11 +206,27 @@ function checkDidFailToRecognise() {
 }
 
 /**
+ * Displays a 'sent' message and prompts the user to record a message again.
+ */
+function displaySentAndRestart() {
+    if (state != ENCRYPTING_STATE) {
+        return;
+    }
+
+    state = SENDING_STATE;
+
+    var recordDiv = document.querySelector('#record');
+    recordDiv.innerHTML += `<br/><br/>Sent`;
+
+    setTimeout(promptStartRecord, 1500);
+}
+
+/**
  * Adds event listeners for key up and key down to know when to stop and start recording.
  */
 function start() {
     // Used to recognise audio.
-    var recogniser = new webkitSpeechRecognition() || new SpeechRecognition();
+    var recogniser = new webkitSpeechRecognition();
     recogniser.continuous = true;
     recogniser.onresult = didRecogniseSpeech;
     recogniser.onend = checkDidFailToRecognise;
@@ -214,11 +239,26 @@ function start() {
         promptStartRecord();
     }
 
-    if (debug) {
+    if (skipIntro) {
         didFinishAnimation();
     } else {
         animateStartupText(didFinishAnimation);
     }
 }
 
-window.addEventListener('load', start);
+/**
+ * Loads the voices for text to speech, then calls start once it is done.
+ * This is because loading may be done asynchronously.
+ */
+function loadVoices() {
+    // Prompt loading the voices.
+    speechSynthesis.getVoices();
+
+    //var socket = io('http://localhost');
+
+    window.speechSynthesis.onvoiceschanged = function() {
+        start();
+    }
+}
+
+window.addEventListener('load', loadVoices);
