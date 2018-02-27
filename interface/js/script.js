@@ -44,7 +44,7 @@ function play(id) {
 function speak(text, preferred_voice) {
     var msg = new SpeechSynthesisUtterance();
 	msg.text = text;
-	msg.rate = 218; // words per min.
+	msg.rate = 1.07;
 
     // If a voice has been selected, find the voice and set the
     // utterance instance's voice attribute.
