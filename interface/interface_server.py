@@ -93,7 +93,7 @@ def recognised_speech():
 
 
 @app.route('/not_recognised', methods=['POST'])
-def not_recoginised_speech():
+def not_recognised_speech():
     """
     Called when the user spoke, but we could not understand.
     """
