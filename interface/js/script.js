@@ -195,14 +195,12 @@ function start() {
     document.addEventListener('keydown', () => promptStopRecord(recogniser));
     document.addEventListener('keyup', () => displayEncryptingMessage(recogniser));
 
-    //animateStartupText(didFinishAnimation);
+    animateStartupText(didFinishAnimation);
 
     function didFinishAnimation() {
         displayTitle();
         promptStartRecord();
     }
-
-    didFinishAnimation();
 }
 
 window.addEventListener('load', start);
