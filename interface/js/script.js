@@ -228,15 +228,10 @@ function didReceiveResponseSpeech(speech) {
     }
 
     displayReceivedMessage();
+    speak(speech, 'Tom');
 
-    // A short delay to display the 'received' message while no speech is said.
-    // This makes it appear as if the spy is thinking.
-    setTimeout(speakThenRestart, 300);
-
-    function speakThenRestart() {
-        speak(speech, 'Tom');
-        promptStartRecord();
-    }
+    // Short delay so the 'received' message appears while the spy is talking.
+    setTimeout(promptStartRecord, 1500);
 }
 
 /**
