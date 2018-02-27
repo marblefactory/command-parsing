@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory, jsonify, request
+from flask import Flask, render_template, send_from_directory, jsonify, request, after_this_request
 from client.speech_result import Success, print_produce, parse_action, send_to_server
 from functools import partial
 from requests import Response
@@ -6,6 +6,7 @@ from speech.voice import say
 from nltk.corpus import wordnet as wn
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer, ListTrainer
+from threading import Thread
 import requests
 import json
 import random
@@ -41,6 +42,32 @@ def random_from_json(filename: str) -> str:
     return random.choice(entries)
 
 
+def process_transcript(transcript: str):
+    """
+    :return: parses the transcript into an action, then sends the action to the game server, then speaks a response.
+    """
+    # Parse the transcript into an action.
+    parsed_action = Success(transcript) \
+        .then(partial(parse_action, lambda transcript: action_failed_chat_bot.get_response(transcript))) \
+        .then(partial(print_produce, 'action:'))
+
+    # Sends the action to the game server.
+    server_response = parsed_action \
+        .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'),
+                      mock_post_action_to_game))
+
+    speech_response = server_response.either(lambda value: value, lambda err: err)
+    say(speech_response)
+
+
+def process_not_recognised_speech():
+    """
+    Speaks a response indicating that it the player was not understood.
+    """
+    speech_response = random_from_json('failure_responses/transcribe.json')
+    say(speech_response)
+
+
 @app.route('/js/<path:path>')
 def send_js(path):
     return send_from_directory('js', path)
@@ -50,21 +77,30 @@ def send_js(path):
 def index():
     return render_template('index.html')
 
+
 @app.route('/recognised', methods=['POST'])
 def recognised_speech():
+    """
+    Called when the client recognised some speech.
+    """
     transcript = request.get_json(silent=True)
 
-    # Parse the transcript into an action.
-    parsed_action = Success(transcript) \
-        .then(partial(parse_action, lambda transcript: action_failed_chat_bot.get_response(transcript))) \
-        .then(partial(print_produce, 'action:'))
+    # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
+    thread = Thread(target=process_transcript, args=[transcript])
+    thread.start()
 
-    # Sends the action to the game server.
-    server_response = parsed_action \
-        .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), mock_post_action_to_game))
+    return jsonify({})
 
-    speech_response = server_response.either(lambda value: value, lambda err: err)
-    say(speech_response)
+
+@app.route('/not_recognised', methods=['POST'])
+def not_recoginised_speech():
+    """
+    Called when the user spoke, but we could not understand.
+    """
+
+    # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
+    thread = Thread(target=process_not_recognised_speech)
+    thread.start()
 
     return jsonify({})
 

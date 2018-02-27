@@ -8,7 +8,7 @@ function post(url_postfix, obj, callback) {
     url = window.location.origin + '/' + url_postfix;
 
     request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status == 200) {
+        if (request.readyState == 4 && request.status == 200 && callback != undefined) {
             callback(request.responseText);
         }
     }
@@ -79,6 +79,9 @@ let STOP_STATE = 1;
 let ENCRYPT_STATE = 2;
 let SENT_STATE = 3;
 
+// Needed because onnomatch does not work.
+var didRecognise = false;
+
 /**
  * Prompts the user to record by displaying a message.
  */
@@ -86,6 +89,7 @@ function promptStartRecord() {
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML = `Press any to start recording...<br/>`;
     state = START_STATE;
+    didRecognise = false;
 }
 
 /**
@@ -127,8 +131,8 @@ function displayEncryptingMessage(recogniser) {
 
         recordDiv.innerHTML += '#';
 
-        var minWaitTimeMs = 20;
-        var maxWaitTimeMs = 70;
+        var minWaitTimeMs = 5;
+        var maxWaitTimeMs = 10;
         var waitTime = Math.random() * (maxWaitTimeMs - minWaitTimeMs) + minWaitTimeMs;
         setTimeout(() => extendLoadingBar(num - 1), waitTime);
     }
@@ -149,7 +153,7 @@ function displaySentAndRestart() {
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML += `<br/><br/>Sent`;
 
-    setTimeout(promptStartRecord, 650);
+    setTimeout(promptStartRecord, 1500);
 }
 
 /**
@@ -160,17 +164,22 @@ function didRecogniseSpeech(event) {
         throw 'unexpected state';
     }
 
+    didRecognise = true;
+
     // Send the transcript to the server.
     var transcript = event.results[0][0].transcript;
-    console.log(`Recognised: ${transcript}`)
+    console.log(`Recognised: ${transcript}`);
     post('recognised', transcript, displaySentAndRestart);
 }
 
 /**
- * Called if the speech recognition did not recognise any speech.
+ * Called if the speech recognition did not recognise any speech. Sends a message to the server that nothing was
+ * recognised.
  */
-function didFailToRecognise(event) {
-    console.log("Failed");
+function checkDidFailToRecognise() {
+    if (!didRecognise) {
+        post('not_recognised', {}, displaySentAndRestart);
+    }
 }
 
 /**
@@ -178,20 +187,22 @@ function didFailToRecognise(event) {
  */
 function start() {
     // Used to recognise audio.
-    var recogniser = new webkitSpeechRecognition();
+    var recogniser = new webkitSpeechRecognition() || new SpeechRecognition();
     recogniser.continuous = true;
     recogniser.onresult = didRecogniseSpeech;
-    recogniser.onerror = didFailToRecognise;
+    recogniser.onend = checkDidFailToRecognise;
 
     document.addEventListener('keydown', () => promptStopRecord(recogniser));
     document.addEventListener('keyup', () => displayEncryptingMessage(recogniser));
 
-    animateStartupText(didFinishAnimation);
+    //animateStartupText(didFinishAnimation);
 
     function didFinishAnimation() {
         displayTitle();
         promptStartRecord();
     }
+
+    didFinishAnimation();
 }
 
 window.addEventListener('load', start);
