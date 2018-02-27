@@ -3,11 +3,9 @@ from flask_socketio import SocketIO, emit
 from client.speech_result import Success, print_produce, parse_action, send_to_server
 from functools import partial
 from requests import Response
-from speech.voice import say
 from nltk.corpus import wordnet as wn
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer, ListTrainer
-from threading import Thread
 import requests
 import json
 import random
@@ -15,9 +13,13 @@ import random
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
+socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
+
+# The address of the game server.
+GAME_SERVER = '128.0.0.30:5000'
 
 
 def post_action_to_game(server_address: str, action_json: str) -> Response:
@@ -57,6 +59,10 @@ def process_transcript(transcript: str) -> str:
                    .then(partial(print_produce, 'action:'))
 
     # Sends the action to the game server.
+    # post = partial(post_action_to_game, GAME_SERVER)
+    # server_response = parsed_action \
+    #                  .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), post))
+
     server_response = parsed_action \
                      .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), mock_post_action_to_game))
 
@@ -79,31 +85,6 @@ def send_js(path):
 def index():
     return render_template('index.html')
 
-
-# @app.route('/recognised', methods=['POST'])
-# def recognised_speech():
-#     """
-#     Called when the client recognised some speech.
-#     """
-#     transcript = request.get_json(silent=True)
-#
-#     # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
-#     thread = Thread(target=process_transcript, args=[transcript])
-#     thread.start()
-#
-#     return jsonify({})
-#
-#
-# @app.route('/not_recognised', methods=['POST'])
-# def not_recognised_speech():
-#     """
-#     Called when the user spoke, but we could not understand.
-#     """
-#     # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
-#     thread = Thread(target=process_not_recognised_speech)
-#     thread.start()
-#
-#     return jsonify({})
 
 @socketio.on('connect')
 def handle_client_connect_event():
