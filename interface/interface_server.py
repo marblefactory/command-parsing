@@ -1,4 +1,5 @@
-from flask import Flask, render_template, send_from_directory, jsonify, request, after_this_request
+from flask import Flask, render_template, send_from_directory, jsonify, request
+from flask.ext.socketio import SocketIO, emit
 from client.speech_result import Success, print_produce, parse_action, send_to_server
 from functools import partial
 from requests import Response
@@ -12,6 +13,8 @@ import json
 import random
 
 app = Flask(__name__, static_url_path='')
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app)
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')

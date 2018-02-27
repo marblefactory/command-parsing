@@ -27,25 +27,34 @@ function random(maxMs, minMs) {
 }
 
 /**
+ * Plays the sound in the audio element with the given id.
+ */
+function play(id) {
+    var audioElement = document.querySelector(id);
+    audioElement.play();
+}
+
+/**
  * Animates displaying a list of sentences to display on newlines one after the other.
  */
 function animateStartupText(callback) {
     // The text to display and the time (ms) to wait before showing the next text.
     var texts = [
+        ['', 300],
         ['SpySpeakBIOS 4.0 Release 6.0', 500],
         ['Copyright 2005-2018 SpySpeak Technologies Ltd.', 100],
-        ['', 500],
+        ['', 450],
         ['BIOS version 29.02', 100],
         ['Gateway Solo 9550', 120],
         ['System Id = 513', 110],
         ['Build Time; 09/10/2017', 200],
-        ['', 600],
+        ['', 550],
         ['639 KB System RAM Passed', 70],
         ['254 KB Extended RAM Passed', 100],
         ['512 K Cache Passed', 90],
         ['System BIOS Shadowed', 0],
         ['', 50],
-        ['Connecting to host...', 1000],
+        ['Connecting to host...', 850],
         ['Done connecting', 500]
     ];
 
@@ -65,6 +74,8 @@ function animateStartupText(callback) {
         setTimeout(() => addTexts(index + 1), waitTime);
     }
 
+    // Start the animation.
+    play('#fax_machine');
     addTexts(0);
 }
 
@@ -80,7 +91,7 @@ function displayTitle() {
 }
 
 // Used to ensure we enter states record, stop, encrypt, in the correct order.
-var state = 0;
+var state = -1;
 
 let START_STATE = 0;
 let STOP_STATE = 1;
@@ -113,8 +124,7 @@ function promptStopRecord(recogniser) {
     state = STOP_STATE;
 
     // Play a sound when the user presses down a key.
-    var radioBeepDiv = document.querySelector('#radio_beep');
-    radioBeepDiv.play();
+    play('#radio_beep');
 
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML += `Release to stop recording...<br/><br/>`;
