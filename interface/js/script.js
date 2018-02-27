@@ -115,8 +115,8 @@ function displayTitle() {
 // Used to ensure we enter states record, stop, encrypt, in the correct order.
 let WAITING_STATE = 0;
 let LISTENING_STATE = 1;
-let ENCRYPTING_STATE = 2;
-let SENDING_STATE = 3;
+let SENDING_STATE = 2;
+let SENT_STATE = 3;
 
 var state = -1;
 
@@ -155,28 +155,42 @@ function promptStopRecord(recogniser) {
 }
 
 /**
- * Displays an 'encrypting' message to mask any delay from parsing the speech by the server.
+ * Displays a sending message to mask any delay.
  */
-function displayEncryptingMessage(recogniser) {
+function displaySendingMessage(recogniser) {
     if (state != LISTENING_STATE) {
         return;
     }
 
-    state = ENCRYPTING_STATE;
+    state = SENDING_STATE;
     recogniser.stop();
 
     // Play a sound when the user released a key.
     play('#radio_end');
 
     var recordDiv = document.querySelector('#record');
-    recordDiv.innerHTML += `Encrypting...`;
+    recordDiv.innerHTML += `Sending...<br/>`;
+}
+
+/**
+ * Displays a message saying the message was sent. This is called after the speech has been transcribed.
+ */
+function displaySentMessage() {
+    if (state != SENDING_STATE) {
+        throw 'unexpected state at sent';
+    }
+
+    state = SENT_STATE;
+
+    var recordDiv = document.querySelector('#record');
+    recordDiv.innerHTML += `Sent`;
 }
 
 /**
  * Called when the speech recognition has recognised the text. Sends the recognised text to the server.
  */
 function didRecogniseSpeech(event, socket) {
-    if (state != ENCRYPTING_STATE) {
+    if (state != SENDING_STATE) {
         throw 'unexpected state at success';
     }
 
@@ -187,6 +201,7 @@ function didRecogniseSpeech(event, socket) {
     var transcript = event.results[0][0].transcript;
     console.log(`Recognised: ${transcript}`);
     socket.emit('recognised', transcript);
+    displaySentMessage();
 }
 
 /**
@@ -194,14 +209,19 @@ function didRecogniseSpeech(event, socket) {
  * recognised.
  */
 function checkDidFailToRecognise(event, socket) {
-    if (state != ENCRYPTING_STATE) {
+    if (!(state === SENT_STATE || state === SENDING_STATE)) {
         throw 'unexpected state at finish';
     }
 
     if (!didRecognise) {
         // Wait a short time to make it appear like the spy is thinking.
         // Otherwise he replies too quickly.
-        setTimeout(() => socket.emit('not_recognised', {}), random(600, 300));
+        setTimeout(sendNotRecognised, random(600, 300));
+
+        function sendNotRecognised() {
+            socket.emit('not_recognised', {});
+            displaySentMessage();
+        }
     }
 }
 
@@ -209,6 +229,10 @@ function checkDidFailToRecognise(event, socket) {
  * Called when response speech has been received from the server. This speaks the speech then restarts the loop.
  */
 function didReceiveResponseSpeech(speech) {
+    if (state != SENT_STATE) {
+        throw 'unexpected state at receive response speech';
+    }
+
     speak(speech, 'Tom');
     promptStartRecord();
 }
@@ -216,18 +240,18 @@ function didReceiveResponseSpeech(speech) {
 /**
  * Displays a 'sent' message and prompts the user to record a message again.
  */
-function displaySentAndRestart() {
-    if (state != ENCRYPTING_STATE) {
-        return;
-    }
-
-    state = SENDING_STATE;
-
-    var recordDiv = document.querySelector('#record');
-    recordDiv.innerHTML += `<br/><br/>Sent`;
-
-    setTimeout(promptStartRecord, 1500);
-}
+//function displaySentAndRestart() {
+//    if (state != ENCRYPTING_STATE) {
+//        return;
+//    }
+//
+//    state = SENDING_STATE;
+//
+//    var recordDiv = document.querySelector('#record');
+//    recordDiv.innerHTML += `<br/><br/>Sent`;
+//
+//    setTimeout(promptStartRecord, 1500);
+//}
 
 /**
  * Adds event listeners for key up and key down to know when to stop and start recording.
@@ -240,7 +264,7 @@ function start(socket) {
     recogniser.onend = (event) => checkDidFailToRecognise(event, socket);
 
     document.addEventListener('keydown', () => promptStopRecord(recogniser));
-    document.addEventListener('keyup', () => displayEncryptingMessage(recogniser));
+    document.addEventListener('keyup', () => displaySendingMessage(recogniser));
 
     function didFinishAnimation() {
         displayTitle();

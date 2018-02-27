@@ -127,7 +127,6 @@ def handle_recognised_speech(json):
 def handle_not_recognised_speech(json):
     # Create some response speech and give it to the client to speak.
     speech = process_not_recognised_speech()
-    print('speech:', speech)
     emit('speech', speech)
 
 
