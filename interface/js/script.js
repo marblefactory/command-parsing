@@ -227,10 +227,16 @@ function didReceiveResponseSpeech(speech) {
         throw 'unexpected state at receive response speech';
     }
 
-    displayReceivedMessage()
-    speak(speech, 'Tom');
+    displayReceivedMessage();
 
-    setTimeout(promptStartRecord, 1000);
+    // A short delay to display the 'received' message while no speech is said.
+    // This makes it appear as if the spy is thinking.
+    setTimeout(speakThenRestart, 300);
+
+    function speakThenRestart() {
+        speak(speech, 'Tom');
+        promptStartRecord();
+    }
 }
 
 /**
