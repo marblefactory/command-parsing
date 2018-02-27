@@ -116,7 +116,7 @@ function displayTitle() {
 let WAITING_STATE = 0;
 let LISTENING_STATE = 1;
 let SENDING_STATE = 2;
-let SENT_STATE = 3;
+let RECEIVED_STATE = 3;
 
 var state = -1;
 
@@ -173,21 +173,8 @@ function displaySendingMessage(recogniser) {
 }
 
 /**
- * Displays a message saying the message was sent. This is called after the speech has been transcribed.
- */
-function displaySentMessage() {
-    if (state != SENDING_STATE) {
-        throw 'unexpected state at sent';
-    }
-
-    state = SENT_STATE;
-
-    var recordDiv = document.querySelector('#record');
-    recordDiv.innerHTML += `Sent`;
-}
-
-/**
- * Called when the speech recognition has recognised the text. Sends the recognised text to the server.
+ * Called when the speech recognition has recognised the text. Sends the recognised text to the server then displays
+ * a 'sent' message.
  */
 function didRecogniseSpeech(event, socket) {
     if (state != SENDING_STATE) {
@@ -199,59 +186,52 @@ function didRecogniseSpeech(event, socket) {
 
     // Send the transcript to the server.
     var transcript = event.results[0][0].transcript;
-    console.log(`Recognised: ${transcript}`);
+    console.log(`Sending recognised: ${transcript}`);
     socket.emit('recognised', transcript);
-    displaySentMessage();
 }
 
 /**
  * Called if the speech recognition did not recognise any speech. Sends a message to the server that nothing was
- * recognised.
+ * recognised. Then displays a 'sent' message.
  */
 function checkDidFailToRecognise(event, socket) {
-    if (!(state === SENT_STATE || state === SENDING_STATE)) {
+    if (state !== SENDING_STATE) {
         throw 'unexpected state at finish';
     }
 
     if (!didRecognise) {
-        // Wait a short time to make it appear like the spy is thinking.
-        // Otherwise he replies too quickly.
-        setTimeout(sendNotRecognised, random(600, 300));
-
-        function sendNotRecognised() {
-            socket.emit('not_recognised', {});
-            displaySentMessage();
-        }
+        console.log('Sending recognised: nothing');
+        socket.emit('not_recognised', {});
     }
+}
+
+/**
+ * Displays a message saying the message was received.
+ */
+function displayReceivedMessage() {
+    if (state != SENDING_STATE) {
+        throw 'unexpected state at received';
+    }
+
+    state = RECEIVED_STATE;
+
+    var recordDiv = document.querySelector('#record');
+    recordDiv.innerHTML += `Received`;
 }
 
 /**
  * Called when response speech has been received from the server. This speaks the speech then restarts the loop.
  */
 function didReceiveResponseSpeech(speech) {
-    if (state != SENT_STATE) {
+    if (state != SENDING_STATE) {
         throw 'unexpected state at receive response speech';
     }
 
+    displayReceivedMessage()
     speak(speech, 'Tom');
-    promptStartRecord();
-}
 
-/**
- * Displays a 'sent' message and prompts the user to record a message again.
- */
-//function displaySentAndRestart() {
-//    if (state != ENCRYPTING_STATE) {
-//        return;
-//    }
-//
-//    state = SENDING_STATE;
-//
-//    var recordDiv = document.querySelector('#record');
-//    recordDiv.innerHTML += `<br/><br/>Sent`;
-//
-//    setTimeout(promptStartRecord, 1500);
-//}
+    setTimeout(promptStartRecord, 1000);
+}
 
 /**
  * Adds event listeners for key up and key down to know when to stop and start recording.
