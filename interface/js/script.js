@@ -1,7 +1,7 @@
 "use strict";
 
 // Used to disable/enable animations at startup.
-var skipIntro = true;
+var skipIntro = false;
 
 /**
  * Sends a post request to the server, with the given ulr_postfix added to the
