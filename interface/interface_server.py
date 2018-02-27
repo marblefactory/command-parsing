@@ -114,7 +114,8 @@ def preload():
 
     # Train the ChatBot in case the transcript was not parsed as an action.
     print('Training Chat Bot...')
-    action_failed_chat_bot.set_trainer(ChatterBotCorpusTrainer)
+    #action_failed_chat_bot.set_trainer(ChatterBotCorpusTrainer)
+    action_failed_chat_bot.set_trainer(ListTrainer)
     action_failed_chat_bot.train("chatterbot.corpus.english")
 
 

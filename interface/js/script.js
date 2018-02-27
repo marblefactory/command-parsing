@@ -20,6 +20,13 @@ function post(url_postfix, obj, callback) {
 
 
 /**
+ * Returns a random number between min and max.
+ */
+function random(maxMs, minMs) {
+    return Math.random() * (maxMs - minMs) + minMs;
+}
+
+/**
  * Animates displaying a list of sentences to display on newlines one after the other.
  */
 function animateStartupText(callback) {
@@ -120,24 +127,7 @@ function displayEncryptingMessage(recogniser) {
     state = ENCRYPT_STATE;
 
     var recordDiv = document.querySelector('#record');
-    recordDiv.innerHTML += `Encrypting: `;
-
-    // Adds num '#' to the end of the loading bar, with a randomised delay between adding them.
-    function extendLoadingBar(num) {
-        // If there is nothing left to add to the loading bar, or we are no longer in the encrypting state.
-        if (num == 0 || state != ENCRYPT_STATE) {
-            return;
-        }
-
-        recordDiv.innerHTML += '#';
-
-        var minWaitTimeMs = 5;
-        var maxWaitTimeMs = 10;
-        var waitTime = Math.random() * (maxWaitTimeMs - minWaitTimeMs) + minWaitTimeMs;
-        setTimeout(() => extendLoadingBar(num - 1), waitTime);
-    }
-
-    extendLoadingBar(50);
+    recordDiv.innerHTML += `Encrypting...`;
 }
 
 /**
@@ -178,7 +168,11 @@ function didRecogniseSpeech(event) {
  */
 function checkDidFailToRecognise() {
     if (!didRecognise) {
-        post('not_recognised', {}, displaySentAndRestart);
+        // Wait a short time to make it appear like the spy is thinking.
+        // Otherwise he replies too quickly.
+        var x = random(600, 300);
+        console.log(x)
+        setTimeout(() => post('not_recognised', {}, displaySentAndRestart), x);
     }
 }
 
