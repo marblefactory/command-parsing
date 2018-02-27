@@ -175,7 +175,7 @@ function displayEncryptingMessage(recogniser) {
 /**
  * Called when the speech recognition has recognised the text. Sends the recognised text to the server.
  */
-function didRecogniseSpeech(event) {
+function didRecogniseSpeech(event, socket) {
     if (state != ENCRYPTING_STATE) {
         throw 'unexpected state at success';
     }
@@ -186,14 +186,14 @@ function didRecogniseSpeech(event) {
     // Send the transcript to the server.
     var transcript = event.results[0][0].transcript;
     console.log(`Recognised: ${transcript}`);
-    post('recognised', transcript, displaySentAndRestart);
+    socket.emit('recognised', transcript);
 }
 
 /**
  * Called if the speech recognition did not recognise any speech. Sends a message to the server that nothing was
  * recognised.
  */
-function checkDidFailToRecognise() {
+function checkDidFailToRecognise(event, socket) {
     if (state != ENCRYPTING_STATE) {
         throw 'unexpected state at finish';
     }
@@ -201,8 +201,16 @@ function checkDidFailToRecognise() {
     if (!didRecognise) {
         // Wait a short time to make it appear like the spy is thinking.
         // Otherwise he replies too quickly.
-        setTimeout(() => post('not_recognised', {}, displaySentAndRestart), random(600, 300));
+        setTimeout(() => socket.emit('not_recognised', {}), random(600, 300));
     }
+}
+
+/**
+ * Called when response speech has been received from the server. This speaks the speech then restarts the loop.
+ */
+function didReceiveResponseSpeech(speech) {
+    speak(speech, 'Tom');
+    promptStartRecord();
 }
 
 /**
@@ -224,12 +232,12 @@ function displaySentAndRestart() {
 /**
  * Adds event listeners for key up and key down to know when to stop and start recording.
  */
-function start() {
+function start(socket) {
     // Used to recognise audio.
     var recogniser = new webkitSpeechRecognition();
     recogniser.continuous = true;
-    recogniser.onresult = didRecogniseSpeech;
-    recogniser.onend = checkDidFailToRecognise;
+    recogniser.onresult = (event) => didRecogniseSpeech(event, socket);
+    recogniser.onend = (event) => checkDidFailToRecognise(event, socket);
 
     document.addEventListener('keydown', () => promptStopRecord(recogniser));
     document.addEventListener('keyup', () => displayEncryptingMessage(recogniser));
@@ -247,18 +255,34 @@ function start() {
 }
 
 /**
+ * Connects a socket to the server. This is used to receive the text to say in response to the user's command.
+ * The callback is called once the socket is connected.
+ */
+function setupSocket(callback) {
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    // Emit a connected message to let the server that we are connected.
+    socket.on('connect', function() {
+        console.log("Connected to server");
+        callback(socket);
+    });
+
+    socket.on('speech', didReceiveResponseSpeech);
+}
+
+/**
  * Loads the voices for text to speech, then calls start once it is done.
  * This is because loading may be done asynchronously.
  */
 function loadVoices() {
-    // Prompt loading the voices.
-    speechSynthesis.getVoices();
+    setupSocket(function(socket) {
+        // Prompt loading the voices.
+        speechSynthesis.getVoices();
 
-    //var socket = io('http://localhost');
-
-    window.speechSynthesis.onvoiceschanged = function() {
-        start();
-    }
+        window.speechSynthesis.onvoiceschanged = function() {
+            start(socket);
+        }
+    });
 }
 
 window.addEventListener('load', loadVoices);

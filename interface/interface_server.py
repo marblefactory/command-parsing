@@ -45,14 +45,7 @@ def random_from_json(filename: str) -> str:
     return random.choice(entries)
 
 
-def send_speech_response(speech: str):
-    """
-    Sends the speech to be said to the player back to the client to be spoken.
-    """
-    pass
-
-
-def process_transcript(transcript: str):
+def process_transcript(transcript: str) -> str:
     """
     :return: parses the transcript into an action, then sends the action to the game server, then speaks a response.
     """
@@ -60,24 +53,21 @@ def process_transcript(transcript: str):
 
     # Parse the transcript into an action.
     parsed_action = Success(transcript) \
-        .then(partial(parse_action, lambda transcript: action_failed_chat_bot.get_response(transcript))) \
-        .then(partial(print_produce, 'action:'))
+                   .then(partial(parse_action, lambda transcript: action_failed_chat_bot.get_response(transcript))) \
+                   .then(partial(print_produce, 'action:'))
 
     # Sends the action to the game server.
     server_response = parsed_action \
-        .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'),
-                      mock_post_action_to_game))
+                     .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), mock_post_action_to_game))
 
-    speech_response = server_response.either(lambda value: value, lambda err: err)
-    send_speech_response(speech_response)
+    return server_response.either(lambda value: value, lambda err: err)
 
 
-def process_not_recognised_speech():
+def process_not_recognised_speech() -> str:
     """
     Speaks a response indicating that it the player was not understood.
     """
-    speech_response = random_from_json('failure_responses/transcribe.json')
-    send_speech_response(speech_response)
+    return random_from_json('failure_responses/transcribe.json')
 
 
 @app.route('/js/<path:path>')
@@ -90,30 +80,55 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/recognised', methods=['POST'])
-def recognised_speech():
-    """
-    Called when the client recognised some speech.
-    """
-    transcript = request.get_json(silent=True)
+# @app.route('/recognised', methods=['POST'])
+# def recognised_speech():
+#     """
+#     Called when the client recognised some speech.
+#     """
+#     transcript = request.get_json(silent=True)
+#
+#     # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
+#     thread = Thread(target=process_transcript, args=[transcript])
+#     thread.start()
+#
+#     return jsonify({})
+#
+#
+# @app.route('/not_recognised', methods=['POST'])
+# def not_recognised_speech():
+#     """
+#     Called when the user spoke, but we could not understand.
+#     """
+#     # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
+#     thread = Thread(target=process_not_recognised_speech)
+#     thread.start()
+#
+#     return jsonify({})
 
-    # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
-    thread = Thread(target=process_transcript, args=[transcript])
-    thread.start()
-
-    return jsonify({})
+@socketio.on('connect')
+def handle_client_connect_event():
+    print('Client connected')
 
 
-@app.route('/not_recognised', methods=['POST'])
-def not_recognised_speech():
-    """
-    Called when the user spoke, but we could not understand.
-    """
-    # Start a thread to parse the transcript and send it to the game since we don't know how long this will take.
-    thread = Thread(target=process_not_recognised_speech)
-    thread.start()
+@socketio.on('disconnect')
+def handle_client_disconnected_event():
+    print('Client disconnected')
 
-    return jsonify({})
+
+@socketio.on('recognised')
+def handle_recognised_speech(json):
+    # Create some response speech based on parsing and the response of the game server,
+    # and give it to the client to speak.
+    speech = process_transcript(json)
+    emit('speech', str(speech))
+
+
+@socketio.on('not_recognised')
+def handle_not_recognised_speech(json):
+    # Create some response speech and give it to the client to speak.
+    speech = process_not_recognised_speech()
+    print('speech:', speech)
+    emit('speech', speech)
 
 
 def preload():
@@ -130,4 +145,4 @@ def preload():
 
 if __name__ == '__main__':
     preload()
-    app.run()
+    socketio.run(app)
