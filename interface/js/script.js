@@ -1,20 +1,23 @@
 
 /**
- * Sends a GET requst to the server, with the given url_postfix added to the
+ * Sends a post request to the server, with the given ulr_postfix added to the
  * end of the url of the server.
  */
-function get(url_postfix, callback) {
+function post(url_postfix, obj, callback) {
     var request = new XMLHttpRequest();
+    url = window.location.origin + '/' + url_postfix;
+
     request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status == 200 && callback != undefined) {
+        if (request.readyState == 4 && request.status == 200) {
             callback(request.responseText);
         }
     }
 
-    url = window.location.origin + '/' + url_postfix;
-    request.open("GET", url, true);
-    request.send(null);
+    request.open("POST", url, true);
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.send(JSON.stringify(obj));
 }
+
 
 /**
  * Animates displaying a list of sentences to display on newlines one after the other.
@@ -126,7 +129,7 @@ function displayEncryptingMessage(recogniser) {
 
         recordDiv.innerHTML += '#';
 
-        var waitTime = Math.random() * (200 - 50) + 50;
+        var waitTime = Math.random() * 30 + 5;
         setTimeout(() => extendLoadingBar(num - 1), waitTime);
     }
 
@@ -150,16 +153,25 @@ function displaySentAndRestart() {
 }
 
 /**
- * Called when the speech recognition has recognised the text.
+ * Called when the speech recognition has recognised the text. Sends the recognised text to the server.
  */
 function didRecogniseSpeech(event) {
     if (state != ENCRYPT_STATE) {
         throw 'unexpected state';
     }
 
-    console.log(event.results[0][0].transcript);
+    // Send the transcript to the server.
+    var transcript = event.results[0][0].transcript;
+    console.log(`Recognised: ${transcript}`)
+    post('recognised', transcript, displaySentAndRestart);
 }
 
+/**
+ * Called if the speech recognition did not recognise any speech.
+ */
+function didFailToRecognise(event) {
+    console.log("Failed");
+}
 
 /**
  * Adds event listeners for key up and key down to know when to stop and start recording.
@@ -169,6 +181,7 @@ function start() {
     var recogniser = new webkitSpeechRecognition();
     recogniser.continuous = true;
     recogniser.onresult = didRecogniseSpeech;
+    recogniser.onerror = didFailToRecognise;
 
     document.addEventListener('keydown', () => promptStopRecord(recogniser));
     document.addEventListener('keyup', () => displayEncryptingMessage(recogniser));
