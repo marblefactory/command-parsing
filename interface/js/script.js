@@ -97,8 +97,6 @@ function promptStopRecord(recogniser) {
         return;
     }
 
-    console.log(recogniser);
-
     recogniser.start();
     state = STOP_STATE;
 
@@ -129,7 +127,9 @@ function displayEncryptingMessage(recogniser) {
 
         recordDiv.innerHTML += '#';
 
-        var waitTime = Math.random() * 30 + 5;
+        var minWaitTimeMs = 20;
+        var maxWaitTimeMs = 70;
+        var waitTime = Math.random() * (maxWaitTimeMs - minWaitTimeMs) + minWaitTimeMs;
         setTimeout(() => extendLoadingBar(num - 1), waitTime);
     }
 
