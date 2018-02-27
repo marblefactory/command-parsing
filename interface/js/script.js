@@ -1,3 +1,7 @@
+"use strict";
+
+// Used to disable/enable animations at startup.
+var debug = false;
 
 /**
  * Sends a post request to the server, with the given ulr_postfix added to the
@@ -5,7 +9,7 @@
  */
 function post(url_postfix, obj, callback) {
     var request = new XMLHttpRequest();
-    url = window.location.origin + '/' + url_postfix;
+    var url = window.location.origin + '/' + url_postfix;
 
     request.onreadystatechange = function() {
         if (request.readyState == 4 && request.status == 200 && callback != undefined) {
@@ -40,8 +44,8 @@ function play(id) {
 function animateStartupText(callback) {
     // The text to display and the time (ms) to wait before showing the next text.
     var texts = [
-        ['', 300],
-        ['SpySpeakBIOS 4.0 Release 6.0', 500],
+        ['', 100],
+        ['SpySpeakBIOS 4.0 Release 6.0', 450],
         ['Copyright 2005-2018 SpySpeak Technologies Ltd.', 100],
         ['', 450],
         ['BIOS version 29.02', 100],
@@ -205,11 +209,15 @@ function start() {
     document.addEventListener('keydown', () => promptStopRecord(recogniser));
     document.addEventListener('keyup', () => displayEncryptingMessage(recogniser));
 
-    animateStartupText(didFinishAnimation);
-
     function didFinishAnimation() {
         displayTitle();
         promptStartRecord();
+    }
+
+    if (debug) {
+        didFinishAnimation();
+    } else {
+        animateStartupText(didFinishAnimation);
     }
 }
 
