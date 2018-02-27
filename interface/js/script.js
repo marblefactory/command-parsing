@@ -45,7 +45,8 @@ function animateStartupText(callback) {
         ['512 K Cache Passed', 90],
         ['System BIOS Shadowed', 0],
         ['', 50],
-        ['Done initialising', 1000]
+        ['Connecting to host...', 1000],
+        ['Done connecting', 500]
     ];
 
     var body = document.querySelector('#boot_jargon');
@@ -111,6 +112,10 @@ function promptStopRecord(recogniser) {
     recogniser.start();
     state = STOP_STATE;
 
+    // Play a sound when the user presses down a key.
+    var radioBeepDiv = document.querySelector('#radio_beep');
+    radioBeepDiv.play();
+
     var recordDiv = document.querySelector('#record');
     recordDiv.innerHTML += `Release to stop recording...<br/><br/>`;
 }
@@ -170,9 +175,7 @@ function checkDidFailToRecognise() {
     if (!didRecognise) {
         // Wait a short time to make it appear like the spy is thinking.
         // Otherwise he replies too quickly.
-        var x = random(600, 300);
-        console.log(x)
-        setTimeout(() => post('not_recognised', {}, displaySentAndRestart), x);
+        setTimeout(() => post('not_recognised', {}, displaySentAndRestart), random(600, 300));
     }
 }
 
