@@ -40,6 +40,12 @@ class Throw(Action):
     def __str__(self):
         return 'throw to "{}"'.format(self.target)
 
+    def specific_responses(self) -> List[str]:
+        return [
+            "I hope this distracts the guard",
+            "I hope the guard falls for this"
+        ]
+
 
 class Hack(Action):
     """
