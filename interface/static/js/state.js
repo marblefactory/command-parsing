@@ -203,7 +203,8 @@ class ReceivedState extends State {
 function start() {
     var stateDiv = document.querySelector('#state');
 
-    var x = new RecordWaitingState(stateDiv);//new ConnectWaitingState(stateDiv);
+//    var x = new ConnectWaitingState(stateDiv);
+    var x = new RecordWaitingState(stateDiv);
     x.enterState();
 }
 
