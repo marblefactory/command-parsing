@@ -62,15 +62,42 @@ class ChangeStanceTestCase(unittest.TestCase):
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
 
-class MoveTestCase(unittest.TestCase):
-    def test_parses_go_default_forwards(self):
-        s = 'go'.split()
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS), None)
+class ChangeSpeedTestCase(unittest.TestCase):
+    def test_run(self):
+        s = 'run'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
+    def test_fast(self):
+        s = 'fast'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
+    def test_go_fast(self):
+        s = 'go fast'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
+    def test_run_quick(self):
+        s = 'run quick'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
+    def test_slow(self):
+        s = 'slow down'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.SLOW)
 
     def test_go_slow(self):
         s = 'go slow'.split()
-        assert action().parse(s).parsed == Move(Speed.SLOW, Directional(MoveDirection.FORWARDS), None)
+        assert action().parse(s).parsed == ChangeSpeed(Speed.SLOW)
 
+    def test_go_normally(self):
+        s = 'go normally'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
+
+    def test_walk_normally(self):
+        s = 'walk normally'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
+
+
+g
+class MoveTestCase(unittest.TestCase):
     def test_fails_if_just_location(self):
         s = 'next door'.split()
         assert action().parse(s) is None
@@ -78,10 +105,6 @@ class MoveTestCase(unittest.TestCase):
     def test_fails_if_just_speed(self):
         s = 'fast'.split()
         assert action().parse(s) is None
-
-    def test_run_quick(self):
-        s = 'run quick'.split()
-        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS), None)
 
     def test_parses_go_dir(self):
         s = 'go left standing'.split()

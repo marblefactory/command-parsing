@@ -76,8 +76,8 @@ def move() -> Parser:
     move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
 
     # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
-    defaulted_loc = strongest([location(), produce(Directional(MoveDirection.FORWARDS), response=0.0)])
-    loc_parser = anywhere(defaulted_loc).map_parsed(lambda loc: [loc])
+    #defaulted_loc = strongest([location(), produce(Directional(MoveDirection.FORWARDS), response=0.0)])
+    loc_parser = location().map_parsed(lambda loc: [loc])
 
     return move_verb.ignore_then(loc_parser, mix) \
                     .then(combine_speed) \
