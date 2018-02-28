@@ -177,8 +177,28 @@ class SendingState extends State {
 
     enterState() {
         this.stateDiv.innerHTML += '<br/>Sending...';
+
+        // TEMPORARY
+        setTimeout(() => super.segue(ReceivedState), 1000);
     }
 }
+
+/**
+ * Displays a message that the recorded speech was received and plays the response of the spy.
+ * After a short delay (while the spy is possibly still talking) it moves back to the RecordWaitingState for the
+ * player to record a new message.
+ */
+class ReceivedState extends State {
+    constructor(stateDiv) {
+        super(stateDiv);
+    }
+
+    enterState() {
+        this.stateDiv.innerHTML += '<br/>Received';
+        setTimeout(() => super.segue(RecordWaitingState), 1500);
+    }
+}
+
 
 function start() {
     var stateDiv = document.querySelector('#state');
