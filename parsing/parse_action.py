@@ -1,6 +1,6 @@
 from actions.action import Stop, Composite, Action
 from parsing.parser import *
-from parsing.parse_move import move, change_stance, turn, hide
+from parsing.parse_move import move, change_stance, change_speed, turn, hide
 from parsing.parse_interaction import through_door, pick_up, throw, hack
 from utils import split_list
 
@@ -33,7 +33,8 @@ def single_action() -> Parser:
     parsers = [
         stop(),
         through_door(),
-        change_stance().map_response(lambda r: r * 0.6),  # Half because move also looks for stances.
+        change_stance().map_response(lambda r: r * 0.6),  # Because move also looks for stances.
+        change_speed().map_response(lambda r: r * 0.6), # Because move also looks for speeds.
         turn(),
         move(),
         hide(),

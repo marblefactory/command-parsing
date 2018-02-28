@@ -16,8 +16,11 @@ class SpeedTestCase(unittest.TestCase):
     def test_slow(self):
         assert speed().parse(['slow']).parsed == Speed.SLOW
 
-    def test_default_normal(self):
-        assert speed().parse(['nan']).parsed == Speed.NORMAL
+    def test_normal(self):
+        assert speed().parse(['normal']).parsed == Speed.NORMAL
+
+    def test_normally(self):
+        assert speed().parse(['normally']).parsed == Speed.NORMAL
 
 
 class StanceTestCase(unittest.TestCase):
@@ -51,6 +54,10 @@ class ChangeStanceTestCase(unittest.TestCase):
 
     def test_crouch(self):
         s = 'crouch down'.split()
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
+
+    def test_quiet_as_crouch(self):
+        s = 'be quiet'.split()
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
     def test_get_up(self):
@@ -96,14 +103,9 @@ class ChangeSpeedTestCase(unittest.TestCase):
         assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
 
 
-g
 class MoveTestCase(unittest.TestCase):
     def test_fails_if_just_location(self):
         s = 'next door'.split()
-        assert action().parse(s) is None
-
-    def test_fails_if_just_speed(self):
-        s = 'fast'.split()
         assert action().parse(s) is None
 
     def test_parses_go_dir(self):
@@ -142,11 +144,11 @@ class MoveTestCase(unittest.TestCase):
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)
 
-    def test_quietly_as_slow(self):
+    def test_quietly_as_crouch(self):
         s = 'quietly go to the next door'.split()
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
-        assert action().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, expected_loc, Stance.CROUCH)
 
     def test_parses_behind(self):
         s = 'go around the desk'.split()
@@ -170,6 +172,12 @@ class MoveTestCase(unittest.TestCase):
         """
         s = 'go to the end of the corridor'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, EndOf('corridor'), None)
+
+    def test_normal(self):
+        s = 'go normally to the next room'.split()
+
+        expected_loc = Positional('room', 0, MoveDirection.FORWARDS)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, expected_loc, None)
 
 
 class HideTestCase(unittest.TestCase):
