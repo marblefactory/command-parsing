@@ -14,11 +14,9 @@ function play(id) {
 class State {
     /**
      * @param {Element} stateDiv - the div in which text will be displayed.
-     * @param {boolean} shouldClearStateDiv - whether to remove any html inside the div on exiting the state.
      */
-    constructor(stateDiv, shouldClearStateDiv) {
+    constructor(stateDiv) {
         this.stateDiv = stateDiv;
-        this.shouldClearStateDiv = shouldClearStateDiv;
         this.eventHandlers = [];
     }
 
@@ -50,13 +48,6 @@ class State {
      * Can be used to perform cleanup such as removing event handlers.
      */
     exitState() {
-        console.log("HERE");
-        console.log(this.shouldClearStateDiv);
-        if (this.shouldClearStateDiv) {
-            console.log("CLEARED");
-            this.stateDiv.innerHTML = '';
-        }
-
         for (var i=0; i<this.eventHandlers.length; i++) {
             var handlerRef = this.eventHandlers[i];
             document.removeEventListener(handlerRef.event, handlerRef.callback);
@@ -79,7 +70,7 @@ class State {
  */
 class ConnectWaitingState extends State {
     constructor(stateDiv) {
-        super(stateDiv, true);
+        super(stateDiv);
     }
 
     enterState() {
@@ -93,7 +84,7 @@ class ConnectWaitingState extends State {
  */
 class ConnectingState extends State {
     constructor(stateDiv) {
-        super(stateDiv, true);
+        super(stateDiv);
     }
 
     enterState() {
@@ -131,14 +122,68 @@ class ConnectingState extends State {
 
         // Start the animation.
         play('#fax_machine');
-        addTexts(this.stateDiv, 0, () => console.log("DONE"));
+        this.stateDiv.innerHTML = '';
+        addTexts(this.stateDiv, 0, () => super.segue(RecordWaitingState));
+    }
+}
+
+/**
+ * Displays a message to: press a key to begin recording.
+ */
+class RecordWaitingState extends State {
+    constructor(stateDiv) {
+        super(stateDiv);
+    }
+
+    enterState() {
+        this.stateDiv.innerHTML = 'Press any to start recording...<br/>';
+        super.addListener('keydown', () => super.segue(RecordingState));
+    }
+
+    exitState() {
+        super.exitState();
+        play('#radio_start');
+    }
+}
+
+/**
+ * Displays a message to: release the key to stop recording.
+ */
+class RecordingState extends State {
+    constructor(stateDiv) {
+        super(stateDiv);
+    }
+
+    enterState() {
+        this.stateDiv.innerHTML += 'Release to stop recording...<br/>';
+        super.addListener('keyup', () => super.segue(SendingState))
+    }
+
+    exitState() {
+        super.exitState();
+        play('#radio_end');
+    }
+}
+
+/**
+ * Displays a message that the recorded is being sent to the spy.
+ * This is displayed while we're waiting for the speech to text to finish,
+ * and then for the server to give a speech to respond with, i.e. to speak.
+ */
+class SendingState extends State {
+    constructor(stateDiv) {
+        super(stateDiv);
+    }
+
+    enterState() {
+        this.stateDiv.innerHTML += '<br/>Sending...';
     }
 }
 
 function start() {
     var stateDiv = document.querySelector('#state');
 
-    var x = new ConnectWaitingState(stateDiv);
+    var x = new RecordWaitingState(stateDiv);//new ConnectWaitingState(stateDiv);
     x.enterState();
 }
 
