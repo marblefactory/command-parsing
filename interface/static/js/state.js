@@ -7,7 +7,11 @@ var gRecognition = null;
 // Used to communicate recognised speech back to the server,
 // and for the server to reply with response speech to say.
 // This is initialised once the document is loaded.
-var socket = null;
+var gSocket = null;
+
+// Whether to play the intro animation or not.
+// This can be useful when debugging.
+var gShouldPlayIntro = false;
 
 /**
  * Plays the sound in the audio element with the given id.
@@ -15,6 +19,25 @@ var socket = null;
 function play(id) {
     var audioElement = document.querySelector(id);
     audioElement.play();
+}
+
+/**
+ * Speaks the given text in the preferred voice. If the voice does not exist, the text is spoken in the first
+ * available voice.
+ */
+function speak(text, preferred_voice) {
+    var msg = new SpeechSynthesisUtterance();
+	msg.text = text;
+	msg.rate = 1.07;
+
+    // If a voice has been selected, find the voice and set the
+    // utterance instance's voice attribute.
+	if (preferred_voice) {
+		msg.voice = speechSynthesis.getVoices().filter((voice) => voice.name == preferred_voice)[0]
+		         || speechSynthesis.getVoices()[0];
+	}
+
+	window.speechSynthesis.speak(msg);
 }
 
 /**
@@ -255,43 +278,50 @@ class SendRecvSpeechState extends State {
     constructor(recognisedSpeech, stateDiv) {
         super(stateDiv);
         this.recognisedSpeech = recognisedSpeech;
+        this._listener = this._onSpeechResponseReceived.bind(this);
     }
 
     enterState() {
-        this.stateDiv.innerHTML += this.recognisedSpeech || 'nothing';
-;    }
-}
+        gSocket.on('speech', this._listener);
 
-///**
-// * Displays a message that the recorded speech was received and plays the response of the spy.
-// * After a short delay (while the spy is possibly still talking) it moves back to the RecordWaitingState for the
-// * player to record a new message.
-// */
-//class ReceivedSpeechState extends State {
-//    constructor(stateDiv) {
-//        super(stateDiv);
-//    }
-//
-//    enterState() {
-//        this.stateDiv.innerHTML += '<br/>Received';
-//        setTimeout(() => super.segue(RecordWaitingState), 1500);
-//    }
-//}
+        // Start sending the recognised speech to the server.
+        if (this.recognisedSpeech) {
+            gSocket.emit('recognised', this.recognisedSpeech);
+        }
+        else {
+            gSocket.emit('not_recognised', {});
+        }
+    }
+
+    exitState() {
+        super.exitState();
+        gSocket.removeEventListener('speech', this._listener);
+    }
+
+    /**
+     * Callback for when the server responds with the speech to say.
+     */
+    _onSpeechResponseReceived(speech) {
+        this.stateDiv.innerHTML += 'Received';
+        speak(speech, 'Tom');
+
+        // Short delay so the 'received' message appears while the spy is talking.
+        setTimeout(() => super.segue(RecordWaitingState), 1500);
+    }
+}
 
 /**
  * Connects a socket to the server. This is used to receive the text to say in response to the user's command.
  * The callback is called once the socket is connected.
  */
 function setupSocket(callback) {
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    gSocket = io.connect('http://' + document.domain + ':' + location.port);
 
     // Emit a connected message to let the server that we are connected.
-    socket.on('connect', function() {
+    gSocket.on('connect', function() {
         console.log("Connected to server");
-        callback(socket);
+        callback();
     });
-
-//    socket.on('speech', didReceiveResponseSpeech);
 }
 
 function start() {
@@ -301,9 +331,18 @@ function start() {
 
     var stateDiv = document.querySelector('#state');
 
-//    var x = new ConnectWaitingState(stateDiv);
-    var x = new RecordWaitingState(stateDiv);
-    x.enterState();
+    var initialStateConstructor = gShouldPlayIntro ? ConnectWaitingState : RecordWaitingState;
+    var initialState = new initialStateConstructor(stateDiv);
+
+    // Initialise the socket.
+    setupSocket(function() {
+        // Prompt loading the voices.
+        speechSynthesis.getVoices();
+
+        window.speechSynthesis.onvoiceschanged = function() {
+            initialState.enterState();
+        }
+    });
 }
 
 window.addEventListener('load', start);

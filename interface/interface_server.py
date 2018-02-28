@@ -136,7 +136,7 @@ def preload(fill_cache: bool):
 
 
 if __name__ == '__main__':
-    preload(fill_cache=False)
+    preload(fill_cache=True)
 
     print('Running Server')
     socketio.run(app)
