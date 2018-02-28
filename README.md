@@ -1,2 +1,3 @@
 # command-parsing
-The basic command parsing for the week 13 demo
+
+Performing speech to text, then parsing an action from the text.
