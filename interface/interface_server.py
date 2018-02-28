@@ -77,9 +77,9 @@ def process_not_recognised_speech() -> str:
     return random_from_json('failure_responses/transcribe.json')
 
 
-@app.route('/js/<path:path>')
-def send_js(path):
-    return send_from_directory('js', path)
+# @app.route('/js/<path:path>')
+# def send_js(path):
+#     return send_from_directory('js', path)
 
 
 @app.route('/')
@@ -136,7 +136,7 @@ def preload(fill_cache: bool):
 
 
 if __name__ == '__main__':
-    preload(fill_cache=True)
+    preload(fill_cache=False)
 
     print('Running Server')
     socketio.run(app)

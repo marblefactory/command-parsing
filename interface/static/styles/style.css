@@ -12,7 +12,7 @@ pre {
 #title {
     text-align: center;
 }
-
+/*
 #boot_jargon {
     padding-left: 5%;
     padding-top: 5%;
@@ -21,8 +21,9 @@ pre {
 #booted {
     display: none;
 }
-
-#record {
+*/
+#state {
     text-align:left;
+    padding-top: 30px;
     padding-left: 10%;
 }
