@@ -30,6 +30,7 @@ function speak(text, preferred_voice, callback) {
     var msg = new SpeechSynthesisUtterance();
 	msg.text = text;
 	msg.rate = 1.07;
+	msg.volume = 0.56;
 
     // If a voice has been selected, find the voice and set the
     // utterance instance's voice attribute.
