@@ -9,6 +9,7 @@ from chatterbot.trainers import ChatterBotCorpusTrainer, ListTrainer
 import requests
 import json
 import random
+from unittest import TestLoader, TextTestRunner
 
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
@@ -111,7 +112,12 @@ def handle_not_recognised_speech(json):
     emit('speech', speech)
 
 
-def preload():
+def preload(fill_cache: bool):
+    """
+    Pre-loads any data so the user experience is better, i.e. there is less delay during.
+    :param fill_cache: if true, will run all parsing tests to fill the cache for the semantic distance function.
+    """
+
     # Preload the WordNet dictionary.
     print('Loading WordNet...')
     wn.ensure_loaded()
@@ -122,7 +128,15 @@ def preload():
     action_failed_chat_bot.set_trainer(ListTrainer)
     action_failed_chat_bot.train("chatterbot.corpus.english")
 
+    if fill_cache:
+        print('Filling Cache (Running Tests)...')
+        loader = TestLoader()
+        suite = loader.discover(start_dir='../tests/parsing')
+        TextTestRunner(verbosity=0).run(suite)
+
 
 if __name__ == '__main__':
-    preload()
+    preload(fill_cache=True)
+
+    print('Running Server')
     socketio.run(app)
