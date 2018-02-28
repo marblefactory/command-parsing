@@ -1,5 +1,14 @@
 "use strict";
 
+// Used to recognise speech from the user, i.e. speech to text.
+// This is initialised once the document is loaded.
+var gRecognition = null;
+
+// Used to communicate recognised speech back to the server,
+// and for the server to reply with response speech to say.
+// This is initialised once the document is loaded.
+var socket = null;
+
 /**
  * Plays the sound in the audio element with the given id.
  */
@@ -55,11 +64,19 @@ class State {
     }
 
     /**
-     * Leaves this state and enters the new state.
+     * Leaves this state and enters the state constructed using newStateClass.
      * @param {Class} newStateClass - the class of the state to segue to.
      */
     segue(newStateClass) {
         var newState = new newStateClass(this.stateDiv);
+        this.segueToState(newState);
+    }
+
+    /**
+     * Leaves this state and enters the new state.
+     * @param {State} newState - the new state to enter.
+     */
+    segueToState(newState) {
         this.exitState();
         newState.enterState();
     }
@@ -148,6 +165,8 @@ class RecordWaitingState extends State {
 
 /**
  * Displays a message to: release the key to stop recording.
+ * Starts recognising the speech the user is saying when the state is entered.
+ * Stopping recognising is done by the next state.
  */
 class RecordingState extends State {
     constructor(stateDiv) {
@@ -156,7 +175,10 @@ class RecordingState extends State {
 
     enterState() {
         this.stateDiv.innerHTML += 'Release to stop recording...<br/>';
-        super.addListener('keyup', () => super.segue(SendingState))
+
+        super.addListener('keyup', () => super.segue(RecognitionState));
+        // Stop is called by the next state.
+        gRecognition.start();
     }
 
     exitState() {
@@ -166,41 +188,117 @@ class RecordingState extends State {
 }
 
 /**
- * Displays a message that the recorded is being sent to the spy.
- * This is displayed while we're waiting for the speech to text to finish,
- * and then for the server to give a speech to respond with, i.e. to speak.
+ * Stops recognising speech when entered,
+ * then displays a message that the recorded is being sent to the spy while recognition is occurring.
  */
-class SendingState extends State {
+class RecognitionState extends State {
     constructor(stateDiv) {
         super(stateDiv);
+
+        // This is needed because the callback onnomatch for webkitSpeechRecognition does not work.
+        this._recognisedSpeech = false;
     }
 
     enterState() {
-        this.stateDiv.innerHTML += '<br/>Sending...';
+        // To mask that the speech is being recognised, and that we need to wait for the server.
+        this.stateDiv.innerHTML += '<br/>Sending...<br/>';
 
-        // TEMPORARY
-        setTimeout(() => super.segue(ReceivedState), 1000);
+        // We haven't called stop() yet, so we know neither of these will be called yet.
+        gRecognition.onresult = this._onRecognitionResult.bind(this);
+        gRecognition.onend = this._onNoRecognitionResult.bind(this);
+        gRecognition.stop();
+    }
+
+    exitState() {
+        super.exitState();
+        gRecognition.onresult = null;
+        gRecognition.onend = null;
+    }
+
+    /**
+     * Callback for the recogniser parsing speech.
+     */
+    _onRecognitionResult(event) {
+        this._recognisedSpeech = true;
+
+        var transcript = event.results[0][0].transcript;
+        console.log(`Recognised: ${transcript}`);
+
+        var newState = new SendRecvSpeechState(transcript, this.stateDiv);
+        super.segueToState(newState);
+    }
+
+    /**
+     * Callback for the recogniser finishing parsing.
+     * This is used to tell if the recogniser failed or not, since onnomatch does not work.
+     */
+    _onNoRecognitionResult(event) {
+        if (!this._recognisedSpeech) {
+            console.log("Failed to recognise speech");
+
+            var newState = new SendRecvSpeechState(null, this.stateDiv);
+            super.segueToState(newState);
+        }
     }
 }
 
 /**
- * Displays a message that the recorded speech was received and plays the response of the spy.
- * After a short delay (while the spy is possibly still talking) it moves back to the RecordWaitingState for the
+ * Sends the recognised speech to the server,
+ * and waits for the server to reply with the speech to say in response.
+ * Once this is done it moves back to the RecordWaitingState for the
  * player to record a new message.
  */
-class ReceivedState extends State {
-    constructor(stateDiv) {
+class SendRecvSpeechState extends State {
+    /**
+     * @param {Optional[string]} recognisedSpeech - the recognised speech, or null if nothing was recognised.
+     */
+    constructor(recognisedSpeech, stateDiv) {
         super(stateDiv);
+        this.recognisedSpeech = recognisedSpeech;
     }
 
     enterState() {
-        this.stateDiv.innerHTML += '<br/>Received';
-        setTimeout(() => super.segue(RecordWaitingState), 1500);
-    }
+        this.stateDiv.innerHTML += this.recognisedSpeech || 'nothing';
+;    }
 }
 
+///**
+// * Displays a message that the recorded speech was received and plays the response of the spy.
+// * After a short delay (while the spy is possibly still talking) it moves back to the RecordWaitingState for the
+// * player to record a new message.
+// */
+//class ReceivedSpeechState extends State {
+//    constructor(stateDiv) {
+//        super(stateDiv);
+//    }
+//
+//    enterState() {
+//        this.stateDiv.innerHTML += '<br/>Received';
+//        setTimeout(() => super.segue(RecordWaitingState), 1500);
+//    }
+//}
+
+/**
+ * Connects a socket to the server. This is used to receive the text to say in response to the user's command.
+ * The callback is called once the socket is connected.
+ */
+function setupSocket(callback) {
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    // Emit a connected message to let the server that we are connected.
+    socket.on('connect', function() {
+        console.log("Connected to server");
+        callback(socket);
+    });
+
+//    socket.on('speech', didReceiveResponseSpeech);
+}
 
 function start() {
+    // Setup global variables.
+    gRecognition = new webkitSpeechRecognition();
+    gRecognition.continuous = true;
+
     var stateDiv = document.querySelector('#state');
 
 //    var x = new ConnectWaitingState(stateDiv);
