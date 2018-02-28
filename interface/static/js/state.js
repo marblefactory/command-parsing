@@ -168,7 +168,7 @@ class ConnectingState extends State {
 }
 
 /**
- * Displays a message to: press a key to begin recording.
+ * Displays a message to press a key to begin recording.
  */
 class RecordWaitingState extends State {
     constructor(stateDiv) {
