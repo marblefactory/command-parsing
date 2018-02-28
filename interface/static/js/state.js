@@ -16,8 +16,9 @@ var gShouldPlayIntro = false;
 /**
  * Plays the sound in the audio element with the given id.
  */
-function play(id) {
+function play(id, volume = 1.0) {
     var audioElement = document.querySelector(id);
+    audioElement.volume = volume;
     audioElement.play();
 }
 
@@ -25,7 +26,7 @@ function play(id) {
  * Speaks the given text in the preferred voice. If the voice does not exist, the text is spoken in the first
  * available voice.
  */
-function speak(text, preferred_voice) {
+function speak(text, preferred_voice, callback) {
     var msg = new SpeechSynthesisUtterance();
 	msg.text = text;
 	msg.rate = 1.07;
@@ -38,6 +39,7 @@ function speak(text, preferred_voice) {
 	}
 
 	window.speechSynthesis.speak(msg);
+	msg.onend = callback;
 }
 
 /**
@@ -161,7 +163,7 @@ class ConnectingState extends State {
         }
 
         // Start the animation.
-        play('#fax_machine');
+        play('#fax_machine', 0.15);
         this.stateDiv.innerHTML = '';
         addTexts(this.stateDiv, 0, () => super.segue(RecordWaitingState));
     }
@@ -182,7 +184,7 @@ class RecordWaitingState extends State {
 
     exitState() {
         super.exitState();
-        play('#radio_start');
+        play('#radio_start', 0.6);
     }
 }
 
@@ -206,7 +208,7 @@ class RecordingState extends State {
 
     exitState() {
         super.exitState();
-        play('#radio_end');
+        play('#radio_static_end');
     }
 }
 
@@ -303,7 +305,13 @@ class SendRecvSpeechState extends State {
      */
     _onSpeechResponseReceived(speech) {
         this.stateDiv.innerHTML += 'Received';
-        speak(speech, 'Tom');
+        // Speak the message, and play a 'radio end' tine after.
+        speak(speech, 'Tom', speakEndCallback);
+
+        function speakEndCallback() {
+            // Add a small delay so it sounds more realistic.
+            setTimeout(play('#radio_recv_end', 0.3), 20)
+        }
 
         // Short delay so the 'received' message appears while the spy is talking.
         setTimeout(() => super.segue(RecordWaitingState), 1500);

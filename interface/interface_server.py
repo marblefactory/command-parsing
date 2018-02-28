@@ -139,4 +139,4 @@ if __name__ == '__main__':
     preload(fill_cache=False)
 
     print('Running Server')
-    socketio.run(app)
+    socketio.run(app, debug=True)

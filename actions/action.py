@@ -1,6 +1,6 @@
 from typing import List
 from equatable import EquatableMixin
-import random
+from random import randrange
 
 
 class Action(EquatableMixin):
@@ -12,7 +12,7 @@ class Action(EquatableMixin):
         """
         :return: default affirmative responses that apply to all actions, plus any responses specific to the action.
         """
-        return ['ok', 'affirmative', 'roger', 'roger that', 'copy', 'copy that'] + self.specific_responses()
+        return self.specific_responses() + ['ok', 'affirmative', 'roger', 'copy']
 
     def specific_responses(self):
         """
@@ -24,7 +24,9 @@ class Action(EquatableMixin):
         """
         :return: a random response from all possible responses to the action.
         """
-        return random.choice(self.responses())
+        responses = self.responses()
+        random_index = randrange(0, len(responses))
+        return responses[random_index]
 
 
 class Stop(Action):

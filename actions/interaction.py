@@ -1,5 +1,6 @@
 from actions.action import Action
 from actions.location import ObjectRelativeDirection, Location
+from typing import List
 
 
 class ThroughDoor(Action):
@@ -54,3 +55,12 @@ class Hack(Action):
 
     def __str__(self):
         return 'hack "{}" "{}"'.format(self.object_name, self.direction)
+
+    def specific_responses(self) -> List[str]:
+        return [
+            "I'll make a GUI interface using Visual Basic, see if I can track an IP address",
+            "I'll get you access to their mainframe",
+            "You'll need to isolate the node and dump it on the other side of the router",
+            "I'll plug the communicator into the {}".format(self.object_name),
+            "I'll get you access to their {}".format(self.object_name)
+        ]
