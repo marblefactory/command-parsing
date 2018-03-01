@@ -310,6 +310,8 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
     def parse(input: List[Word]) -> ParseResult:
         best_result: Optional[ParseResult] = None
 
+        # Not the prettiest code, but this is the fastest I could make it, which is more important considering
+        # how often this is run.
         for parser in parsers:
             result = parser.parse(input)
 
@@ -321,14 +323,11 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
                 if result.response == 1.0:
                     return result
 
-            # Not the prettiest code, but this is the fastest I could make it, which is more important considering
-            # how often this is run.
             if not best_result or isinstance(best_result, FailureParse):
                 best_result = result
             else:
-                if isinstance(result, SuccessParse):
-                    if result.response > best_result.response:
-                        best_result = result
+                if best_result < result:
+                    best_result = result
 
         return best_result
 

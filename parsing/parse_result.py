@@ -30,6 +30,34 @@ class ParseResult(EquatableMixin):
     def is_failure(self) -> bool:
         return isinstance(self, FailureParse)
 
+    def __lt__(self, other) -> bool:
+        """
+        Assumes the responses are in the range 0-1.
+        :return: Successes are ranked the highest, if two are compared the response is used.
+                 Partials are ranked below success, if two are compared the response is used.
+                 Failures are ranked lowest, and two are worth the same.
+        """
+        # Used for inter-class comparison.
+        def rank(result: ParseResult) -> int:
+            return result.either(lambda _: 2, lambda _: 1, lambda _: 0)
+
+        # Used for intra-class comparison
+        def response(result: ParseResult) -> int:
+            success = lambda s: s.response
+            partial = lambda p: p.response
+            failure = lambda f: 0.0
+
+            return result.either(success, partial, failure)
+
+        if rank(self) > rank(other):
+            return False
+
+        if rank(self) == rank(other):
+            return response(self) < response(other)
+
+        # Only case left is rank(self) < rank(other)
+        return True
+
 
 class SuccessParse(ParseResult):
     """
