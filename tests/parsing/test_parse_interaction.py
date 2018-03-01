@@ -1,4 +1,5 @@
 import unittest
+from parsing.parse_result import PartialParse
 from parsing.parse_interaction import interaction_object_name
 from parsing.parse_action import action
 from actions.interaction import *
@@ -47,13 +48,21 @@ class PickUpTestCase(unittest.TestCase):
         s = 'pick up the hammer'.split()
         assert action().parse(s).parsed == PickUp('hammer', ObjectRelativeDirection.VICINITY)
 
-    def test_pick_up_fails_if_no_object(self):
-        s = 'pick up'.split()
-        assert action().parse(s).is_failure()
-
     def test_take_fails_if_no_object1(self):
         s = 'take the on your left'.split()
         assert type(action().parse(s)) != PickUp
+
+    def test_pick_up_partial_if_no_object1(self):
+        # Tests that a partial is returned asking for more information if the object name is not given.
+        s = 'pick up'.split()
+        result = action().parse(s)
+        assert isinstance(result, PartialParse)
+
+    def test_pick_up_partial_if_no_object2(self):
+        # Tests that a partial is returned asking for more information if the object name is not given.
+        s = 'pick up on your left'.split()
+        result = action().parse(s)
+        assert isinstance(result, PartialParse)
 
 
 class ThrowTestCase(unittest.TestCase):

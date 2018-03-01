@@ -26,18 +26,22 @@ def pick_up() -> Parser:
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
     """
     # Takes the partially applied init of PickUp and adds the last argument, i.e. the direction.
-    def combine_direction(make_pickup: Callable[[ObjectRelativeDirection], PickUp], _: Response) -> Parser:
+    def combine_direction(make_pickup: Callable, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: make_pickup(dir))
 
-    pick_up_verb = strongest_word(['pick', 'take'], parser_constructors=[word_meaning])
+    def combine(make_pickup: Callable, verb_response: Response) -> Parser:
+        # Parses all the information required to construct a pick-up.
+        data_parser = interaction_object_name() \
+                     .map_parsed(lambda obj_name: partial_class(PickUp, obj_name)) \
+                     .then(combine_direction)
 
-    # Parses the object name, and partially applies it to the PickUp init.
-    obj_name = interaction_object_name() \
-              .map_parsed(lambda obj_name: partial_class(PickUp, obj_name))
+        # If we only get the verb and no data, use the response from the verb parser.
+        return partial_parser(data_parser, verb_response)
 
-    return pick_up_verb \
-          .ignore_then(obj_name) \
-          .then(combine_direction)
+    # The verb to look for so we know it's a pick-up action.
+    verb = strongest_word(['pick', 'take'], parser_constructors=[word_meaning])
+
+    return verb.then(combine)
 
 
 def throw() -> Parser:
