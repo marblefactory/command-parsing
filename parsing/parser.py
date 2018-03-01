@@ -160,6 +160,24 @@ class Parser:
         return self.map_parsed(lambda _: new_parsed)
 
 
+def append(parser: Parser, combine_responses: Callable[[Response, Response], Response] = None, spaces = True) -> Callable[[Any, Response], Parser]:
+    """
+    An operation to be used with `then`.
+    :param parser: the parser to run after the current parser.
+    :param combine_responses: the function uses to combine the results of the parsers. Defaults to use the response of the current parser.
+    :param spaces: whether to put spaces between appended words.
+    :return: a operation which can be given to `then` to append a parsed string to the parsed string of the next parser.
+    """
+    if not combine_responses:
+        combine_responses = lambda r1, r2: r1
+
+    def op(parsed_str: str, response: Response) -> Parser:
+        sep = ' ' if spaces else ''
+        return parser.map(lambda p, r: (parsed_str + sep + p, combine_responses(response, r)))
+
+    return op
+
+
 def produce(parsed: Any, response: Response) -> Parser:
     """
     :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and
@@ -212,27 +230,6 @@ def word_spelling(word: Word, dist_threshold: Response = 0.49) -> Parser:
 
     return threshold(predicate(condition).ignore_parsed(word), dist_threshold)
 
-# def word_spelling(word: Word, dist_threshold: Response = 0.3) -> Parser:
-#     """
-#     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
-#              response. If matches then `word` is the parsed string, not the word from the input text.
-#     """
-#     def condition(input_word: Word) -> Response:
-#         # For each letter in the correct place, 1/len(word) is added to the accumulator.
-#         acc: Response = 0.0
-#         delta: Response = 1/len(word)
-#
-#         for c1, c2 in zip(word, input_word):
-#             if c1 != c2:
-#                 break
-#
-#             acc += delta
-#
-#         # max_word_len = max(len(input_word), len(word))
-#         # edit_dist = editdistance.eval(word, input_word)
-#         return acc# * ((max_word_len - edit_dist) / max_word_len)
-#
-#     return threshold(predicate(condition), dist_threshold).ignore_parsed(word)
 
 def word_match(word: Word, match_plural = True) -> Parser:
     """
@@ -406,23 +403,6 @@ def threshold(parser: Parser, response_threshold: Response) -> Parser:
         return produce(parsed, response)
 
     return parser.then(check_threshold)
-
-
-def append(parser: Parser, combine_responses: Callable[[Response, Response], Response] = None, spaces = True) -> Callable[[Any, Response], Parser]:
-    """
-    :param parser: the parser to run after the current parser.
-    :param combine_responses: the function uses to combine the results of the parsers. Defaults to use the response of the current parser.
-    :param spaces: whether to put spaces between appended words.
-    :return: a operation which can be given to `then` to append a parsed string to the parsed string of the next parser.
-    """
-    if not combine_responses:
-        combine_responses = lambda r1, r2: r1
-
-    def op(parsed_str: str, response: Response) -> Parser:
-        sep = ' ' if spaces else ''
-        return parser.map(lambda p, r: (parsed_str + sep + p, combine_responses(response, r)))
-
-    return op
 
 
 def none(parser: Parser, response: Response = 1.0) -> Parser:
