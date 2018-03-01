@@ -1,5 +1,7 @@
 from actions.location import *
 from parsing.parser import *
+from functools import partial
+from utils import partial_class
 import itertools
 
 
@@ -100,24 +102,28 @@ def positional() -> Parser:
     """
     :return: a parser for positional locations, e.g. 'third door on your left'
     """
-    def combine_ordinal_num(acc: List, r1: Response) -> Parser:
+    def combine_ordinal_num(acc, r1: Response) -> Parser:
         # Parses an ordinal number, or defaults to 0 if there is no ordinal number.
         default = produce(parsed=0, response=0)
         ord = strongest([anywhere(ordinal_number()), default])
 
-        return ord.map(lambda parsed_num, r2: (acc + [parsed_num], mix(r1, r2, 0.8)))
+        # Partially applies the parsed position to the constructor of Positional.
+        return ord.map(lambda parsed_num, r2: (partial(acc, parsed_num), mix(r1, r2, 0.8)))
 
-    def combine_direction(acc: List, r1: Response) -> Parser:
+    def combine_direction(acc, r1: Response) -> Parser:
         default = produce(parsed=MoveDirection.FORWARDS, response=0)
         dir = strongest([anywhere(move_direction()), default])
 
-        return dir.map(lambda parsed_dir, r2: (acc + [parsed_dir], mix(r1, r2, 0.8)))
+        # Completes the Positional constructor by supplying the direction.
+        return dir.map(lambda parsed_dir, r2: (acc(parsed_dir), mix(r1, r2, 0.8)))
 
-    obj = anywhere(move_object_name()).map_parsed(lambda parsed_name: [parsed_name])
+
+    # Partially applies the parsed object name to the Positional init.
+    obj = anywhere(move_object_name()) \
+         .map_parsed(lambda parsed_name: partial_class(Positional, parsed_name))
 
     return obj.then(combine_ordinal_num) \
-              .then(combine_direction) \
-              .map_parsed(lambda p: Positional(p[0], p[1], p[2]))
+              .then(combine_direction)
 
 
 def directional() -> Parser:
@@ -146,7 +152,10 @@ def stairs() -> Parser:
     def make_parser(dir: (str, FloorDirection), loc: str) -> Parser:
         # Increase the penalty for not having the location. This allows change stances to be parsed correctly.
         combine = lambda r1, r2: mix(r1, r2, 0.2)
-        return anywhere(word_match(dir[0])).then_ignore(maybe(word_match(loc)), combine).ignore_parsed(dir[1])
+
+        return anywhere(word_match(dir[0])) \
+              .then_ignore(maybe(word_match(loc)), combine) \
+              .ignore_parsed(dir[1])
 
     parsers = [make_parser(dir, loc) for dir, loc  in itertools.product(directions, location_words)]
 
