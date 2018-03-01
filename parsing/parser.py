@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Callable
 from parsing.parse_result import *
 import nltk
 from nltk.corpus import wordnet as wn
