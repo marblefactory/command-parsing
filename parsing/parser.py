@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 from parsing.parse_result import *
 import nltk
 from nltk.corpus import wordnet as wn
@@ -308,30 +308,28 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
              then the parser to occur first in the list is returned.
     """
     def parse(input: List[Word]) -> ParseResult:
-        # Returns the response of the result. Only success results give a non-zero response.
-        def result_response(result: ParseResult) -> Response:
-            return result.either(lambda s: s.response, lambda _: -1, lambda _: -1)
+        best_result: Optional[ParseResult] = None
 
-        # The current best parse.
-        best: ParseResult = parsers[0].parse(input)
-
-        if debug:
-            print(best)
-
-        # Skip the first since we already processed it.
-        for parser in parsers[1:]:
+        for parser in parsers:
             result = parser.parse(input)
 
             if debug:
                 print(result)
 
-            best_response = result_response(best)
-            new_response = result_response(result)
+            # The maximum value of a response is 1, therefore we can exit early.
+            if isinstance(result, SuccessParse):
+                if result.response == 1.0:
+                    return result
 
-            if best_response < new_response:
-                best = result
+            # Not the prettiest code, but this is the fastest I could make it.
+            if not best_result or isinstance(best_result, FailureParse):
+                best_result = result
+            else:
+                if isinstance(result, SuccessParse):
+                    if result.response > best_result.response:
+                        best_result = result
 
-        return best
+        return best_result
 
     return Parser(parse)
 

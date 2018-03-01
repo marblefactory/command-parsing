@@ -13,20 +13,6 @@ class ParseResult(EquatableMixin):
     """
     The result of performing parsing.
     """
-    def either(self,
-               success: Callable[['SuccessParse'], Any],
-               partial: Callable[['PartialParse'], Any],
-               failure: Callable[['FailureParse'], Any]):
-
-        if isinstance(self, SuccessParse):
-            return success(self)
-        elif isinstance(self, PartialParse):
-            return partial(self)
-        elif isinstance(self, FailureParse):
-            return failure(self)
-
-        raise RuntimeError('unexpected parse result type')
-
     def is_failure(self) -> bool:
         return isinstance(self, FailureParse)
 
@@ -46,19 +32,19 @@ class SuccessParse(ParseResult):
         self.remaining = remaining
 
 
-class PartialParse(ParseResult):
-    """
-    Represents a parse that was partially matched, but the player
-    needs to be asked questions for the rest of the information.
-    """
-
-    def __init__(self, failed_parser, remaining: List[Word]):
-        """
-        :param failed_parser: the parser that failed, but that can be reapplied once were have more  information.
-        :param remaining: any words that were remaining un-parsed.
-        """
-        self.failed_parser = failed_parser
-        self.remaining = remaining
+# class PartialParse(ParseResult):
+#     """
+#     Represents a parse that was partially matched, but the player
+#     needs to be asked questions for the rest of the information.
+#     """
+#
+#     def __init__(self, failed_parser, remaining: List[Word]):
+#         """
+#         :param failed_parser: the parser that failed, but that can be reapplied once were have more  information.
+#         :param remaining: any words that were remaining un-parsed.
+#         """
+#         self.failed_parser = failed_parser
+#         self.remaining = remaining
 
 
 class FailureParse(ParseResult):
