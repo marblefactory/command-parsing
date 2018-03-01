@@ -1,14 +1,14 @@
-from parsing.parse_result import *
+from parsing.parser import *
 from parsing.parser import Parser, Word, word_match
-from typing import  List
+from typing import List
 
 
-def partial(parser: Parser) -> Parser:
+def partial(parser: Parser, response: Response) -> Parser:
     def parse(input: List[Word]) -> ParseResult:
         parsed = parser.parse(input)
 
         if parsed.is_failure():
-            return PartialParse(parser, 1.0)
+            return PartialParse(parser, response)
 
         return parsed
 
@@ -18,20 +18,25 @@ def partial(parser: Parser) -> Parser:
 if __name__ == '__main__':
     def combine(parsed: Any, response: Response) -> Parser:
         # Captures the currently parsed object inside the partial.
-        return partial(word_match('world').map_parsed(lambda p: parsed + [p]))
+        p = strongest_word(['uk', 'world'])
+        return partial(p.map_parsed(lambda p: parsed + [p]), response)
 
-    p = word_match('hello').map_parsed(lambda p: [p]).then(combine)
+    parser = word_spelling('hello').map_parsed(lambda p: [p]).then(combine)
 
-    s = 'hello'.split()
-    result = p.parse(s)
+    s = 'hillo'.split()
+    result = parser.parse(s)
 
     if isinstance(result, PartialParse):
+
         # Get some more input.
-        s = 'world'.split()
+        s = 'uk'.split()
         result2 = result.failed_parser.parse(s)
 
+        print('Response1:', result.response)
         print('Partial:', result2.parsed)
+        print('Response2:', result2.response)
 
     elif isinstance(result, SuccessParse):
-        print('Success:', result)
+        print('Success:', result.parsed)
+        print('Response:', result.response)
 

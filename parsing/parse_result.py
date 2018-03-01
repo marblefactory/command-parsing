@@ -51,12 +51,10 @@ class PartialParse(ParseResult):
     Represents a parse that was partially matched, but the player
     needs to be asked questions for the rest of the information.
     """
-
     def __init__(self, failed_parser, response: Response):
         """
         :param failed_parser: the parser that failed, but that can be reapplied once were have more  information.
-        :param response: the response so far.
-        :param remaining: any words that were remaining un-parsed.
+        :param response: the response so far, until the failed parser.
         """
         self.failed_parser = failed_parser
         self.response = response
