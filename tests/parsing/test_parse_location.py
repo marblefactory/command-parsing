@@ -216,7 +216,7 @@ class BehindTestCase(unittest.TestCase):
 
     def test_fails_if_missing_object(self):
         s = 'go around the'.split()
-        assert location().parse(s) is None
+        assert location().parse(s).is_failure()
 
     def test_other_side(self):
         s = 'go to the other side of the table'.split()
@@ -224,7 +224,7 @@ class BehindTestCase(unittest.TestCase):
 
     def test_fails_if_side_other_incorrect_order(self):
         s = 'go to the side other of the table'.split()
-        assert type(location().parse(s)) is not Behind
+        assert type(location().parse(s).parsed) is not Behind
 
 
 class EndOfTestCase(unittest.TestCase):

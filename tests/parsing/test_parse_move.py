@@ -106,7 +106,7 @@ class ChangeSpeedTestCase(unittest.TestCase):
 class MoveTestCase(unittest.TestCase):
     def test_fails_if_just_location(self):
         s = 'next door'.split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()
 
     def test_parses_standing(self):
         s = 'go left standing'.split()

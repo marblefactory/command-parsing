@@ -49,7 +49,7 @@ class PickUpTestCase(unittest.TestCase):
 
     def test_pick_up_fails_if_no_object(self):
         s = 'pick up'.split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()
 
     def test_take_fails_if_no_object1(self):
         s = 'take the on your left'.split()
@@ -104,8 +104,8 @@ class HackTestCase(unittest.TestCase):
 
     def test_fails_if_no_object1(self):
         s = 'hack'.split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()
 
     def test_fails_if_no_object2(self):
         s = 'hack something'.split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()

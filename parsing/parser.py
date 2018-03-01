@@ -1,5 +1,5 @@
-from typing import List, Optional, Callable, Any, Tuple
-from collections import namedtuple
+from typing import Tuple
+from parsing.parse_result import *
 import nltk
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
@@ -8,17 +8,6 @@ import editdistance
 from itertools import product
 import functools
 import numpy as np
-
-
-# Stores the object created from parsing, the response (how 'strongly' the parser matched), and the remaining tokens,
-ParseResult = namedtuple('ParseResult', 'parsed response remaining')
-
-# A word in the user's text.
-Word = str
-
-# A value from 0-1 indicating how strongly a parser 'matches' on some text. E.g. a parser for the semantic similarity
-# to the word 'hello' would give a higher response for 'hi' than 'car'.
-Response = float
 
 
 def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
@@ -49,7 +38,7 @@ def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset
 
 
 class Parser:
-    def __init__(self, parse: Callable[[List[Word]], Optional[ParseResult]]):
+    def __init__(self, parse: Callable[[List[Word]], ParseResult]):
         """
         :param parse: the function that takes a list of words and produces a parse result.
         """
@@ -61,16 +50,14 @@ class Parser:
         :return: applies this parser, then uses the result of parsing and the response to return another parser over
                  the remaining tokens.
         """
-        def new_parse(input: List[Word]) -> Optional[ParseResult]:
-            parsed = self.parse(input)
+        def new_parse(input: List[Word]) -> ParseResult:
+            result = self.parse(input)
 
-            if not parsed:
-                return None
+            if not isinstance(result, SuccessParse):
+                return result
 
-            result, response, remaining = parsed
-
-            new_parser = operation(result, response)
-            return new_parser.parse(remaining)
+            new_parser = operation(result.parsed, result.response)
+            return new_parser.parse(result.remaining)
 
         return Parser(new_parse)
 
@@ -122,9 +109,9 @@ class Parser:
         """
 
         def transform(parsed: Any, response: Response) -> Parser:
-            def new_parse(words: List[Word]) -> Optional[ParseResult]:
+            def new_parse(words: List[Word]) -> ParseResult:
                 new_parsed, new_response = transformation(parsed, response)
-                return ParseResult(new_parsed, new_response, words)
+                return SuccessParse(new_parsed, new_response, words)
 
             return Parser(new_parse)
 
@@ -182,8 +169,8 @@ def produce(parsed: Any, response: Response) -> Parser:
     :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and
              consumes no input.
     """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
-        return ParseResult(parsed, response, input)
+    def parse(input: List[Word]) -> ParseResult:
+        return SuccessParse(parsed, response, input)
 
     return Parser(parse)
 
@@ -192,24 +179,24 @@ def failure() -> Parser:
     """
     :return: a parser which fails (i.e. gives a None result) to all input.
     """
-    return Parser(lambda input: None)
+    return Parser(lambda input: FailureParse())
 
 
 def predicate(condition: Callable[[Word], Response]) -> Parser:
     """
     :return: a parser which matches on the word which gives the highest response to the condition.
     """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
+    def parse(input: List[Word]) -> ParseResult:
         if len(input) == 0:
-            return None
+            return FailureParse()
 
         responses = [(i, word, condition(word)) for i, word in enumerate(input)]
         i, word, max_response = max(responses, key=lambda r: r[2])
 
         if max_response == 0:
-            return None
+            return FailureParse()
 
-        return ParseResult(word, max_response, input[i + 1:])
+        return SuccessParse(word, max_response, input[i + 1:])
 
     return Parser(parse)
 
@@ -320,26 +307,31 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
     :return: the parser that gives the strongest response on the input text. If multiple parsers have the same maximum,
              then the parser to occur first in the list is returned.
     """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
-        best_result: Optional[ParseResult] = None
+    def parse(input: List[Word]) -> ParseResult:
+        # Returns the response of the result. Only success results give a non-zero response.
+        def result_response(result: ParseResult) -> Response:
+            return result.either(lambda s: s.response, lambda _: -1, lambda _: -1)
 
-        for parser in parsers:
+        # The current best parse.
+        best: ParseResult = parsers[0].parse(input)
+
+        if debug:
+            print(best)
+
+        # Skip the first since we already processed it.
+        for parser in parsers[1:]:
             result = parser.parse(input)
 
             if debug:
                 print(result)
 
-            # The maximum value of a response is 1, therefore we can exit early.
-            if result and result.response == 1.0:
-                return result
+            best_response = result_response(best)
+            new_response = result_response(result)
 
-            if not best_result:
-                best_result = result
-            else:
-                if result and result.response > best_result.response:
-                    best_result = result
+            if best_response < new_response:
+                best = result
 
-        return best_result
+        return best
 
     return Parser(parse)
 
@@ -365,12 +357,12 @@ def anywhere(parser: Parser) -> Parser:
     :return: a parser which consumes none of the input, therefore any chained parsers can match anywhere in the text.
     """
 
-    def parse(input: List[Word]) -> Optional[ParseResult]:
+    def parse(input: List[Word]) -> ParseResult:
         result = parser.parse(input)
-        if not result:
-            return None
+        if isinstance(result, SuccessParse):
+            return SuccessParse(result.parsed, result.response, input)
 
-        return ParseResult(result.parsed, result.response, input)
+        return result
 
     return Parser(parse)
 
@@ -382,10 +374,10 @@ def maybe(parser: Parser, response: Response = 0.0) -> Parser:
              The empty parse result contains no parsed object, a response of 0, and the remaining full input to parser.
     """
 
-    def parse(input: List[Word]) -> Optional[ParseResult]:
+    def parse(input: List[Word]) -> ParseResult:
         result = parser.parse(input)
-        if not result:
-            return ParseResult(parsed=None, response=response, remaining=input)
+        if not isinstance(result, SuccessParse):
+            return SuccessParse(parsed=None, response=response, remaining=input)
         return result
 
     return Parser(parse)
@@ -409,11 +401,12 @@ def none(parser: Parser, response: Response = 1.0) -> Parser:
     :param response: the response of the returned parser if the supplied parser succeeds.
     :return: a parser which fails if the supplied parser parses. Otherwise returns the empty response.
     """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
+    def parse(input: List[Word]) -> ParseResult:
         result = parser.parse(input)
-        if result:
-            return None
-        return ParseResult(parsed=None, response=response, remaining=input)
+        if isinstance(result, SuccessParse):
+            return FailureParse()
+
+        return SuccessParse(parsed=None, response=response, remaining=input)
 
     return Parser(parse)
 
@@ -422,8 +415,8 @@ def ignore_words(words: List[Word]) -> Parser:
     """
     :return: a parser which removes the given words from the input text. Gives None as the parsed object.
     """
-    def parse(input: List[Word]) -> Optional[ParseResult]:
+    def parse(input: List[Word]) -> ParseResult:
         new_input = [word for word in input if word not in words]
-        return ParseResult(None, 0.0, new_input)
+        return SuccessParse(parsed=None, response=0.0, remaining=new_input)
 
     return Parser(parse)

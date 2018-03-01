@@ -58,13 +58,13 @@ def composite() -> Parser:
 
         if len(inputs) <= 1:
             # There were no occurrences of the separators.
-            return None
+            return FailureParse()
 
         results = [single_action().parse(words) for words in inputs]
-        filtered = [result for result in results if result is not None]
+        filtered = [result for result in results if not result.is_failure()]
         actions = [r.parsed for r in filtered]
 
-        return ParseResult(Composite(actions), 1.0, [])
+        return SuccessParse(Composite(actions), 1.0, [])
 
     return Parser(parse)
 

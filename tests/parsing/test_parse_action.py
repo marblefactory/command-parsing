@@ -21,7 +21,7 @@ class StopTestCase(unittest.TestCase):
 
     def test_does_not_parse_the(self):
         s = 'the end of the corridor'.split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()
 
 
 class CompositeTestCase(unittest.TestCase):
@@ -73,11 +73,11 @@ class CompositeTestCase(unittest.TestCase):
         Tests the composite parser fails if it couldn't find 'then' or 'and'.
         """
         s = 'nothing to see here'.split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()
 
     def test_fails_if_only_then(self):
         s = 'then'.split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()
 
 
 class DontTestCase(unittest.TestCase):
@@ -86,4 +86,4 @@ class DontTestCase(unittest.TestCase):
         Tests that if the player says "don't" no action is performed.
         """
         s = "don't go forwards".split()
-        assert action().parse(s) is None
+        assert action().parse(s).is_failure()
