@@ -102,20 +102,20 @@ def positional() -> Parser:
     """
     :return: a parser for positional locations, e.g. 'third door on your left'
     """
-    def combine_ordinal_num(acc, r1: Response) -> Parser:
+    def combine_ordinal_num(makePos: Callable, r1: Response) -> Parser:
         # Parses an ordinal number, or defaults to 0 if there is no ordinal number.
         default = produce(parsed=0, response=0)
         ord = strongest([anywhere(ordinal_number()), default])
 
         # Partially applies the parsed position to the constructor of Positional.
-        return ord.map(lambda parsed_num, r2: (partial(acc, parsed_num), mix(r1, r2, 0.8)))
+        return ord.map(lambda parsed_num, r2: (partial(makePos, parsed_num), mix(r1, r2, 0.8)))
 
-    def combine_direction(acc, r1: Response) -> Parser:
+    def combine_direction(makePos: Callable, r1: Response) -> Parser:
         default = produce(parsed=MoveDirection.FORWARDS, response=0)
         dir = strongest([anywhere(move_direction()), default])
 
         # Completes the Positional constructor by supplying the direction.
-        return dir.map(lambda parsed_dir, r2: (acc(parsed_dir), mix(r1, r2, 0.8)))
+        return dir.map(lambda parsed_dir, r2: (makePos(parsed_dir), mix(r1, r2, 0.8)))
 
 
     # Partially applies the parsed object name to the Positional init.

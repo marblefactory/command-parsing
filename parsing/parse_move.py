@@ -1,7 +1,9 @@
 from actions.move import *
-from actions.location import Directional, MoveDirection
+from actions.location import MoveDirection
 from parsing.parser import *
 from parsing.parse_location import location, move_direction, move_object_name
+from functools import partial
+from utils import partial_class
 
 
 def speed() -> Parser:
@@ -64,27 +66,29 @@ def move() -> Parser:
     """
     :return: a parser to recognise movement actions.
     """
-    def combine_speed(acc: List, r: Response) -> Parser:
+    def combine_speed(makeMove: Callable, r: Response) -> Parser:
         # The speed defaults to normal.
         speed_parser = strongest([speed(), produce(Speed.NORMAL, 0.5)])
-        return anywhere(speed_parser).map(lambda parsed_speed, _: (acc + [parsed_speed], r))
+        # Partially applies the speed to the Move init.
+        return anywhere(speed_parser).map(lambda parsed_speed, _: (partial(makeMove, speed=parsed_speed), r))
 
-    def combine_stance(acc: List, r: Response) -> Parser:
+    def combine_stance(makeMove: Callable, r: Response) -> Parser:
         # If no stance is found, default to None, meaning there is no change in the stance.
         stance_parser = maybe(anywhere(stance()))
         # Passes through the response, ignoring the response of the stance parser.
-        return stance_parser.map(lambda parsed_stance, _: (acc + [parsed_stance], r))
+        # Applies the stance to the Move init.
+        return stance_parser.map(lambda parsed_stance, _: (makeMove(stance=parsed_stance), r))
 
     verbs = ['go', 'walk', 'run', 'take', 'sprint']
     move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
 
     # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
-    loc_parser = location().map_parsed(lambda loc: [loc])
+    # Partially applies the location to the Move init.
+    loc_parser = location().map_parsed(lambda loc: partial_class(Move, location=loc))
 
     return move_verb.ignore_then(loc_parser, mix) \
                     .then(combine_speed) \
-                    .then(combine_stance) \
-                    .map_parsed(lambda p: Move(p[1], p[0], p[2]))
+                    .then(combine_stance)
 
 
 def hide() -> Parser:
