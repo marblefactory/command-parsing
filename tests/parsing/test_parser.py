@@ -207,7 +207,6 @@ class StrongestTestCase(unittest.TestCase):
         p1 = produce('a', 0.1)
         p2 = produce('b', 0.8)
         p3 = produce('c', 0.4)
-
         parser = self.strongest_parser([p1, p2, p3])
 
         assert parser.parse([]) == SuccessParse(parsed='b', response=0.8, remaining=[])
@@ -216,7 +215,6 @@ class StrongestTestCase(unittest.TestCase):
         p1 = produce('a', 0.8)
         p2 = produce('b', 0.8)
         p3 = produce('c', 0.4)
-
         parser = self.strongest_parser([p1, p2, p3])
 
         assert parser.parse([]) == SuccessParse(parsed='a', response=0.8, remaining=[])
@@ -224,11 +222,18 @@ class StrongestTestCase(unittest.TestCase):
     def test_no_parse(self):
         p1 = word_match('a')
         p2 = word_match('b')
-
         parser = self.strongest_parser([p1, p2])
 
         s = 'x y z'.split()
         assert parser.parse(s).is_failure()
+
+    def test_prefers_success_to_partial_results(self):
+        p1 = partial(word_match('b'), response=1.0)
+        p2 = word_match('a')
+        parser = self.strongest_parser([p1, p2])
+
+        s = 'a'.split()
+        assert parser.parse(s).parsed == 'a'
 
 
 class StrongestWordTestCase(unittest.TestCase):
@@ -354,3 +359,18 @@ class IgnoreWordsTestCase(unittest.TestCase):
         p = ignore_words(['b', 'a'])
 
         assert p.parse(s).remaining == ['c', 'd', 'c']
+
+
+class PartialTestCase(unittest.TestCase):
+    def test_success_if_matches(self):
+        p = partial(word_match('a'), response=0.7)
+        s = 'b c a x'.split()
+
+        assert p.parse(s) == SuccessParse('a', 1.0, ['x'])
+
+    def test_partial_if_no_match(self):
+        a_matcher = word_match('a')
+        p = partial(a_matcher, response=0.7)
+        s = 'b c x'.split()
+
+        assert p.parse(s) == PartialParse(a_matcher, 0.7)

@@ -1,19 +1,4 @@
 from parsing.parser import *
-from parsing.parser import Parser, Word, word_match
-from typing import List
-
-
-def partial(parser: Parser, response: Response) -> Parser:
-    def parse(input: List[Word]) -> ParseResult:
-        parsed = parser.parse(input)
-
-        if parsed.is_failure():
-            return PartialParse(parser, response)
-
-        return parsed
-
-    return Parser(parse)
-
 
 if __name__ == '__main__':
     def combine(parsed: Any, response: Response) -> Parser:
@@ -39,4 +24,3 @@ if __name__ == '__main__':
     elif isinstance(result, SuccessParse):
         print('Success:', result.parsed)
         print('Response:', result.response)
-
