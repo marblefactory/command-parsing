@@ -1,5 +1,6 @@
 from actions.location import *
 from parsing.parser import *
+import itertools
 
 
 def move_object_name() -> Parser:
@@ -130,13 +131,29 @@ def stairs() -> Parser:
     """
     :return: a parser for stair directions, e.g. upstairs, downstairs.
     """
-    up_stairs = anywhere(word_match('up')).then_ignore(word_match('stairs'))
-    down_stairs = anywhere(word_match('down')).then_ignore(word_match('stairs'))
+    # up_stairs = anywhere(word_match('up'))#.then_ignore(maybe(word_match('stairs')))
+    # down_stairs = anywhere(word_match('down'))#.then_ignore(maybe(word_match
 
-    up = strongest([up_stairs, word_match('upstairs')]).ignore_parsed(FloorDirection.UP)
-    down = strongest([down_stairs, word_match('downstairs')]).ignore_parsed(FloorDirection.DOWN)
+    directions = [
+        ('up', FloorDirection.UP),
+        ('down', FloorDirection.DOWN)
+    ]
 
-    return strongest([up, down]).map_parsed(lambda dir: Stairs(dir))
+    location_words = ['stairs', 'floor']
+
+    # Parses a direction, optionally followed by a location.
+    # E.g. 'go up' or 'go up the stairs', where the latter has a stronger response.
+    def make_parser(dir: (str, FloorDirection), loc: str) -> Parser:
+        # Increase the penalty for not having the location. This allows change stances to be parsed correctly.
+        combine = lambda r1, r2: mix(r1, r2, 0.2)
+        return anywhere(word_match(dir[0])).then_ignore(maybe(word_match(loc)), combine).ignore_parsed(dir[1])
+
+    parsers = [make_parser(dir, loc) for dir, loc  in itertools.product(directions, location_words)]
+
+    upstairs = word_match('upstairs').ignore_parsed(FloorDirection.UP)
+    downstairs = word_match('downstairs').ignore_parsed(FloorDirection.DOWN)
+
+    return strongest(parsers + [upstairs, downstairs]).map_parsed(lambda dir: Stairs(dir))
 
 
 def behind() -> Parser:

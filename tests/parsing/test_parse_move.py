@@ -108,11 +108,11 @@ class MoveTestCase(unittest.TestCase):
         s = 'next door'.split()
         assert action().parse(s) is None
 
-    def test_parses_go_dir(self):
+    def test_parses_standing(self):
         s = 'go left standing'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.STAND)
 
-    def test_parses_walk(self):
+    def test_parses_crouching(self):
         s = 'walk left crouching'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
 

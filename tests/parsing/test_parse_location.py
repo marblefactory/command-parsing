@@ -188,13 +188,21 @@ class StairsTestCase(unittest.TestCase):
         s = 'go downstairs'.split()
         assert location().parse(s).parsed == Stairs(FloorDirection.DOWN)
 
-    def test_fails_up(self):
+    def test_parses_just_up(self):
         s = 'go up'.split()
-        assert location().parse(s) is None
+        assert location().parse(s).parsed == Stairs(FloorDirection.UP)
 
-    def test_fails_down(self):
+    def test_parses_just_down(self):
         s = 'go down'.split()
-        assert location().parse(s) is None
+        assert location().parse(s).parsed == Stairs(FloorDirection.DOWN)
+
+    def test_parses_up_floor(self):
+        s = 'go up a floor'.split()
+        assert location().parse(s).parsed == Stairs(FloorDirection.UP)
+
+    def test_parses_down_floor(self):
+        s = 'go down a floor'.split()
+        assert location().parse(s).parsed == Stairs(FloorDirection.DOWN)
 
 
 class BehindTestCase(unittest.TestCase):
