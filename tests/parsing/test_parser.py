@@ -235,6 +235,14 @@ class StrongestTestCase(unittest.TestCase):
         s = 'a'.split()
         assert parser.parse(s).parsed == 'a'
 
+    def test_chooses_strongest_partial_from_unique(self):
+        p1 = partial_parser(word_match('a'), 0.1)
+        p2 = partial_parser(word_match('b'), 0.8)
+        p3 = partial_parser(word_match('c'), 0.4)
+        parser = self.strongest_parser([p1, p2, p3])
+
+        assert parser.parse([]).response == 0.8
+
 
 class StrongestWordTestCase(unittest.TestCase):
     def test_match_strongest_word(self):
