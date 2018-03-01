@@ -20,6 +20,19 @@ class ThroughDoorTestCase(unittest.TestCase):
         s = 'go through'.split()
         assert action().parse(s).parsed == ThroughDoor()
 
+    def test_enter_room(self):
+        s = 'enter the room'.split()
+        assert action().parse(s).parsed == ThroughDoor()
+
+    def test_enter(self):
+        s = 'enter'.split()
+        assert action().parse(s).parsed == ThroughDoor()
+
+    def test_into(self):
+        # Google mistakes 'enter' for 'into'.
+        s = 'into to the room'.split()
+        assert action().parse(s).parsed == ThroughDoor()
+
 
 class PickUpTestCase(unittest.TestCase):
     def test_parse_pick_up(self):

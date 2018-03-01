@@ -39,7 +39,6 @@ function speak(text, preferred_voice, callback) {
 		         || speechSynthesis.getVoices()[0];
 	}
 
-    console.log("cancel!")
     window.speechSynthesis.cancel();
 	window.speechSynthesis.speak(msg);
 	msg.onend = callback;
