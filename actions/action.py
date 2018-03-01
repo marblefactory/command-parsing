@@ -12,11 +12,11 @@ class Action(EquatableMixin):
         """
         :return: default affirmative responses that apply to all actions, plus any responses specific to the action.
         """
-        #return self.specific_responses() + ['OK', 'Affirmative', 'Roger', 'Copy']
-        if self.specific_responses() == []:
-            return ['ok', 'affirmative', 'roger', 'copy', 'good idea']
-
-        return self.specific_responses()
+        return self.specific_responses() + ['OK', 'Affirmative', 'Roger', 'Copy']
+        # if self.specific_responses() == []:
+        #     return ['ok', 'affirmative', 'roger', 'copy', 'good idea']
+        #
+        # return self.specific_responses()
 
     def specific_responses(self):
         """
