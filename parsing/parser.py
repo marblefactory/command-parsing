@@ -321,7 +321,8 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
                 if result.response == 1.0:
                     return result
 
-            # Not the prettiest code, but this is the fastest I could make it.
+            # Not the prettiest code, but this is the fastest I could make it, which is more important considering
+            # how often this is run.
             if not best_result or isinstance(best_result, FailureParse):
                 best_result = result
             else:
