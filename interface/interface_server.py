@@ -11,16 +11,23 @@ import json
 import random
 from unittest import TestLoader, TextTestRunner
 
+
+# If True, sends data to the game server, and pre-loads the semantic similarity cache.
+# Otherwise, a mock game response (success) is created, the chat bot is also trained quickly.
+DEBUG_MODE = True
+
+# The address of the game server.
+GAME_SERVER = '128.0.0.30:5000'
+
+
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
 
+
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
-
-# The address of the game server.
-GAME_SERVER = '128.0.0.30:5000'
 
 
 def post_action_to_game(server_address: str, action_json: str) -> Response:
@@ -60,12 +67,13 @@ def process_transcript(transcript: str) -> str:
                    .then(partial(print_produce, 'action:'))
 
     # Sends the action to the game server.
-    # post = partial(post_action_to_game, GAME_SERVER)
-    # server_response = parsed_action \
-    #                  .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), post))
-
-    server_response = parsed_action \
-                     .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), mock_post_action_to_game))
+    if DEBUG_MODE:
+        server_response = parsed_action \
+                         .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), mock_post_action_to_game))
+    else:
+        post = partial(post_action_to_game, GAME_SERVER)
+        server_response = parsed_action \
+                         .then(partial(send_to_server, lambda _: random_from_json('failure_responses/server.json'), post))
 
     return server_response.either(lambda value: value, lambda err: err)
 
@@ -119,8 +127,12 @@ def preload(fill_cache: bool):
 
     # Train the ChatBot in case the transcript was not parsed as an action.
     print('Training Chat Bot...')
-    #action_failed_chat_bot.set_trainer(ChatterBotCorpusTrainer)
-    action_failed_chat_bot.set_trainer(ListTrainer)
+
+    if DEBUG_MODE:
+        action_failed_chat_bot.set_trainer(ListTrainer)
+    else:
+        action_failed_chat_bot.set_trainer(ChatterBotCorpusTrainer)
+
     action_failed_chat_bot.train("chatterbot.corpus.english")
 
     if fill_cache:
@@ -131,7 +143,8 @@ def preload(fill_cache: bool):
 
 
 if __name__ == '__main__':
-    preload(fill_cache=False)
+    # Filling the cache takes a long time as all the tests have to run.
+    preload(fill_cache=not DEBUG_MODE)
 
     print('Running Server')
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=DEBUG_MODE)

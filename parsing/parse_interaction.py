@@ -61,11 +61,13 @@ def hack() -> Parser:
         return object_relative_direction().map_parsed(lambda dir: acc + [dir])
 
     hack_verb = strongest_word(['hack'], parser_constructors=[word_spelling, word_meaning])
+    text = word_match('text') # Because speech recognition mistakes 'hack' for 'text'.
+    parser = strongest([hack_verb, text])
     obj_name = interaction_object_name().map_parsed(lambda name: [name])
 
-    return hack_verb.ignore_then(obj_name) \
-                    .then(combine_direction) \
-                    .map_parsed(lambda p: Hack(p[0], p[1]))
+    return parser.ignore_then(obj_name) \
+                 .then(combine_direction) \
+                 .map_parsed(lambda p: Hack(p[0], p[1]))
 
 
 def interaction() -> Parser:

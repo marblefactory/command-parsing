@@ -97,6 +97,11 @@ class HackTestCase(unittest.TestCase):
         s = 'have the server'.split()
         assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
 
+    def test_text_as_hack(self):
+        # Because speech recognition mistakes 'hack' as 'text'
+        s = 'text the server'.split()
+        assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
+
     def test_fails_if_no_object1(self):
         s = 'hack'.split()
         assert action().parse(s) is None

@@ -76,7 +76,11 @@ class Move(Action):
         return 'go "{}" at "{}" speed while "{}"'.format(self.location, self.speed, self.stance or 'no change')
 
     def specific_responses(self) -> List[str]:
-        return ['moving to that position', 'on my way', 'going there now']
+        return [
+            "Moving to that position",
+            "On my way",
+            "Going there now"
+        ]
 
 
 class Hide(Action):
@@ -89,3 +93,10 @@ class Hide(Action):
 
     def __str__(self):
         return 'hide behind {}'.format(self.object_name or 'closest')
+
+    def specific_responses(self) -> List[str]:
+        return [
+            "They won't find me there",
+            "They won't find me behind the {}".format(self.object_name),
+            "No one will find me there"
+        ]
