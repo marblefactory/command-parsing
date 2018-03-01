@@ -39,20 +39,29 @@ class ActionEncoder(json.JSONEncoder):
     Encodes an action into JSON for sending
     """
     def default(self, obj):
-        encoders = {
-            Stop: StopEncoder,
-            Composite: CompositeEncoder,
-            ThroughDoor: ThroughDoorEncoder,
-            PickUp: PickUpEncoder,
-            Throw: ThrowEncoder,
-            Hack: HackEncoder,
-            ChangeStance: ChangeStanceEncoder,
-            ChangeSpeed: ChangeSpeedEncoder,
-            Move: MoveEncoder,
-            Turn: TurnEncoder,
-            Hide: HideEncoder
-        }
-
-        encoder = encoders.get(type(obj)) or json.JSONEncoder
+        if isinstance(obj, Stop):
+            encoder = StopEncoder
+        elif isinstance(obj, Composite):
+            encoder = CompositeEncoder
+        elif isinstance(obj, ThroughDoor):
+            encoder = ThroughDoorEncoder
+        elif isinstance(obj, PickUp):
+            encoder = PickUpEncoder
+        elif isinstance(obj, Throw):
+            encoder = ThrowEncoder
+        elif isinstance(obj, Hack):
+            encoder = HackEncoder
+        elif isinstance(obj, ChangeStance):
+            encoder = ChangeStanceEncoder
+        elif isinstance(obj, ChangeSpeed):
+            encoder = ChangeSpeedEncoder
+        elif isinstance(obj, Move):
+            encoder = MoveEncoder
+        elif isinstance(obj, Turn):
+            encoder = TurnEncoder
+        elif isinstance(obj, Hide):
+            encoder = HideEncoder
+        else:
+            raise RuntimeError('unexpected move type when encoding')
 
         return encoder.default(self, obj)

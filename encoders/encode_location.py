@@ -100,15 +100,19 @@ class LocationEncoder(json.JSONEncoder):
         'type'    : The type of action
     """
     def default(self, obj):
-        encoders = {
-            Absolute: AbsoluteEncoder,
-            Positional: PositionalEncoder,
-            Directional: DirectionalEncoder,
-            Stairs: StairsEncoder,
-            Behind: BehindEncoder,
-            EndOf: EndOfEncoder
-        }
-
-        encoder = encoders.get(type(obj)) or json.JSONEncoder
+        if isinstance(obj, Absolute):
+            encoder = AbsoluteEncoder
+        elif isinstance(obj, Positional):
+            encoder = PositionalEncoder
+        elif isinstance(obj, Directional):
+            encoder = DirectionalEncoder
+        elif isinstance(obj, Stairs):
+            encoder = StairsEncoder
+        elif isinstance(obj, Behind):
+            encoder = BehindEncoder
+        elif isinstance(obj, EndOf):
+            encoder = EndOfEncoder
+        else:
+            raise RuntimeError('unexpected location type when encoding')
 
         return encoder.default(self, obj)

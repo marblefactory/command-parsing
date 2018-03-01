@@ -11,7 +11,7 @@ var gSocket = null;
 
 // Whether to play the intro animation or not.
 // This can be useful when debugging.
-var gShouldPlayIntro = true;
+var gShouldPlayIntro = false;
 
 /**
  * Plays the sound in the audio element with the given id.

@@ -115,10 +115,11 @@ def parse_action(fail_response: Callable[[str], str], transcript: str) -> Result
     words = pre_process(transcript)
     result = action().parse(words)
 
-    if not result:
-        return Failure(fail_response(transcript))
+    success = lambda s: Success(s.parsed)
+    partial = lambda p: Success(p.failed_parser)
+    failure = lambda _: Failure(fail_response(transcript))
 
-    return Success(result.parsed)
+    return result.either(success, partial, failure)
 
 
 def send_to_server(fail_response: Callable[[Action], str], post: Callable[[str], Response], parsed_action: Action) -> Result:
