@@ -61,7 +61,6 @@ class Parser:
         :return: applies this parser, then uses the result of parsing and the response to return another parser over
                  the remaining tokens.
         """
-
         def new_parse(input: List[Word]) -> Optional[ParseResult]:
             parsed = self.parse(input)
 

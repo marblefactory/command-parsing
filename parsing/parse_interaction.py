@@ -68,10 +68,3 @@ def hack() -> Parser:
     return parser.ignore_then(obj_name) \
                  .then(combine_direction) \
                  .map_parsed(lambda p: Hack(p[0], p[1]))
-
-
-def interaction() -> Parser:
-    """
-    :return: a parser which can parse any interaction, e.g. picking up an object.
-    """
-    return strongest([through_door(), pick_up(), throw(), hack()])
