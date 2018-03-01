@@ -2,7 +2,7 @@ from parsing.parser import Parser, strongest
 from parsing.pre_processing import pre_process
 from parsing.parse_result import SuccessParse, PartialParse, FailureParse
 from actions.action import Action
-from typing import Optional, Callable
+from typing import Optional, Callable, Type
 
 
 class SpeechResponder:
@@ -17,14 +17,18 @@ class SpeechResponder:
 
     def __init__(self, parser: Parser,
                  parsed_response: Callable[[Action], str],
+                 partial_response: Callable[[Type], str],
                  no_parsed_response: Callable[[str], str]):
         """
         :param parser: the parser to be used when parsing the transcript.
         :param parsed_response: function used to create a response when an action was parsed from the transcript.
+        :param partial_response: function used to create a response when a partial was parsed from the transcript.
+                                 The type given to the function is the type the was partially parsed.
         :param no_parsed_response: function used to create a response when nothing could be parsed from the transcript.
         """
         self.parser = parser
         self.parsed_response = parsed_response
+        self.partial_response = partial_response
         self.no_parsed_response = no_parsed_response
         self._partial = None
 
@@ -48,7 +52,7 @@ class SpeechResponder:
 
         elif isinstance(result, PartialParse):
             self._partial = result.failed_parser
-            return ('where?', None)
+            return (self.partial_response(result.failed_type), None)
 
         elif isinstance(result, FailureParse):
             self._partial = None

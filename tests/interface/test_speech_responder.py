@@ -11,12 +11,12 @@ class SpeechResponderTestCase(unittest.TestCase):
                  for failed parsing.
         """
         def combine(parsed: str, response: Response) -> Parser:
-            return partial_parser(word_match('world').map_parsed(lambda x: parsed + x), 0.5)
+            return partial_parser(word_match('world').map_parsed(lambda x: parsed + x), 0.5, 'Type')
 
         # A parser which parses 'hello world', but where 'world' can be asked for after (i.e. partial parsing).
         parser = word_match('hello').then(combine)
 
-        return SpeechResponder(parser, lambda _: 'success', lambda _: 'failure')
+        return SpeechResponder(parser, lambda _: 'success', lambda t: 'partial' + t, lambda _: 'failure')
 
     def test_generates_success_speech(self):
         responder = self.responder()
@@ -34,7 +34,7 @@ class SpeechResponderTestCase(unittest.TestCase):
         responder = self.responder()
 
         speech, parsed = responder.parse('hello')
-        assert speech == 'where?'
+        assert speech == 'partialType'
 
     def test_generates_no_partial_parsed_object(self):
         responder = self.responder()
