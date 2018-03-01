@@ -77,11 +77,6 @@ def process_not_recognised_speech() -> str:
     return random_from_json('failure_responses/transcribe.json')
 
 
-# @app.route('/js/<path:path>')
-# def send_js(path):
-#     return send_from_directory('js', path)
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
