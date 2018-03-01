@@ -420,8 +420,11 @@ def ignore_words(words: List[Word]) -> Parser:
     return Parser(parse)
 
 
-def partial_parser(parser: Parser, response: Response) -> Parser:
+def partial_parser(parser: Parser, response: Response, parse_type) -> Parser:
     """
+    :param parser: the parser to try parsing with.
+    :param response: the response of the partial parse if the parser fails.
+    :param parse_type: the type of object that the parser is trying to parse.
     :return: a parser which if it fails, creates a partial response containing parser.
              This can be used in implementing asking the player for more information about an action.
     """
@@ -429,7 +432,7 @@ def partial_parser(parser: Parser, response: Response) -> Parser:
         parsed = parser.parse(input)
 
         if parsed.is_failure():
-            return PartialParse(parser, response)
+            return PartialParse(parser, response, parse_type)
 
         return parsed
 

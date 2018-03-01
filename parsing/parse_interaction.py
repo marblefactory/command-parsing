@@ -36,7 +36,7 @@ def pick_up() -> Parser:
                      .then(combine_direction)
 
         # If we only get the verb and no data, use the response from the verb parser.
-        return partial_parser(data_parser, verb_response)
+        return partial_parser(data_parser, verb_response, PickUp)
 
     # The verb to look for so we know it's a pick-up action.
     verb = strongest_word(['pick', 'take'], parser_constructors=[word_meaning])

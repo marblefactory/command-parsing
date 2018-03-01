@@ -1,5 +1,5 @@
 from equatable import EquatableMixin
-from typing import List, Any, Callable
+from typing import List, Any, Callable, Type
 
 # A word in the user's text.
 Word = str
@@ -41,7 +41,7 @@ class ParseResult(EquatableMixin):
         def rank(result: ParseResult) -> int:
             return result.either(lambda _: 2, lambda _: 1, lambda _: 0)
 
-        # Used for intra-class comparison
+        # Used for intraclass comparison
         def response(result: ParseResult) -> int:
             success = lambda s: s.response
             partial = lambda p: p.response
@@ -79,13 +79,15 @@ class PartialParse(ParseResult):
     Represents a parse that was partially matched, but the player
     needs to be asked questions for the rest of the information.
     """
-    def __init__(self, failed_parser, response: Response):
+    def __init__(self, failed_parser, response: Response, failed_type):
         """
         :param failed_parser: the parser that failed, but that can be reapplied once were have more  information.
         :param response: the response so far, until the failed parser.
+        :param failed_type: the type the parser was attempting to parse when it failed.
         """
         self.failed_parser = failed_parser
         self.response = response
+        self.failed_type = failed_type
 
 
 class FailureParse(ParseResult):
