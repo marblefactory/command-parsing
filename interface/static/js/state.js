@@ -24,7 +24,7 @@ function play(id, volume = 1.0) {
 
 /**
  * Speaks the given text in the preferred voice. If the voice does not exist, the text is spoken in the first
- * available voice.
+ * available voice. Also, cancels any speech currently being spoken.
  */
 function speak(text, preferred_voice, callback) {
     var msg = new SpeechSynthesisUtterance();
@@ -39,6 +39,8 @@ function speak(text, preferred_voice, callback) {
 		         || speechSynthesis.getVoices()[0];
 	}
 
+    console.log("cancel!")
+    window.speechSynthesis.cancel();
 	window.speechSynthesis.speak(msg);
 	msg.onend = callback;
 }
