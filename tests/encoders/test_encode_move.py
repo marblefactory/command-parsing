@@ -72,6 +72,18 @@ class ChangeStanceEncoderTestCase(unittest.TestCase):
         assert expected == json.loads(json.dumps(change_stance, cls=ActionEncoder))
 
 
+class ChangeSpeedEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        change_speed = ChangeSpeed(Speed.NORMAL)
+
+        expected = {
+            'type': 'change_speed',
+            'speed': 'normal'
+        }
+
+        assert expected == json.loads(json.dumps(change_speed, cls=ActionEncoder))
+
+
 class MoveEncoderTestCase(unittest.TestCase):
     def test_encode(self):
         loc = Stairs(FloorDirection.DOWN)

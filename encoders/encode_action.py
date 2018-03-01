@@ -47,6 +47,7 @@ class ActionEncoder(json.JSONEncoder):
             Throw: ThrowEncoder,
             Hack: HackEncoder,
             ChangeStance: ChangeStanceEncoder,
+            ChangeSpeed: ChangeSpeedEncoder,
             Move: MoveEncoder,
             Turn: TurnEncoder,
             Hide: HideEncoder

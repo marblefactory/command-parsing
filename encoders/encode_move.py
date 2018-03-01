@@ -53,6 +53,22 @@ class ChangeStanceEncoder(json.JSONEncoder):
         }
 
 
+class ChangeSpeedEncoder(json.JSONEncoder):
+    """
+    Encodes a ChangeStance action.
+
+    Fields:
+        'type'   : The type of action
+        'speed'  : The new speed
+    """
+
+    def default(self, obj):
+        return {
+            'type': 'change_speed',
+            'speed': obj.speed
+        }
+
+
 class MoveEncoder(json.JSONEncoder):
     """
     Encodes a ChangeStance action.
