@@ -14,19 +14,24 @@ def partial(parser: Parser) -> Parser:
 
     return Parser(parse)
 
-# word_match('hello').then(partial(word_match('world'), 'where?'))
 
 if __name__ == '__main__':
-    p = partial(word_match('hello'))
+    def combine(parsed: Any, response: Response) -> Parser:
+        # Captures the currently parsed object inside the partial.
+        return partial(word_match('world').map_parsed(lambda p: parsed + [p]))
 
-    s1 = 'hello'.split()
-    s2 = 'world'.split()
+    p = word_match('hello').map_parsed(lambda p: [p]).then(combine)
 
-    success = lambda x: x.parsed
-    partial = lambda x: x.failed_parser.parse('hello'.split())
+    s = 'hello'.split()
+    result = p.parse(s)
 
-    r1 = p.parse(s1)
-    r2 = p.parse(s2).either(success, partial)
+    if isinstance(result, PartialParse):
+        # Get some more input.
+        s = 'world'.split()
+        result2 = result.failed_parser.parse(s)
 
-    print('r1:', r1)
-    print('r2:', r2)
+        print('Partial:', result2.parsed)
+
+    elif isinstance(result, SuccessParse):
+        print('Success:', result)
+
