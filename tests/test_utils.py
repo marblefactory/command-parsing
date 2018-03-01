@@ -1,5 +1,5 @@
 import unittest
-from utils import split_list
+from utils import split_list, partial_class
 
 
 class SplitListTestCase(unittest.TestCase):
@@ -23,3 +23,26 @@ class SplitListTestCase(unittest.TestCase):
 
     def test_split_multiple_separators(self):
         assert split_list([1, 4, 2, 3, 1, 1], [4, 3]) == [[1], [2], [1, 1]]
+
+
+class PartialClassTestCase(unittest.TestCase):
+    class TestClass:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    def test_sets_properties(self):
+        bound_x = partial_class(PartialClassTestCase.TestClass, x='X')
+        obj = bound_x(y='Y')
+
+        assert obj.x == 'X'
+        assert obj.y == 'Y'
+        assert isinstance(obj, PartialClassTestCase.TestClass)
+
+    def test_isinstance(self):
+        bound_x = partial_class(PartialClassTestCase.TestClass, x='X')
+        obj = bound_x(y='Y')
+
+        assert obj.x == 'X'
+        assert obj.y == 'Y'
+        assert isinstance(obj, PartialClassTestCase.TestClass)

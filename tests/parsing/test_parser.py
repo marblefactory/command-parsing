@@ -373,4 +373,4 @@ class PartialTestCase(unittest.TestCase):
         p = partial(a_matcher, response=0.7)
         s = 'b c x'.split()
 
-        assert p.parse(s) == PartialParse(a_matcher, 0.7)
+        assert p.parse(s) == PartialParse(a_matcher, response=0.7)

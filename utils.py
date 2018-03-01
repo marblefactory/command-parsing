@@ -1,3 +1,4 @@
+from functools import partialmethod
 from typing import List
 
 
@@ -22,3 +23,13 @@ def split_list(lst: List, separators: List) -> List[List]:
     chunks = [lst[start:end] for start, end in filtered]
 
     return chunks
+
+
+def partial_class(cls, *args, **kwargs):
+    """
+    Partially applies the init method of the given class.
+    """
+    class NewCls(cls):
+        __init__ = partialmethod(cls.__init__, *args, **kwargs)
+
+    return NewCls
