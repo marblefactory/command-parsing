@@ -1,4 +1,4 @@
-from actions.action import Stop, Composite, Action
+from actions.action import Stop, Composite
 from parsing.parser import *
 from parsing.parse_move import move, change_stance, change_speed, turn, hide
 from parsing.parse_interaction import through_door, pick_up, throw, hack
