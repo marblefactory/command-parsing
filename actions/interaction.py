@@ -26,6 +26,10 @@ class PickUp(Action):
     def __str__(self):
         return 'pick up "{}" "{}"'.format(self.object_name, self.direction)
 
+    @classmethod
+    def partial_response(cls) -> str:
+        return 'pick up what?'
+
 
 class Throw(Action):
     """

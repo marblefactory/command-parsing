@@ -28,6 +28,13 @@ class Action(EquatableMixin):
         random_index = randrange(0, len(responses))
         return responses[random_index]
 
+    @classmethod
+    def partial_response(cls) -> str:
+        """
+        :return: a question asking the player to give more information about this type they are trying to make.
+        """
+        raise NotImplementedError
+
 
 class Stop(Action):
     """
