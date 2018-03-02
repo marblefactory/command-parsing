@@ -111,10 +111,12 @@ class HackTestCase(unittest.TestCase):
         s = 'text the server'.split()
         assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
 
-    def test_fails_if_no_object1(self):
+    def test_partial_if_no_object1(self):
         s = 'hack'.split()
-        assert action().parse(s).is_failure()
+        result = action().parse(s)
+        assert isinstance(result, PartialParse)
 
-    def test_fails_if_no_object2(self):
+    def test_partial_if_no_object2(self):
         s = 'hack something'.split()
-        assert action().parse(s).is_failure()
+        result = action().parse(s)
+        assert isinstance(result, PartialParse)

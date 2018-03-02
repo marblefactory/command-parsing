@@ -28,7 +28,7 @@ class PickUp(Action):
 
     @classmethod
     def partial_response(cls) -> str:
-        return 'pick up what?'
+        return 'Pick up what?'
 
 
 class Throw(Action):
@@ -74,3 +74,7 @@ class Hack(Action):
             "I'll plug the communicator into the {}".format(self.object_name),
             "I'll get you access to their {}".format(self.object_name)
         ]
+
+    @classmethod
+    def partial_response(cls) -> str:
+        return 'Hack what?'
