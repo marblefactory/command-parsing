@@ -30,6 +30,7 @@ def single_action() -> Parser:
     """
     :return: a parser which parses single actions, i.e. not composite actions.
     """
+    # The order these appear in here determine their precedence.
     parsers = [
         stop(),
         through_door(),
