@@ -44,6 +44,10 @@ class PickUpTestCase(unittest.TestCase):
         s = 'take the rock on your left'.split()
         assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.LEFT)
 
+    def test_tape_as_take(self):
+        s = 'tape the rock'.split()
+        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
+
     def test_direction_defaults_to_vicinity(self):
         s = 'pick up the hammer'.split()
         assert action().parse(s).parsed == PickUp('hammer', ObjectRelativeDirection.VICINITY)
@@ -61,6 +65,12 @@ class PickUpTestCase(unittest.TestCase):
     def test_pick_up_partial_if_no_object2(self):
         # Tests that a partial is returned asking for more information if the object name is not given.
         s = 'pick up on your left'.split()
+        result = action().parse(s)
+        assert result.marker == PickUp
+
+    def test_take_is_partial(self):
+        # Tests that a partial is returned if you say 'take'.
+        s = 'take'.split()
         result = action().parse(s)
         assert result.marker == PickUp
 

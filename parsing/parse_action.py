@@ -36,10 +36,10 @@ def single_action() -> Parser:
         change_stance().map_response(lambda r: r * 0.6),  # Because move also looks for stances.
         change_speed().map_response(lambda r: r * 0.6), # Because move also looks for speeds.
         turn(),
-        move(),
-        hide(),
         hack(),
         pick_up(),
+        move(),
+        hide(),
         throw()
     ]
 

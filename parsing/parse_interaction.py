@@ -38,7 +38,7 @@ def pick_up() -> Parser:
     """
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
     """
-    verb_parser = strongest_word(['pick', 'take'], parser_constructors=[word_meaning])
+    verb_parser = strongest_word(['pick', 'take'], parser_constructors=[word_meaning, word_spelling])
     return _object_interaction(verb_parser, PickUp)
 
 
