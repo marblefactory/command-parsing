@@ -82,6 +82,13 @@ class Move(Action):
             "Going there now"
         ]
 
+    @classmethod
+    def partial_response(cls) -> str:
+        """
+        :return: a response for just being asked to 'go'.
+        """
+        return 'To where?'
+
 
 class Hide(Action):
     """

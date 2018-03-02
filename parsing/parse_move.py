@@ -14,7 +14,9 @@ def speed() -> Parser:
         word_meaning('quick'),
         word_meaning('fast'),
         word_meaning('sprint'),
-        word_spelling('run')
+        word_meaning('sprinting'),
+        word_spelling('run'),
+        word_spelling('running')
     ]
 
     fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
@@ -79,16 +81,19 @@ def move() -> Parser:
         # Applies the stance to the Move init.
         return stance_parser.map(lambda parsed_stance, _: (makeMove(stance=parsed_stance), r))
 
+    def combine(_: Any, verb_response: Response) -> Parser:
+        # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
+        # Partially applies the location to the Move init.
+        loc_parser = anywhere(location()).map(lambda loc, loc_response: (partial_class(Move, location=loc), mix(verb_response, loc_response)))
+        full_parser = loc_parser.then(combine_speed).then(combine_stance)
+
+        # Allow the user to just say they want to move. They can then be asked a question about where they want to go.
+        return partial_parser(full_parser, verb_response, Move)
+
     verbs = ['go', 'walk', 'run', 'take', 'sprint']
     move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
 
-    # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
-    # Partially applies the location to the Move init.
-    loc_parser = location().map_parsed(lambda loc: partial_class(Move, location=loc))
-
-    return move_verb.ignore_then(loc_parser, mix) \
-                    .then(combine_speed) \
-                    .then(combine_stance)
+    return move_verb.then(combine)
 
 
 def hide() -> Parser:

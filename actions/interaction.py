@@ -28,7 +28,10 @@ class PickUp(Action):
 
     @classmethod
     def partial_response(cls) -> str:
-        return 'Pick up what?'
+        """
+        :return: a response for just being asked to 'pick up'.
+        """
+        return 'Pick-up what?'
 
 
 class Throw(Action):
@@ -77,4 +80,7 @@ class Hack(Action):
 
     @classmethod
     def partial_response(cls) -> str:
+        """
+        :return: a response for just being asked to 'hack'.
+        """
         return 'Hack what?'

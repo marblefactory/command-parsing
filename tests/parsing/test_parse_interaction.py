@@ -56,13 +56,13 @@ class PickUpTestCase(unittest.TestCase):
         # Tests that a partial is returned asking for more information if the object name is not given.
         s = 'pick up'.split()
         result = action().parse(s)
-        assert isinstance(result, PartialParse)
+        assert result.marker == PickUp
 
     def test_pick_up_partial_if_no_object2(self):
         # Tests that a partial is returned asking for more information if the object name is not given.
         s = 'pick up on your left'.split()
         result = action().parse(s)
-        assert isinstance(result, PartialParse)
+        assert result.marker == PickUp
 
 
 class ThrowTestCase(unittest.TestCase):
@@ -114,9 +114,9 @@ class HackTestCase(unittest.TestCase):
     def test_partial_if_no_object1(self):
         s = 'hack'.split()
         result = action().parse(s)
-        assert isinstance(result, PartialParse)
+        assert result.marker == Hack
 
     def test_partial_if_no_object2(self):
         s = 'hack something'.split()
         result = action().parse(s)
-        assert isinstance(result, PartialParse)
+        assert result.marker == Hack

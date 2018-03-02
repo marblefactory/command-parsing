@@ -3,8 +3,7 @@ from parsing.parse_move import speed, stance
 from parsing.parse_action import action
 from actions.move import *
 from actions.location import *
-
-from parsing.parser import word_meaning
+from parsing.parse_result import PartialParse
 
 
 class SpeedTestCase(unittest.TestCase):
@@ -52,8 +51,20 @@ class ChangeStanceTestCase(unittest.TestCase):
         s = 'stand up'.split()
         assert action().parse(s).parsed == ChangeStance(Stance.STAND)
 
+    def test_stand(self):
+        s = 'stand'.split()
+        assert action().parse(s).parsed == ChangeStance(Stance.STAND)
+
+    def test_standing_as_stand(self):
+        s = 'standing'.split()
+        assert action().parse(s).parsed == ChangeStance(Stance.STAND)
+
     def test_crouch(self):
         s = 'crouch down'.split()
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
+
+    def test_crouching(self):
+        s = 'crouching'.split()
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
     def test_quiet_as_crouch(self):
@@ -76,6 +87,14 @@ class ChangeSpeedTestCase(unittest.TestCase):
 
     def test_fast(self):
         s = 'fast'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
+    def test_running_as_fast(self):
+        s = 'running'.split()
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
+    def test_sprinting_as_fast(self):
+        s = 'sprinting'.split()
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_go_fast(self):
@@ -116,6 +135,10 @@ class MoveTestCase(unittest.TestCase):
         s = 'walk left crouching'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
 
+    def test_parses_crouching_as_crouch(self):
+        s = 'go left while crouching'.split()
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
+
     def test_stance_defaults_to_none(self):
         s = 'go left'.split()
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None)
@@ -134,6 +157,12 @@ class MoveTestCase(unittest.TestCase):
 
     def test_sprint_as_fast(self):
         s = 'sprint to the next door'.split()
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
+
+    def test_running_as_run(self):
+        s = 'go running to the next door'.split()
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
@@ -178,6 +207,11 @@ class MoveTestCase(unittest.TestCase):
 
         expected_loc = Positional('room', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.NORMAL, expected_loc, None)
+
+    def test_go_is_partial(self):
+        s = 'go'.split()
+        result = action().parse(s)
+        assert result.marker == Move
 
 
 class HideTestCase(unittest.TestCase):

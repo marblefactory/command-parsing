@@ -79,15 +79,15 @@ class PartialParse(ParseResult):
     Represents a parse that was partially matched, but the player
     needs to be asked questions for the rest of the information.
     """
-    def __init__(self, failed_parser, response: Response, failed_type):
+    def __init__(self, failed_parser, response: Response, marker: Any):
         """
         :param failed_parser: the parser that failed, but that can be reapplied once were have more  information.
         :param response: the response so far, until the failed parser.
-        :param failed_type: the type the parser was attempting to parse when it failed.
+        :param marker: used to tell where parsing failed, so a suitable speech response can be formed.
         """
         self.failed_parser = failed_parser
         self.response = response
-        self.failed_type = failed_type
+        self.marker = marker
 
 
 class FailureParse(ParseResult):
