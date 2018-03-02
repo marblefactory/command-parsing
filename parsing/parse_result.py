@@ -27,6 +27,9 @@ class ParseResult(EquatableMixin):
 
         raise RuntimeError('unexpected ParseResult type')
 
+    def is_success(self) -> bool:
+        return isinstance(self, SuccessParse)
+
     def is_failure(self) -> bool:
         return isinstance(self, FailureParse)
 

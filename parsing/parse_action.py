@@ -62,7 +62,7 @@ def composite() -> Parser:
             return FailureParse()
 
         results = [single_action().parse(words) for words in inputs]
-        filtered = [result for result in results if not result.is_failure()]
+        filtered = [result for result in results if result.is_success()] # Ignore partials
         actions = [r.parsed for r in filtered]
 
         return SuccessParse(Composite(actions), 1.0, [])

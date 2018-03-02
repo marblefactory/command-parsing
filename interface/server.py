@@ -163,7 +163,7 @@ if __name__ == '__main__':
     speech_responder = make_speech_responder()
 
     # Filling the cache takes a long time as all the tests have to run.
-    preload(fill_cache=not DEBUG_MODE)
+    preload(fill_cache= DEBUG_MODE)
 
     print('Running Server')
-    socketio.run(app, debug=DEBUG_MODE)
+    socketio.run(app)
