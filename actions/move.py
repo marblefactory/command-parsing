@@ -102,8 +102,12 @@ class Hide(Action):
         return 'hide behind {}'.format(self.object_name or 'closest')
 
     def specific_responses(self) -> List[str]:
-        return [
+        if self.object_name:
+            extra = ["They won't find me behind the {}".format(self.object_name)]
+        else:
+            extra = []
+
+        return extra + [
             "They won't find me there",
-            "They won't find me behind the {}".format(self.object_name),
             "No one will find me there"
         ]
