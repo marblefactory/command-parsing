@@ -19,11 +19,14 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
 
-# If True, sends data to the game server, and pre-loads the semantic similarity cache.
-# Otherwise, a mock game response (success) is created, the chat bot is also trained quickly.
+# If False, pre-loads the semantic similarity cache and trains the chat bot more throughly.
 DEBUG_MODE = True
 
-# The address of the game server.
+# If true, sends any parsed actions to the game, otherwise a successful response is generated without
+# going to the game.
+GAME_MODE = False
+
+# The address of the game server. This will only be used if GAME_MODE is enabled.
 GAME_SERVER = '128.0.0.30:5000'
 
 # Used to formulate a response if an action could not be parsed.
@@ -33,12 +36,12 @@ action_failed_chat_bot = ChatBot('James')
 speech_responder: SpeechResponder = None
 
 
-def post_action_to_game(server_address: str, action: Action) -> Response:
+def post_action_to_game(action: Action) -> Response:
     """
     :return: the response of sending the action json to the server.
     """
     action_json = json.loads(json.dumps(action, cls=ActionEncoder))
-    return requests.post(server_address, json=action_json)
+    return requests.post(GAME_SERVER, json=action_json)
 
 
 def mock_post_action_to_game(action: Action) -> Response:
@@ -73,8 +76,9 @@ def process_transcript(transcript: str) -> str:
     if action:
         print('action:', action)
 
-        game_response = mock_post_action_to_game(action)
-        # If the spy could not perform the action, the action is replaced with one indicating such.
+        game_response = post_action_to_game(action) if GAME_MODE else mock_post_action_to_game(action)
+
+        # If the spy could not perform the action, the speech response is replaced with one indicating that.
         if game_response.status_code != 200:
             response = random_from_json('failure_responses/server.json')
 
@@ -131,11 +135,8 @@ def preload(fill_cache: bool):
     # Train the ChatBot in case the transcript was not parsed as an action.
     print('Training Chat Bot...')
 
-    if DEBUG_MODE:
-        action_failed_chat_bot.set_trainer(ListTrainer)
-    else:
-        action_failed_chat_bot.set_trainer(ChatterBotCorpusTrainer)
-
+    trainer = ListTrainer if DEBUG_MODE else ChatterBotCorpusTrainer
+    action_failed_chat_bot.set_trainer(trainer)
     action_failed_chat_bot.train("chatterbot.corpus.english")
 
     if fill_cache:
@@ -163,7 +164,7 @@ if __name__ == '__main__':
     speech_responder = make_speech_responder()
 
     # Filling the cache takes a long time as all the tests have to run.
-    preload(fill_cache= DEBUG_MODE)
+    preload(fill_cache=not DEBUG_MODE)
 
     print('Running Server')
     socketio.run(app)
