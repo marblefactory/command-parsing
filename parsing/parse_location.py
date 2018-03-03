@@ -58,7 +58,7 @@ def distance() -> Parser:
     def make_parser(words: List[Word], dist: Distance) -> Parser:
         return strongest_word(words, parser_constructors=[word_spelling, word_meaning]).ignore_parsed(dist)
 
-    short_words = ['short', 'close', 'little']
+    short_words = ['short', 'close', 'little', 'bit']
     medium_words = ['medium', 'fair']
     far_words = ['far', 'long', 'great', 'along']
 
@@ -77,7 +77,7 @@ def absolute_place_names() -> Parser:
     storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
     storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number()))
 
-    lab = word_spelling('lab', dist_threshold=0.24)  # Because of speech parsing by Google.
+    lab = word_spelling('lab', dist_threshold=0.24)  # Because of errors in speech parsing.
 
     office_x = word_match('office').then(append(number()))
     computer_lab_x = word_match('computer').then(append(lab)).then(append(number()))
