@@ -1,7 +1,7 @@
 from actions.interaction import *
 from parsing.parser import *
 from parsing.parse_location import object_relative_direction, positional, directional, behind
-from actions.location import Directional
+from actions.location import Directional, Distance
 from utils import partial_class
 
 
@@ -71,7 +71,7 @@ def throw() -> Parser:
         positional(),
         behind(),
         directional(),
-        produce(Directional(ObjectRelativeDirection.FORWARDS), 0.5)
+        produce(Directional(ObjectRelativeDirection.FORWARDS, Distance.MEDIUM), 0.5)
     ]
     target = strongest(target_location_parsers)
     throw_verb = strongest_word(['chuck', 'throw'])

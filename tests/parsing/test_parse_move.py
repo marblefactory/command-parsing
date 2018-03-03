@@ -3,7 +3,6 @@ from parsing.parse_move import speed, stance
 from parsing.parse_action import action
 from actions.move import *
 from actions.location import *
-from parsing.parse_result import PartialParse
 
 
 class SpeedTestCase(unittest.TestCase):
@@ -129,19 +128,19 @@ class MoveTestCase(unittest.TestCase):
 
     def test_parses_standing(self):
         s = 'go left standing'.split()
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.STAND)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.STAND)
 
     def test_parses_crouching(self):
         s = 'walk left crouching'.split()
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.CROUCH)
 
     def test_parses_crouching_as_crouch(self):
         s = 'go left while crouching'.split()
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), Stance.CROUCH)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.CROUCH)
 
     def test_stance_defaults_to_none(self):
         s = 'go left'.split()
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None)
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None)
 
     def test_fast(self):
         s = 'run to the next door'.split()

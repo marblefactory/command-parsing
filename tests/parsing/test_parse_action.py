@@ -29,8 +29,8 @@ class CompositeTestCase(unittest.TestCase):
         s = 'go left then go right'.split()
 
         expected_actions = [
-            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
-            Move(Speed.NORMAL, Directional(MoveDirection.RIGHT), None),
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
+            Move(Speed.NORMAL, Directional(MoveDirection.RIGHT, Distance.MEDIUM), None),
         ]
 
         assert action().parse(s).parsed == Composite(expected_actions)
@@ -39,7 +39,7 @@ class CompositeTestCase(unittest.TestCase):
         s = 'go left and pick up the rock'.split()
 
         expected_actions = [
-            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
             PickUp('rock', ObjectRelativeDirection.VICINITY)
         ]
 
@@ -49,7 +49,7 @@ class CompositeTestCase(unittest.TestCase):
         s = 'go left and then pick up the rock'.split()
 
         expected_actions = [
-            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
             PickUp('rock', ObjectRelativeDirection.VICINITY)
         ]
 
@@ -62,7 +62,7 @@ class CompositeTestCase(unittest.TestCase):
         s = 'go left and NAN then pick up the rock'.split()
 
         expected_actions = [
-            Move(Speed.NORMAL, Directional(MoveDirection.LEFT), None),
+            Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
             PickUp('rock', ObjectRelativeDirection.VICINITY)
         ]
 

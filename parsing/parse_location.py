@@ -50,6 +50,25 @@ def object_relative_direction() -> Parser:
     return strongest([move_direction(), produce(ObjectRelativeDirection.VICINITY, 1.0)])
 
 
+def distance() -> Parser:
+    """
+    :return a parser for different distances, e.g. short, far, etc
+    """
+    # Returns a parser to recognise the given words and return the given distance.
+    def make_parser(words: List[Word], dist: Distance) -> Parser:
+        return strongest_word(words, parser_constructors=[word_spelling, word_meaning]).ignore_parsed(dist)
+
+    short_words = ['short', 'close', 'little']
+    medium_words = ['medium', 'fair']
+    far_words = ['far', 'long', 'great', 'along']
+
+    short = make_parser(short_words, Distance.SHORT)
+    medium = make_parser(medium_words, Distance.MEDIUM)
+    far = make_parser(far_words, Distance.FAR)
+
+    return strongest([short, medium, far])
+
+
 def absolute_place_names() -> Parser:
     """
     :return: a parser for absolute location place names, i.e. the result of the parser is a string.
@@ -130,16 +149,18 @@ def directional() -> Parser:
     """
     :return: a parser for directions, e.g. go left, right, forwards, backwards.
     """
-    return move_direction().map_parsed(lambda dir: Directional(dir))
+    def combine_distance(dir: MoveDirection, dir_resp: Response) -> Parser:
+        # Defaults to going medium distance.
+        dist_parser = strongest([distance(), produce(Distance.MEDIUM, 0)])
+        return dist_parser.map(lambda dist, _: (Directional(dir, dist), dir_resp))
+
+    return anywhere(move_direction()).then(combine_distance)
 
 
 def stairs() -> Parser:
     """
     :return: a parser for stair directions, e.g. upstairs, downstairs.
     """
-    # up_stairs = anywhere(word_match('up'))#.then_ignore(maybe(word_match('stairs')))
-    # down_stairs = anywhere(word_match('down'))#.then_ignore(maybe(word_match
-
     directions = [
         ('up', FloorDirection.UP),
         ('down', FloorDirection.DOWN)

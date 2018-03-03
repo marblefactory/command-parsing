@@ -79,7 +79,7 @@ class ThrowTestCase(unittest.TestCase):
     def test_parse_directional(self):
         s = 'chuck to your left'.split()
 
-        expected_loc = Directional(MoveDirection.LEFT)
+        expected_loc = Directional(MoveDirection.LEFT, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
 
     def test_parse_positional(self):
@@ -95,7 +95,7 @@ class ThrowTestCase(unittest.TestCase):
     def test_defaults_forwards(self):
         s = 'throw'.split()
 
-        expected_loc = Directional(MoveDirection.FORWARDS)
+        expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
 
 

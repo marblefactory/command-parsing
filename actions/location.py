@@ -5,7 +5,6 @@ class MoveDirection(EquatableMixin):
     """
     The different the directions that the user can travel in on a single floor.
     """
-
     LEFT = 'left'
     RIGHT = 'right'
     BACKWARDS = 'backwards'
@@ -16,16 +15,23 @@ class ObjectRelativeDirection(MoveDirection):
     """
     The different directions that an object can be in compared to the position of the spy.
     """
-
     # For finding an object within a vicinity of the spy.
     VICINITY = 'vicinity'
+
+
+class Distance:
+    """
+    The distance to move in a direction.
+    """
+    SHORT = 'short'
+    MEDIUM = 'medium'
+    FAR = 'far'
 
 
 class FloorDirection:
     """
     The different ways the user can travel using the stairs.
     """
-
     UP = 'up'
     DOWN = 'down'
 
@@ -78,12 +84,14 @@ class Directional(Location):
     """
 
     direction: MoveDirection
+    distance: Distance
 
-    def __init__(self, direction: MoveDirection):
+    def __init__(self, direction: MoveDirection, distance: Distance):
         self.direction = direction
+        self.distance = distance
 
     def __str__(self):
-        return "location(" + str(self.direction) + ')'
+        return "location({} distance {})".format(self.distance, self.direction)
 
 
 class Stairs(Location):

@@ -1,6 +1,20 @@
 import unittest
-from parsing.parse_location import location, ordinal_number, move_direction, object_relative_direction, Parser
+from parsing.parse_location import location, ordinal_number, move_direction, object_relative_direction, Parser, distance
 from actions.location import *
+
+
+class DistanceTestCase(unittest.TestCase):
+    def test_short(self):
+        s = 'little'.split()
+        assert distance().parse(s).parsed == Distance.SHORT
+
+    def test_medium(self):
+        s = 'fair'.split()
+        assert distance().parse(s).parsed == Distance.MEDIUM
+
+    def test_far(self):
+        s = 'long'.split()
+        assert distance().parse(s).parsed == Distance.FAR
 
 
 class OrdinalNumberTestCase(unittest.TestCase):
@@ -156,19 +170,35 @@ class PositionalTestCase(unittest.TestCase):
 class DirectionalTestCase(unittest.TestCase):
     def test_parses_left(self):
         s = 'go left'.split()
-        assert location().parse(s).parsed == Directional(MoveDirection.LEFT)
+        assert location().parse(s).parsed == Directional(MoveDirection.LEFT, Distance.MEDIUM)
 
     def test_parses_right(self):
         s = 'go right'.split()
-        assert location().parse(s).parsed == Directional(MoveDirection.RIGHT)
+        assert location().parse(s).parsed == Directional(MoveDirection.RIGHT, Distance.MEDIUM)
 
     def test_parses_forwards(self):
         s = 'go forwards'.split()
-        assert location().parse(s).parsed == Directional(MoveDirection.FORWARDS)
+        assert location().parse(s).parsed == Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
 
     def test_parses_backwards(self):
         s = 'go backwards'.split()
-        assert location().parse(s).parsed == Directional(MoveDirection.BACKWARDS)
+        assert location().parse(s).parsed == Directional(MoveDirection.BACKWARDS, Distance.MEDIUM)
+
+    def test_parses_short(self):
+        s = 'go backwards a little bit'.split()
+        assert location().parse(s).parsed == Directional(MoveDirection.BACKWARDS, Distance.SHORT)
+
+    def test_parses_medium(self):
+        s = 'go forwards a fair distance'.split()
+        assert location().parse(s).parsed == Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
+
+    def test_parses_far(self):
+        s = 'go forwards a long way'.split()
+        assert location().parse(s).parsed == Directional(MoveDirection.FORWARDS, Distance.FAR)
+
+    def test_swapped_direction_and_distance(self):
+        s = 'go a long way forwards'.split()
+        assert location().parse(s).parsed == Directional(MoveDirection.FORWARDS, Distance.FAR)
 
 
 class StairsTestCase(unittest.TestCase):

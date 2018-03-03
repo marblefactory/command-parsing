@@ -1,5 +1,5 @@
 from actions.move import *
-from actions.location import MoveDirection
+from actions.location import MoveDirection, Distance
 from parsing.parser import *
 from parsing.parse_location import location, move_direction, move_object_name
 from functools import partial
