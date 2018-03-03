@@ -117,8 +117,8 @@ class ChangeSpeedTestCase(unittest.TestCase):
         s = 'go normally'.split()
         assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
 
-    def test_walk_normally(self):
-        s = 'walk normally'.split()
+    def test_walk(self):
+        s = 'walk'.split()
         assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
 
 

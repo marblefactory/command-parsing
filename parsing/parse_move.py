@@ -20,7 +20,7 @@ def speed() -> Parser:
     ]
 
     fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
-    normal = strongest_word(['normal', 'normally'], parser_constructors=[word_meaning]).ignore_parsed(Speed.NORMAL)
+    normal = strongest_word(['normal', 'normally', 'walk'], parser_constructors=[word_meaning]).ignore_parsed(Speed.NORMAL)
     slow = word_meaning('slow').ignore_parsed(Speed.SLOW)
 
     return strongest([slow, normal, fast])
