@@ -18,7 +18,7 @@ def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
     return r1 * proportion + r2 * (1 - proportion)
 
 
-@functools.lru_cache()
+@functools.lru_cache(maxsize=None)
 def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
     """
     :param similarity_measure: a word net function which give the semantic distance between two synsets.
@@ -224,6 +224,7 @@ def word_match(word: Word, match_plural = True) -> Parser:
     """
     if match_plural:
         plural = inflect.engine().plural(word)
+
         def condition(input_word: Word) -> Response:
             return float(input_word == word or input_word == plural)
 
@@ -253,7 +254,6 @@ def word_tagged(tags: List[str]) -> Parser:
     """
     :return: a parser which matches on words with the given tags.
     """
-
     def condition(input_word: Word) -> Response:
         word, tag = nltk.pos_tag([input_word])[0]
         return float(tag in tags)

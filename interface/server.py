@@ -27,7 +27,7 @@ DEBUG_MODE = True
 GAME_MODE = False
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = '128.0.0.30:5000'
+GAME_SERVER = 'http://192.168.0.16:8080/action'
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
@@ -77,6 +77,8 @@ def process_transcript(transcript: str) -> str:
         print('action:', action)
 
         game_response = post_action_to_game(action) if GAME_MODE else mock_post_action_to_game(action)
+
+        print('response:', game_response)
 
         # If the spy could not perform the action, the speech response is replaced with one indicating that.
         if game_response.status_code != 200:
@@ -164,7 +166,8 @@ if __name__ == '__main__':
     speech_responder = make_speech_responder()
 
     # Filling the cache takes a long time as all the tests have to run.
-    preload(fill_cache=not DEBUG_MODE)
+    #preload(fill_cache=not DEBUG_MODE)
+    preload(fill_cache=True)
 
     print('Running Server')
     socketio.run(app)

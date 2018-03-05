@@ -25,6 +25,7 @@ def speed() -> Parser:
 
     return strongest([slow, normal, fast])
 
+
 def stance() -> Parser:
     """
     :return: a parser for different stances, i.e. crouched, standing.
