@@ -1,15 +1,7 @@
 import unittest
-from parsing.parse_result import PartialParse
-from parsing.parse_interaction import interaction_object_name
 from parsing.parse_action import action
 from actions.interaction import *
 from actions.location import *
-
-
-class InteractionObjectTestCase(unittest.TestCase):
-    def test_rope_as_rock(self):
-        s = 'rope'.split()
-        assert interaction_object_name().parse(s).parsed == 'rock'
 
 
 class ThroughDoorTestCase(unittest.TestCase):
@@ -74,6 +66,10 @@ class PickUpTestCase(unittest.TestCase):
         result = action().parse(s)
         assert result.marker == PickUp
 
+    def test_rope_as_rock(self):
+        s = 'pick up the rope'.split()
+        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
+
 
 class ThrowTestCase(unittest.TestCase):
     def test_parse_directional(self):
@@ -102,24 +98,24 @@ class ThrowTestCase(unittest.TestCase):
 class HackTestCase(unittest.TestCase):
     def test_parse(self):
         s = 'hack the terminal on your left'.split()
-        assert action().parse(s).parsed == Hack('terminal', ObjectRelativeDirection.LEFT)
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.LEFT)
 
     def test_direction_defaults_to_vicinity(self):
         s = 'hack the camera'.split()
-        assert action().parse(s).parsed == Hack('camera', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack(HackableType.CAMERA, 'camera', ObjectRelativeDirection.VICINITY)
 
     def test_hacked_as_hack(self):
-        s = 'hacked the camera'.split()
-        assert action().parse(s).parsed == Hack('camera', ObjectRelativeDirection.VICINITY)
+        s = 'hacked the computer'.split()
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
 
     def test_have_as_hack(self):
-        s = 'have the server'.split()
-        assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
+        s = 'have the console'.split()
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'console', ObjectRelativeDirection.VICINITY)
 
     def test_text_as_hack(self):
         # Because speech recognition mistakes 'hack' as 'text'
         s = 'text the server'.split()
-        assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'server', ObjectRelativeDirection.VICINITY)
 
     def test_partial_if_no_object1(self):
         s = 'hack'.split()

@@ -54,20 +54,33 @@ class Throw(Action):
         ]
 
 
+class HackableType:
+    """
+    The types of objects which can be hacked.
+    """
+    CAMERA = 'camera'
+    TERMINAL = 'terminal'
+
+
 class Hack(Action):
     """
     Tells the spy to hack an object.
     """
 
+    # Whether to hack a camera or terminal.
+    object_type: HackableType
+    # The specific name of the object to hack, e.g. hacking a server equates to hacking a terminal.
     object_name: str
+    # The direction, relative to the spy, of the object.
     direction: ObjectRelativeDirection
 
-    def __init__(self, object_name: str, direction: ObjectRelativeDirection):
+    def __init__(self, object_type: HackableType, object_name: str, direction: ObjectRelativeDirection):
+        self.object_type = object_type
         self.object_name = object_name
         self.direction = direction
 
     def __str__(self):
-        return 'hack "{}" "{}"'.format(self.object_name, self.direction)
+        return 'hack "{}" ({}) "{}"'.format(self.object_name, self.object_type, self.direction)
 
     def specific_responses(self) -> List[str]:
         return [

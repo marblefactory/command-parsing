@@ -5,33 +5,12 @@ from actions.location import Directional, Distance
 from utils import partial_class
 
 
-def interaction_object_name() -> Parser:
+def pickupable_object_name() -> Parser:
     """
-    :return: a parser for names of objects that can be interacted with.
+    :return: a parser for the names of objects which can be picked up and thrown.
     """
-    return strongest_word(['rock', 'hammer', 'terminal', 'computer', 'camera', 'console', 'server'], parser_constructors=[word_spelling])
-
-
-def _object_interaction(verb_parser: Parser, ParseType: Type) -> Parser:
-    """
-    :param verb_parser: a parser for the verb of the interaction, e.g. 'hack'
-    :param parse_type: type which will be parsed. Also used as the marker used to identify where parsing failed
-                       for partial parses.
-    :return: a parser which parses a verb followed by the name of an object and an optional direction.
-    """
-    def combine_direction(make_type: Callable, _: Response) -> Parser:
-        return object_relative_direction().map_parsed(lambda dir: make_type(dir))
-
-    def combine(_: Any, verb_response: Response) -> Parser:
-        # Parses the name of the object and then the direction.
-        data_parser = interaction_object_name() \
-                     .map_parsed(lambda obj_name: partial_class(ParseType, obj_name)) \
-                     .then(combine_direction)
-
-        # If we only get the verb and no data, use the response from the verb parser.
-        return partial_parser(data_parser, verb_response, ParseType)
-
-    return verb_parser.then(combine)
+    words = ['rock', 'hammer']
+    return strongest_word(words, parser_constructors=[word_spelling])
 
 
 def pick_up() -> Parser:
@@ -39,7 +18,34 @@ def pick_up() -> Parser:
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
     """
     verb_parser = strongest_word(['pick', 'take'], parser_constructors=[word_meaning, word_spelling])
-    return _object_interaction(verb_parser, PickUp)
+
+    def combine_direction(make_type: Callable, _: Response) -> Parser:
+        return object_relative_direction().map_parsed(lambda dir: make_type(dir))
+
+    def combine(_: Any, verb_response: Response) -> Parser:
+        # Parses the name of the object and then the direction.
+        data_parser = pickupable_object_name() \
+                     .map_parsed(lambda obj_name: partial_class(PickUp, obj_name)) \
+                     .then(combine_direction)
+
+        # If we only get the verb and no data, use the response from the verb parser.
+        return partial_parser(data_parser, verb_response, PickUp)
+
+    return verb_parser.then(combine)
+
+
+def hackable_object_name() -> Parser:
+    """
+    :return: a parser for the names of objects which can be hacked. Returns a tuple containing the name of the
+             hacked object (e.g. server) and the type of object it is (e.g. TERMINAL).
+    """
+    camera = word_spelling('camera').map_parsed(lambda obj_name: (obj_name, HackableType.CAMERA))
+
+    terminal_words = ['terminal', 'computer', 'console', 'server']
+    terminal = strongest_word(terminal_words, parser_constructors=[word_spelling]) \
+              .map_parsed(lambda obj_name: (obj_name, HackableType.TERMINAL))
+
+    return strongest([camera, terminal])
 
 
 def hack() -> Parser:
@@ -50,7 +56,19 @@ def hack() -> Parser:
     text = word_match('text') # Because speech recognition mistakes 'hack' for 'text'.
     verb_parser = strongest([hack_verb, text])
 
-    return _object_interaction(verb_parser, Hack)
+    def combine_direction(make_type: Callable, _: Response) -> Parser:
+        return object_relative_direction().map_parsed(lambda dir: make_type(dir))
+
+    def combine(_: Any, verb_response: Response) -> Parser:
+        # Parses the name of the object and then the direction.
+        data_parser = hackable_object_name() \
+                     .map_parsed(lambda obj_data: partial_class(Hack, obj_data[1], obj_data[0])) \
+                     .then(combine_direction)
+
+        # If we only get the verb and no data, use the response from the verb parser.
+        return partial_parser(data_parser, verb_response, Hack)
+
+    return verb_parser.then(combine)
 
 
 def through_door() -> Parser:
