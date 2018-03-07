@@ -10,7 +10,8 @@ class ThroughDoorEncoder(json.JSONEncoder):
     """
     def default(self, obj):
         return {
-            'type': 'opendoor'
+            'type': 'opendoor',
+            'direction': obj.direction
         }
 
 

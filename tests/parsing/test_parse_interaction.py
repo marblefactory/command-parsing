@@ -7,24 +7,28 @@ from actions.location import *
 class ThroughDoorTestCase(unittest.TestCase):
     def test_parse(self):
         s = 'go through the door'.split()
-        assert action().parse(s).parsed == ThroughDoor()
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
 
     def test_missing_door(self):
         s = 'go through'.split()
-        assert action().parse(s).parsed == ThroughDoor()
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
 
     def test_enter_room(self):
         s = 'enter the room'.split()
-        assert action().parse(s).parsed == ThroughDoor()
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
 
     def test_enter(self):
         s = 'enter'.split()
-        assert action().parse(s).parsed == ThroughDoor()
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
 
     def test_into(self):
         # Google mistakes 'enter' for 'into'.
         s = 'into to the room'.split()
-        assert action().parse(s).parsed == ThroughDoor()
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
+    def test_direction(self):
+        s = 'enter the room on your right'.split()
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.RIGHT)
 
 
 class PickUpTestCase(unittest.TestCase):
