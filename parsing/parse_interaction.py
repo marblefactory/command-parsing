@@ -75,8 +75,8 @@ def through_door() -> Parser:
     """
     :return: a parser which parses instructions to go through a door, e.g. 'go through'.
     """
-    open = strongest_word(['open', 'through', 'enter', 'into']) # 'into' because Google thinks 'enter' is 'into'.
-    door_parser = open.ignore_then(maybe(word_match('door')), mix) # Reduce the response if 'door' is missing.
+    open = strongest_word(['open', 'through', 'enter', 'into'])  # 'into' because Google thinks 'enter' is 'into'.
+    door_parser = open.ignore_then(maybe(word_match('door')), mix)  # Reduce the response if 'door' is missing.
 
     return door_parser \
           .ignore_then(object_relative_direction()) \
