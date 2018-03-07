@@ -1,6 +1,6 @@
 import unittest
 from parsing.parser import *
-from nltk.corpus import wordnet as wn
+from parsing.pre_processing import pre_process
 
 
 class ParserTestCase(unittest.TestCase):
@@ -10,52 +10,63 @@ class ParserTestCase(unittest.TestCase):
             return produce(parsed, 0.0)
 
         parser = produce('a', 1.0).then(f)
+        s = pre_process('b')
 
-        assert parser.parse(['b']) == SuccessParse(parsed='a', response=0.0, remaining=['b'])
+        assert parser.parse(s) == SuccessParse(parsed='a', response=0.0, remaining=['b'])
 
     def test_then_ignore(self):
         # Ignore the parsed 'b', but average the responses.
         parser = produce('a', 0.0).then_ignore(produce('b', 1.0), mix)
+        s = pre_process('')
 
-        assert parser.parse([]) == SuccessParse(parsed='a', response=0.5, remaining=[])
+        assert parser.parse(s) == SuccessParse(parsed='a', response=0.5, remaining=[''])
 
     def test_then_ignore_default_response(self):
         parser = produce('a', 0.5).then_ignore(produce('b', 1.0))
+        s = pre_process('')
 
-        assert parser.parse([]) == SuccessParse(parsed='a', response=0.5, remaining=[])
+        assert parser.parse(s) == SuccessParse(parsed='a', response=0.5, remaining=[''])
 
     def test_ignore_then(self):
         # Ignore the parsed 'a', but average the responses.
         parser = produce('a', 1.0).ignore_then(produce('b', 0.0), mix)
+        s = pre_process('')
 
-        assert parser.parse([]) == SuccessParse(parsed='b', response=0.5, remaining=[])
+        assert parser.parse(s) == SuccessParse(parsed='b', response=0.5, remaining=[''])
 
     def test_ignore_then_default_response(self):
         parser = produce('a', 0.5).ignore_then(produce('b', 1.0))
+        s = pre_process('')
 
-        assert parser.parse([]) == SuccessParse(parsed='b', response=1.0, remaining=[])
+        assert parser.parse(s) == SuccessParse(parsed='b', response=1.0, remaining=[''])
 
     def test_map(self):
         parser = produce('a', 1.0).map(lambda p, r: (p + 'bc', r / 2))
+        s = pre_process('')
 
-        assert parser.parse([]) == SuccessParse(parsed='abc', response=0.5, remaining=[])
+        assert parser.parse(s) == SuccessParse(parsed='abc', response=0.5, remaining=[''])
 
     def test_map_parsed(self):
         parser = produce('a', 0.8).map_parsed(lambda p: 'x' + p)
+        s = pre_process('')
 
-        assert parser.parse([]) == SuccessParse(parsed='xa', response=0.8, remaining=[])
+        assert parser.parse(s) == SuccessParse(parsed='xa', response=0.8, remaining=[''])
 
     def test_map_response(self):
         parser = produce('a', 0.8).map_response(lambda r: r / 2)
+        s = pre_process('')
 
-        assert parser.parse([]) == SuccessParse(parsed='a', response=0.4, remaining=[])
+        assert parser.parse(s) == SuccessParse(parsed='a', response=0.4, remaining=[''])
 
     def test_ignore_parsed_captures_state(self):
         letter = 'b'
         parser = produce('a', 0.8).ignore_parsed(letter)
+        # Change the letter to check that the letter returned by parser is still a 'b'
         letter = 'c'
 
-        assert parser.parse([]) == SuccessParse(parsed='b', response=0.8, remaining=[])
+        s = pre_process('')
+
+        assert parser.parse(s) == SuccessParse(parsed='b', response=0.8, remaining=[''])
 
 
 class PredicateTestCase(unittest.TestCase):
@@ -63,13 +74,15 @@ class PredicateTestCase(unittest.TestCase):
         def condition(input_word: Word) -> Response:
             return 0.0
 
-        assert predicate(condition).parse(['a']).is_failure()
+        s = pre_process('a')
+        assert predicate(condition).parse(s).is_failure()
 
     def test_none_if_empty(self):
         def condition(input_word: Word) -> Response:
-            return 1.0
+            return 0.0 if input_word == 'a' else 1.0
 
-        assert predicate(condition).parse([]).is_failure()
+        s = pre_process('a')
+        assert predicate(condition).parse(s).is_failure()
 
     def test_matches_highest(self):
         def condition(input_word: Word) -> Response:
@@ -80,7 +93,8 @@ class PredicateTestCase(unittest.TestCase):
             else:
                 return 0.2
 
-        assert predicate(condition).parse(['a', 'b', 'c']) == SuccessParse('b', 0.8, ['c'])
+        s = pre_process('a b c')
+        assert predicate(condition).parse(s) == SuccessParse('b', 0.8, ['c'])
 
 
 class WordEditDistTestCase(unittest.TestCase):
@@ -88,31 +102,36 @@ class WordEditDistTestCase(unittest.TestCase):
         """
         Tests None is returned if the words share no similarities.
         """
-        assert word_spelling('aaa', dist_threshold=0).parse(['bbb', 'ccc']).is_failure()
+        s = pre_process('bbb ccc')
+        assert word_spelling('aaa', dist_threshold=0).parse(s).is_failure()
 
     def test_no_match_not_same_first(self):
         """
         Tests None is returned if the words do not have the same first letter.
         """
-        assert word_spelling('hello', dist_threshold=0).parse(['dello', 'mello']).is_failure()
+        s = pre_process('dello mello')
+        assert word_spelling('hello', dist_threshold=0).parse(s).is_failure()
 
     def test_match_some(self):
         """
         Tests the parser matches when some of the letters are correct.
         """
-        assert word_spelling('aaaa', dist_threshold=0).parse(['abbb', 'cccc']) == SuccessParse('aaaa', 0.25, ['cccc'])
+        s = pre_process('abbb cccc')
+        assert word_spelling('aaaa', dist_threshold=0).parse(s) == SuccessParse('aaaa', 0.25, ['cccc'])
 
     def test_match_all(self):
         """
         Tests the parse matches when all of the letters are correct.
         """
-        assert word_spelling('aaaa', dist_threshold=0).parse(['aaaa', 'cccc']) == SuccessParse('aaaa', 1.0, ['cccc'])
+        s = pre_process('aaaa cccc')
+        assert word_spelling('aaaa', dist_threshold=0).parse(s) == SuccessParse('aaaa', 1.0, ['cccc'])
 
     def test_matches_strongest(self):
         """
         Tests the parse matches on the word with the lowest edit distance.
         """
-        assert word_spelling('aaaa', dist_threshold=0).parse(['abbb', 'aacc']) == SuccessParse('aaaa', 0.5, [])
+        s = pre_process('abbb aacc')
+        assert word_spelling('aaaa', dist_threshold=0).parse(s) == SuccessParse('aaaa', 0.5, [])
 
 
 class WordMatchTestCase(unittest.TestCase):
@@ -120,19 +139,23 @@ class WordMatchTestCase(unittest.TestCase):
         """
         Tests None is returned if the word is nowhere in the input text.
         """
-        assert word_match('a').parse(['b', 'c']).is_failure()
+        s = pre_process('b c')
+        assert word_match('a').parse(s).is_failure()
 
     def test_match(self):
         """
         Tests the word is parsed if it is in the input text.
         """
-        assert word_match('a').parse(['b', 'a', 'c']) == SuccessParse(parsed='a', response=1.0, remaining=['c'])
+        s = pre_process('b a c')
+        assert word_match('a').parse(s) == SuccessParse(parsed='a', response=1.0, remaining=['c'])
 
     def test_matches_plural_default(self):
-        assert word_match('hack').parse(['hacks', 'hello']) == SuccessParse(parsed='hacks', response=1.0, remaining=['hello'])
+        s = pre_process('hacks hello')
+        assert word_match('hack').parse(s) == SuccessParse(parsed='hacks', response=1.0, remaining=['hello'])
 
     def test_does_not_match_plural(self):
-        assert word_match('hack', match_plural=False).parse(['hacks', 'hello']).is_failure()
+        s = pre_process('hacks hello')
+        assert word_match('hack', match_plural=False).parse(s).is_failure()
 
 
 class WordMeaningTestCase(unittest.TestCase):
@@ -140,14 +163,16 @@ class WordMeaningTestCase(unittest.TestCase):
         """
         Tests None is returned if no similar words are found.
         """
-        assert word_meaning('orange').parse(['boat', 'hello']).is_failure()
+        s = pre_process('boat hello')
+        assert word_meaning('orange').parse(s).is_failure()
 
     def test_match(self):
         """
         Tests the similar word is parsed.
         """
         p = word_meaning('hi')
-        assert p.parse(['boat', 'walk', 'hello']) == SuccessParse(parsed='hello', response=1.0, remaining=[])
+        s = pre_process('boat walk hello')
+        assert p.parse(s) == SuccessParse(parsed='hello', response=1.0, remaining=[])
 
 
 class WordTaggedTestCase(unittest.TestCase):
@@ -156,47 +181,58 @@ class WordTaggedTestCase(unittest.TestCase):
         Tests None is returned if no words with the tags are found.
         """
         parser = word_tagged(['CD', 'NN'])
-        assert parser.parse(['go', 'listening']).is_failure()
+        s = pre_process('go listening')
+        assert parser.parse(s).is_failure()
 
     def test_match(self):
         """
         Tests the word is returned if it matches any of the tags.
         """
         parser = word_tagged(['NN'])
-        assert parser.parse(['go', 'tree', 'listening']) == SuccessParse(parsed='tree', response=1.0, remaining=['listening'])
+        s = pre_process('go tree listening')
+        assert parser.parse(s) == SuccessParse(parsed='tree', response=1.0, remaining=['listening'])
 
 
 class CardinalNumberTestCase(unittest.TestCase):
     def test_match(self):
-        assert cardinal_number().parse(['201', 'hello']) == SuccessParse(parsed='201', response=1.0, remaining=['hello'])
+        s = pre_process('201 hello')
+        assert cardinal_number().parse(s) == SuccessParse(parsed='201', response=1.0, remaining=['hello'])
 
 
 class StringNumberTestCase(unittest.TestCase):
     def test_match_one(self):
-        assert string_number().parse(['one']).parsed == '1'
+        s = pre_process('one')
+        assert string_number().parse(s).parsed == '1'
 
     def test_match_two(self):
-        assert string_number().parse(['two']).parsed == '2'
+        s = pre_process('two')
+        assert string_number().parse(s).parsed == '2'
 
     def test_match_two_alt1(self):
-        assert string_number().parse(['to']).parsed == '2'
+        s = pre_process('to')
+        assert string_number().parse(s).parsed == '2'
 
     def test_match_two_alt2(self):
-        assert string_number().parse(['too']).parsed == '2'
+        s = pre_process('too')
+        assert string_number().parse(s).parsed == '2'
 
     def test_match_four(self):
-        assert string_number().parse(['four']).parsed == '4'
+        s = pre_process('four')
+        assert string_number().parse(s).parsed == '4'
 
     def test_match_four_alt1(self):
-        assert string_number().parse(['for']).parsed == '4'
+        s = pre_process('for')
+        assert string_number().parse(s).parsed == '4'
 
 
 class NumberTestCase(unittest.TestCase):
     def test_match_cardinal(self):
-        assert number().parse(['201', 'hello']).parsed == '201'
+        s = pre_process('201 hello')
+        assert number().parse(s).parsed == '201'
 
     def test_match_string(self):
-        assert number().parse(['three', 'hello']).parsed == '3'
+        s = pre_process('three hello')
+        assert number().parse(s).parsed == '3'
 
 
 class StrongestTestCase(unittest.TestCase):
@@ -209,7 +245,8 @@ class StrongestTestCase(unittest.TestCase):
         p3 = produce('c', 0.4)
         parser = self.strongest_parser([p1, p2, p3])
 
-        assert parser.parse([]) == SuccessParse(parsed='b', response=0.8, remaining=[])
+        s = pre_process('x')
+        assert parser.parse(s) == SuccessParse(parsed='b', response=0.8, remaining=['x'])
 
     def test_chooses_first_strongest(self):
         p1 = produce('a', 0.8)
@@ -217,14 +254,15 @@ class StrongestTestCase(unittest.TestCase):
         p3 = produce('c', 0.4)
         parser = self.strongest_parser([p1, p2, p3])
 
-        assert parser.parse([]) == SuccessParse(parsed='a', response=0.8, remaining=[])
+        s = pre_process('x')
+        assert parser.parse(s) == SuccessParse(parsed='a', response=0.8, remaining=['x'])
 
     def test_no_parse(self):
         p1 = word_match('a')
         p2 = word_match('b')
         parser = self.strongest_parser([p1, p2])
 
-        s = 'x y z'.split()
+        s = pre_process('x y z')
         assert parser.parse(s).is_failure()
 
     def test_prefers_success_to_partial_results(self):
@@ -232,7 +270,7 @@ class StrongestTestCase(unittest.TestCase):
         p2 = word_match('a')
         parser = self.strongest_parser([p1, p2])
 
-        s = 'a'.split()
+        s = pre_process('a')
         assert parser.parse(s).parsed == 'a'
 
     def test_chooses_strongest_partial_from_unique(self):
@@ -241,19 +279,21 @@ class StrongestTestCase(unittest.TestCase):
         p3 = partial_parser(word_match('c'), 0.4, 'Type')
         parser = self.strongest_parser([p1, p2, p3])
 
-        assert parser.parse([]).response == 0.8
+        s = pre_process('x')
+        assert parser.parse(s).response == 0.8
 
 
 class StrongestWordTestCase(unittest.TestCase):
     def test_match_strongest_word(self):
         s = 'a b c'.split()
-        assert strongest_word(['b', 'x']).parse(s).parsed == 'b'
+        s = pre_process('b x')
+        assert strongest_word(s).parse(s).parsed == 'b'
 
     def test_cartesian_product_of_parser_constructors1(self):
         """
         Tests that every parser constructor is combined with every word to match on.
         """
-        s = 'orange hillo'.split()
+        s = pre_process('orange hillo')
         parser = strongest_word(['blue', 'hello'], parser_constructors=[word_spelling, word_meaning])
         assert parser.parse(s).parsed == 'hello'
 
@@ -261,7 +301,7 @@ class StrongestWordTestCase(unittest.TestCase):
         """
         Tests that every parser constructor is combined with every word to match on.
         """
-        s = 'run whale'.split()
+        s = pre_process('run whale')
         parser = strongest_word(['go', 'hi'], parser_constructors=[word_spelling, word_meaning])
         assert parser.parse(s).parsed == 'run'
 
@@ -272,7 +312,7 @@ class AnywhereTestCase(unittest.TestCase):
         Tests even if the input will be consumed by a parser, that by wrapping said parser in an `anywhere` parser
         none of the input text is consumed.
         """
-        s = ['b', 'a', 'c']
+        s = pre_process('b a c')
         parser = anywhere(word_match('a'))
 
         assert parser.parse(s) == SuccessParse(parsed='a', response=1.0, remaining=s)
@@ -284,7 +324,8 @@ class MaybeTestCase(unittest.TestCase):
         Tests that if a parser returns None, that the result is replaced with an empty result with zero response.
         """
         parser = maybe(failure())
-        assert parser.parse(['a', 'b']) == SuccessParse(parsed=None, response=0.0, remaining=['a', 'b'])
+        s = pre_process('a b')
+        assert parser.parse(s) == SuccessParse(parsed=None, response=0.0, remaining=['a', 'b'])
 
 
     def test_no_replace_result(self):
@@ -292,21 +333,25 @@ class MaybeTestCase(unittest.TestCase):
         Tests the result of a parser is not replaced if it result is not None.
         """
         parser = maybe(produce('a', 0.5))
-        assert parser.parse(['b', 'c']) == SuccessParse(parsed='a', response=0.5, remaining=['b', 'c'])
+        s = pre_process('b c')
+        assert parser.parse(s) == SuccessParse(parsed='a', response=0.5, remaining=['b', 'c'])
 
 
 class ThresholdTestCase(unittest.TestCase):
     def test_below_threshold(self):
         parser = threshold(produce('a', 0.1), response_threshold=0.5)
-        assert parser.parse([]).is_failure()
+        s = pre_process('')
+        assert parser.parse(s).is_failure()
 
     def test_on_threshold(self):
         parser = threshold(produce('a', 0.5), response_threshold=0.5)
-        assert parser.parse([]).is_failure()
+        s = pre_process('')
+        assert parser.parse(s).is_failure()
 
     def test_above_threshold(self):
         parser = threshold(produce('a', 0.6), response_threshold=0.5)
-        assert parser.parse(['a', 'b']) == SuccessParse('a', 0.6, ['a', 'b'])
+        s = pre_process('a b')
+        assert parser.parse(s) == SuccessParse('a', 0.6, ['a', 'b'])
 
 
 class AppendTestCase(unittest.TestCase):
@@ -316,7 +361,7 @@ class AppendTestCase(unittest.TestCase):
         p3 = word_match('!')
 
         p = p1.then(append(p2)).then(append(p3))
-        s = ['hello', 'world', '!', 'c']
+        s = pre_process('hello world ! c')
 
         assert p.parse(s) == SuccessParse('hello world !', 1, ['c'])
 
@@ -326,7 +371,7 @@ class AppendTestCase(unittest.TestCase):
         p3 = word_match('!')
 
         p = p1.then(append(p2)).then(append(p3, spaces=False))
-        s = ['hello', 'world', '!', 'c']
+        s = pre_process('hello world ! c')
 
         assert p.parse(s) == SuccessParse('hello world!', 1, ['c'])
 
@@ -336,7 +381,8 @@ class AppendTestCase(unittest.TestCase):
 
         p = p1.then(append(p2, mix))
 
-        assert p.parse([]) == SuccessParse('x y', 0.75, [])
+        s = pre_process('w')
+        assert p.parse(s) == SuccessParse('x y', 0.75, ['w'])
 
     def test_response_default(self):
         p1 = produce('x', 0.5)
@@ -344,18 +390,19 @@ class AppendTestCase(unittest.TestCase):
 
         p = p1.then(append(p2))
 
-        assert p.parse([]) == SuccessParse('x y', 0.5, [])
+        s = pre_process('w')
+        assert p.parse(s) == SuccessParse('x y', 0.5, ['w'])
 
 
 class NoneTestCase(unittest.TestCase):
     def test_parse_causes_fail(self):
-        s = 'b a c'.split()
+        s = pre_process('b a c')
         p = none(word_match('a'))
 
         assert p.parse(s).is_failure()
 
     def test_no_parse_causes_empty_parse(self):
-        s = 'x y z'.split()
+        s = pre_process('x y z')
         p = none(word_match('a'), response=0.5)
 
         assert p.parse(s) == SuccessParse(None, 0.5, ['x', 'y', 'z'])
@@ -363,7 +410,7 @@ class NoneTestCase(unittest.TestCase):
 
 class IgnoreWordsTestCase(unittest.TestCase):
     def test_removes_from_input(self):
-        s = 'a b c d b c a b'.split()
+        s = pre_process('a b c d b c a b')
         p = ignore_words(['b', 'a'])
 
         assert p.parse(s).remaining == ['c', 'd', 'c']
@@ -372,13 +419,13 @@ class IgnoreWordsTestCase(unittest.TestCase):
 class PartialTestCase(unittest.TestCase):
     def test_success_if_matches(self):
         p = partial_parser(word_match('a'), response=0.7, marker='MyType')
-        s = 'b c a x'.split()
+        s = pre_process('b c a x')
 
         assert p.parse(s) == SuccessParse('a', 1.0, ['x'])
 
     def test_partial_if_no_match(self):
         a_matcher = word_match('a')
         p = partial_parser(a_matcher, response=0.7, marker='MyType')
-        s = 'b c x'.split()
+        s = pre_process('b c x')
 
         assert p.parse(s) == PartialParse(a_matcher, response=0.7, marker='MyType')

@@ -1,4 +1,5 @@
 import unittest
+from parsing.pre_processing import pre_process
 from parsing.parse_move import speed, stance
 from parsing.parse_action import action
 from actions.move import *
@@ -23,201 +24,201 @@ class SpeedTestCase(unittest.TestCase):
 
 class StanceTestCase(unittest.TestCase):
     def test_crouch(self):
-        s = 'crouch'.split()
+        s = pre_process('crouch')
         assert stance().parse(s).parsed == Stance.CROUCH
 
     def test_couch_as_crouch(self):
-        s = 'couch'.split()
+        s = pre_process('couch')
         assert stance().parse(s).parsed == Stance.CROUCH
 
     def test_stand(self):
-        s = 'stand'.split()
+        s = pre_process('stand')
         assert stance().parse(s).parsed == Stance.STAND
 
 
 class TurnTestCase(unittest.TestCase):
     def test_parse(self):
-        s = 'turn to your left'.split()
+        s = pre_process('turn to your left')
         assert action().parse(s).parsed == Turn(MoveDirection.LEFT)
 
     def test_defaults_backwards(self):
-        s = 'turn around'.split()
+        s = pre_process('turn around')
         assert action().parse(s).parsed == Turn(MoveDirection.BACKWARDS)
 
 
 class ChangeStanceTestCase(unittest.TestCase):
     def test_stand_up(self):
-        s = 'stand up'.split()
+        s = pre_process('stand up')
         assert action().parse(s).parsed == ChangeStance(Stance.STAND)
 
     def test_stand(self):
-        s = 'stand'.split()
+        s = pre_process('stand')
         assert action().parse(s).parsed == ChangeStance(Stance.STAND)
 
     def test_standing_as_stand(self):
-        s = 'standing'.split()
+        s = pre_process('standing')
         assert action().parse(s).parsed == ChangeStance(Stance.STAND)
 
     def test_crouch(self):
-        s = 'crouch down'.split()
+        s = pre_process('crouch down')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
     def test_crouching(self):
-        s = 'crouching'.split()
+        s = pre_process('crouching')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
     def test_quiet_as_crouch(self):
-        s = 'be quiet'.split()
+        s = pre_process('be quiet')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
     def test_get_up(self):
-        s = 'get up'.split()
+        s = pre_process('get up')
         assert action().parse(s).parsed == ChangeStance(Stance.STAND)
 
     def test_get_down(self):
-        s = 'get down'.split()
+        s = pre_process('get down')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
 
 class ChangeSpeedTestCase(unittest.TestCase):
     def test_run(self):
-        s = 'run'.split()
+        s = pre_process('run')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_fast(self):
-        s = 'fast'.split()
+        s = pre_process('fast')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_running_as_fast(self):
-        s = 'running'.split()
+        s = pre_process('running')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_sprinting_as_fast(self):
-        s = 'sprinting'.split()
+        s = pre_process('sprinting')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_go_fast(self):
-        s = 'go fast'.split()
+        s = pre_process('go fast')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_run_quick(self):
-        s = 'run quick'.split()
+        s = pre_process('run quick')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_slow(self):
-        s = 'slow down'.split()
+        s = pre_process('slow down')
         assert action().parse(s).parsed == ChangeSpeed(Speed.SLOW)
 
     def test_go_slow(self):
-        s = 'go slow'.split()
+        s = pre_process('go slow')
         assert action().parse(s).parsed == ChangeSpeed(Speed.SLOW)
 
     def test_go_normally(self):
-        s = 'go normally'.split()
+        s = pre_process('go normally')
         assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
 
     def test_walk(self):
-        s = 'walk'.split()
+        s = pre_process('walk')
         assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
 
 
 class MoveTestCase(unittest.TestCase):
     def test_fails_if_just_location(self):
-        s = 'next door'.split()
+        s = pre_process('next door')
         assert action().parse(s).is_failure()
 
     def test_parses_standing(self):
-        s = 'go left standing'.split()
+        s = pre_process('go left standing')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.STAND)
 
     def test_parses_crouching(self):
-        s = 'walk left crouching'.split()
+        s = pre_process('walk left crouching')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.CROUCH)
 
     def test_parses_crouching_as_crouch(self):
-        s = 'go left while crouching'.split()
+        s = pre_process('go left while crouching')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.CROUCH)
 
     def test_stance_defaults_to_none(self):
-        s = 'go left'.split()
+        s = pre_process('go left')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None)
 
     def test_fast(self):
-        s = 'run to the next door'.split()
+        s = pre_process('run to the next door')
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
 
     def test_ron_as_run(self):
-        s = 'ron to the next door'.split()
+        s = pre_process('ron to the next door')
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
 
     def test_sprint_as_fast(self):
-        s = 'sprint to the next door'.split()
+        s = pre_process('sprint to the next door')
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
 
     def test_running_as_run(self):
-        s = 'go running to the next door'.split()
+        s = pre_process('go running to the next door')
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
 
     def test_slow(self):
-        s = 'slowly go to the next door'.split()
+        s = pre_process('slowly go to the next door')
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.SLOW, expected_loc, None)
 
     def test_quietly_as_crouch(self):
-        s = 'quietly go to the next door'.split()
+        s = pre_process('quietly go to the next door')
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.NORMAL, expected_loc, Stance.CROUCH)
 
     def test_parses_behind(self):
-        s = 'go around the desk'.split()
+        s = pre_process('go around the desk')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Behind('desk'), None)
 
     def test_parses_turn_backwards(self):
-        s = 'turn around'.split()
+        s = pre_process('turn around')
         assert action().parse(s).parsed == Turn(MoveDirection.BACKWARDS)
 
     def test_parses_take_next_door(self):
-        s = 'take the next door'.split()
+        s = pre_process('take the next door')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('door', 0, MoveDirection.FORWARDS), None)
 
     def test_parses_take_the_stairs(self):
-        s = 'take the stairs up'.split()
+        s = pre_process('take the stairs up')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Stairs(FloorDirection.UP), None)
 
     def test_corridor_does_not_crouch(self):
         """
         Tests that 'corridor' does not mean crouch
         """
-        s = 'go to the end of the corridor'.split()
+        s = pre_process('go to the end of the corridor')
         assert action().parse(s).parsed == Move(Speed.NORMAL, EndOf('corridor'), None)
 
     def test_normal(self):
-        s = 'go normally to the next room'.split()
+        s = pre_process('go normally to the next room')
 
         expected_loc = Positional('room', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Move(Speed.NORMAL, expected_loc, None)
 
     def test_go_is_partial(self):
-        s = 'go'.split()
+        s = pre_process('go')
         result = action().parse(s)
         assert result.marker == Move
 
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
-        s = 'hide behind the wall'.split()
+        s = pre_process('hide behind the wall')
         assert action().parse(s).parsed == Hide('wall')
 
     def test_parses_no_object(self):
-        s = 'hide'.split()
+        s = pre_process('hide')
         assert action().parse(s).parsed == Hide(None)

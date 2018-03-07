@@ -1,4 +1,5 @@
 import unittest
+from parsing.pre_processing import pre_process
 from parsing.parse_action import action
 from actions.action import *
 from actions.interaction import *
@@ -8,25 +9,25 @@ from actions.location import *
 
 class StopTestCase(unittest.TestCase):
     def test_parses_stop(self):
-        s = 'stop'.split()
+        s = pre_process('stop')
         assert action().parse(s).parsed == Stop()
 
     def test_parses_freeze(self):
-        s = 'freeze'.split()
+        s = pre_process('freeze')
         assert action().parse(s).parsed == Stop()
 
     def test_parses_halt(self):
-        s = 'halt'.split()
+        s = pre_process('halt')
         assert action().parse(s).parsed == Stop()
 
     def test_does_not_parse_the(self):
-        s = 'the end of the corridor'.split()
+        s = pre_process('the end of the corridor')
         assert action().parse(s).is_failure()
 
 
 class CompositeTestCase(unittest.TestCase):
     def test_parses_then(self):
-        s = 'go left then go right'.split()
+        s = pre_process('go left then go right')
 
         expected_actions = [
             Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
@@ -36,7 +37,7 @@ class CompositeTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Composite(expected_actions)
 
     def test_parses_and(self):
-        s = 'go left and pick up the rock'.split()
+        s = pre_process('go left and pick up the rock')
 
         expected_actions = [
             Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
@@ -46,7 +47,7 @@ class CompositeTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Composite(expected_actions)
 
     def test_parses_and_then(self):
-        s = 'go left and then pick up the rock'.split()
+        s = pre_process('go left and then pick up the rock')
 
         expected_actions = [
             Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
@@ -59,7 +60,7 @@ class CompositeTestCase(unittest.TestCase):
         """
         Tests that single action parses that fail are not included in the final composite action.
         """
-        s = 'go left and NAN then pick up the rock'.split()
+        s = pre_process('go left and NAN then pick up the rock')
 
         expected_actions = [
             Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None),
@@ -72,11 +73,11 @@ class CompositeTestCase(unittest.TestCase):
         """
         Tests the composite parser fails if it couldn't find 'then' or 'and'.
         """
-        s = 'nothing to see here'.split()
+        s = pre_process('nothing to see here')
         assert action().parse(s).is_failure()
 
     def test_fails_if_only_then(self):
-        s = 'then'.split()
+        s = pre_process('then')
         assert action().parse(s).is_failure()
 
 
@@ -85,5 +86,5 @@ class DontTestCase(unittest.TestCase):
         """
         Tests that if the player says "don't" no action is performed.
         """
-        s = "don't go forwards".split()
+        s = pre_process("don't go forwards")
         assert action().parse(s).is_failure()
