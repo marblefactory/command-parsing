@@ -10,7 +10,7 @@ class ConversionToCPPJSONTestCase(unittest.TestCase):
     Tests converting location in a move to JSON the c++ game can handle.
     """
     def test_no_object_name(self):
-        loc = Directional(MoveDirection.LEFT)
+        loc = Directional(MoveDirection.LEFT, Distance.MEDIUM)
         move = Move(Speed.NORMAL, loc, Stance.STAND)
 
         expected = {
@@ -21,7 +21,8 @@ class ConversionToCPPJSONTestCase(unittest.TestCase):
                 'name': 'no_object',
                 'location': {
                     'type': 'directional',
-                    'direction': 'left'
+                    'direction': 'left',
+                    'distance': 'medium'
                 }
             }
         }

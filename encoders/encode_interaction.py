@@ -53,6 +53,6 @@ class HackEncoder(json.JSONEncoder):
     def default(self, obj):
         return {
             'type': 'hack',
-            'name': obj.object_name,
+            'hack_type': obj.object_type,
             'direction': obj.direction
         }

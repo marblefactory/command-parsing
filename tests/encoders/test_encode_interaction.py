@@ -30,14 +30,15 @@ class PickUpEncoderTestCase(unittest.TestCase):
 
 class ThrowEncoderTestCase(unittest.TestCase):
     def test_encode(self):
-        target_loc = Directional(MoveDirection.FORWARDS)
+        target_loc = Directional(MoveDirection.FORWARDS, Distance.SHORT)
         throw = Throw(target_loc)
 
         expected = {
             'type': 'throw',
             'location': {
                 'type': 'directional',
-                'direction': 'forwards'
+                'direction': 'forwards',
+                'distance': 'short'
             }
         }
 
@@ -46,11 +47,11 @@ class ThrowEncoderTestCase(unittest.TestCase):
 
 class HackEncoderTestCase(unittest.TestCase):
     def test_encode(self):
-        hack = Hack('computer', ObjectRelativeDirection.RIGHT)
+        hack = Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.RIGHT)
 
         expected = {
             'type': 'hack',
-            'name': 'computer',
+            'hack_type': 'terminal',
             'direction': 'right'
         }
 

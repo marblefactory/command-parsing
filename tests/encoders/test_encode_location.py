@@ -30,11 +30,12 @@ class PositionalEncoderTestCase(unittest.TestCase):
 
 class DirectionalEncoderTestCase(unittest.TestCase):
     def test_encode(self):
-        directional = Directional(MoveDirection.RIGHT)
+        directional = Directional(MoveDirection.RIGHT, Distance.FAR)
 
         expected = {
             'type': 'directional',
-            'direction': 'right'
+            'direction': 'right',
+            'distance': 'far'
         }
 
         assert expected == json.loads(json.dumps(directional, cls=LocationEncoder))

@@ -43,7 +43,8 @@ class DirectionalEncoder(json.JSONEncoder):
     def default(self, obj):
         return {
             'type': 'directional',
-            'direction': obj.direction
+            'direction': obj.direction,
+            'distance': obj.distance
         }
 
 
