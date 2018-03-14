@@ -163,11 +163,13 @@ def make_speech_responder() -> SpeechResponder:
 
 
 if __name__ == '__main__':
+    if not GAME_MODE:
+        print("WARNING: Not in Game Mode")
+
     speech_responder = make_speech_responder()
 
     # Filling the cache takes a long time as all the tests have to run.
-    #preload(fill_cache=not DEBUG_MODE)
-    preload(fill_cache=True)
+    preload(fill_cache=False)
 
     print('Running Server')
     socketio.run(app)

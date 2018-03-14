@@ -165,7 +165,7 @@ class ConnectingState extends State {
         }
 
         // Start the animation.
-        play('#fax_machine', 0.15);
+        play('#fax_machine', 0.3);
         this.stateDiv.innerHTML = '';
         addTexts(this.stateDiv, 0, () => super.segue(RecordWaitingState));
     }
