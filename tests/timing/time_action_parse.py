@@ -3,6 +3,7 @@ import time
 import numpy as np
 from typing import List
 from nltk.corpus import wordnet as wn
+from unittest import TestLoader, TextTestRunner
 
 
 action_transcripts = [
@@ -53,6 +54,11 @@ if __name__ == '__main__':
     # Preload WordNet so it doesn't affect the timing of the first parse.
     print('Loading WordNet...')
     wn.ensure_loaded()
+    print('Filling Cache (Running Tests)...')
+    loader = TestLoader()
+    suite = loader.discover(start_dir='../parsing')
+    TextTestRunner(verbosity=0).run(suite)
+
     print('Starting Timing...\n')
 
     times: List[float] = []
