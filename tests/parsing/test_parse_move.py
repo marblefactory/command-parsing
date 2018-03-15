@@ -226,11 +226,15 @@ class MoveTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('lab 300'), None)
 
     def test_randa_as_run(self):
-        s = pre_process('randa to lab 300')
-        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
+        s = pre_process('randa to lab 25')
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 25'), None)
 
     def test_rhonda_as_run(self):
         s = pre_process('rhonda to lab 300')
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
+
+    def test_rhondda_as_run(self):
+        s = pre_process('rhondda to lab 300')
         assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
 
