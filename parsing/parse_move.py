@@ -16,7 +16,9 @@ def speed() -> Parser:
         word_meaning('sprint'),
         word_meaning('sprinting'),
         word_spelling('run'),
-        word_spelling('running')
+        word_spelling('running'),
+        word_match('randa'),
+        word_match('rhonda')
     ]
 
     fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
@@ -92,7 +94,7 @@ def move() -> Parser:
         # Allow the user to just say they want to move. They can then be asked a question about where they want to go.
         return partial_parser(full_parser, verb_response, Move)
 
-    verbs = ['go', 'walk', 'run', 'take', 'sprint', 'to']
+    verbs = ['go', 'walk', 'run', 'take', 'sprint', 'to', 'randa', 'rhonda']
     move_verbs = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
 
     correction_verb_parsers = strongest_word(['o2'])  # Because 'go to' is sometimes parsed as 'o2'.

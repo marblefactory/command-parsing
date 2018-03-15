@@ -335,6 +335,17 @@ function setupSocket(callback) {
 }
 
 function start() {
+    addEventListener("click", function() {
+    var
+          el = document.documentElement
+        , rfs =
+               el.requestFullScreen
+            || el.webkitRequestFullScreen
+            || el.mozRequestFullScreen
+    ;
+    rfs.call(el);
+});
+
     // Setup global variables.
     gRecognition = new webkitSpeechRecognition();
     gRecognition.continuous = true;
