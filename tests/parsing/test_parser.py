@@ -157,6 +157,10 @@ class WordMatchTestCase(unittest.TestCase):
         s = pre_process('hacks hello')
         assert word_match('hack', match_plural=False).parse(s).is_failure()
 
+    def test_matches_word_with_numbers(self):
+        s = pre_process('b o2 c')
+        assert word_match('o2').parse(s) == SuccessParse(parsed='o2', response=1.0, remaining=['c'])
+
 
 class WordMeaningTestCase(unittest.TestCase):
     def test_no_match(self):

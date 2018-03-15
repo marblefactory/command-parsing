@@ -24,10 +24,10 @@ DEBUG_MODE = True
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = False
+GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.0.16:8080/action'
+GAME_SERVER = 'http://192.168.0.30:8080/action'
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
@@ -148,6 +148,16 @@ def preload(fill_cache: bool):
         TextTestRunner(verbosity=0).run(suite)
 
 
+def make_action_failure_response(transcript: str):
+    """
+    :param transcript: the transcript of what the user said.
+    :return: the speech response to say to the user.
+    """
+    r = action_failed_chat_bot.get_response(transcript)
+    print('chatbot:', r)
+    return r
+
+
 def make_speech_responder() -> SpeechResponder:
     """
     :return: a speech responder that parses actions and that responds to:
@@ -157,7 +167,7 @@ def make_speech_responder() -> SpeechResponder:
     """
     success = lambda action: action.random_response()
     partial = lambda action_type: action_type.partial_response()
-    failure = lambda transcript: action_failed_chat_bot.get_response(transcript)
+    failure = make_action_failure_response
 
     return SpeechResponder(action(), success, partial, failure)
 
@@ -173,3 +183,4 @@ if __name__ == '__main__':
 
     print('Running Server')
     socketio.run(app)
+    #socketio.run(app, host='0.0.0.0')

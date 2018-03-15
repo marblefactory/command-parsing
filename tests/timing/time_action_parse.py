@@ -45,7 +45,7 @@ def timed_parse_avg(text: str) -> float:
     """
     :return: the average time from 20 parses to parse the given text.
     """
-    num_iterations = 5
+    num_iterations = 1
     times = [timed_parse(text) for _ in range(num_iterations)]
     return float(np.mean(times))
 

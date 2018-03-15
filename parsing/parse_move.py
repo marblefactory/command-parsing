@@ -92,9 +92,12 @@ def move() -> Parser:
         return partial_parser(full_parser, verb_response, Move)
 
     verbs = ['go', 'walk', 'run', 'take', 'sprint']
-    move_verb = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
+    move_verbs = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
 
-    return move_verb.then(combine)
+    correction_verb_parsers = strongest_word(['o2'])  # Because 'go to' is sometimes parsed as 'o2'.
+    all_verbs = strongest([move_verbs, correction_verb_parsers])
+
+    return all_verbs.then(combine)
 
 
 def hide() -> Parser:
