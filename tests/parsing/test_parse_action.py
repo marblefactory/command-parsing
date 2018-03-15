@@ -69,13 +69,6 @@ class CompositeTestCase(unittest.TestCase):
 
         assert action().parse(s).parsed == Composite(expected_actions)
 
-    def test_failure(self):
-        """
-        Tests the composite parser fails if it couldn't find 'then' or 'and'.
-        """
-        s = pre_process('nothing to see here')
-        assert action().parse(s).is_failure()
-
     def test_fails_if_only_then(self):
         s = pre_process('then')
         assert action().parse(s).is_failure()

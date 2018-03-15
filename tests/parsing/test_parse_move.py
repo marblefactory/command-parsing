@@ -221,6 +221,10 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('o2 lab 300')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('lab 300'), None)
 
+    def test_to_as_go(self):
+        s = pre_process('to lab 300')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('lab 300'), None)
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):

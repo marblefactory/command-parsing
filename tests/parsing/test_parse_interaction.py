@@ -86,6 +86,8 @@ class ThrowTestCase(unittest.TestCase):
     def test_parse_positional(self):
         s = pre_process('throw to the next door')
 
+        print(action().parse(s).parsed)
+
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Throw(expected_loc)
 

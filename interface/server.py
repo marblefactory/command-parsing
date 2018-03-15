@@ -27,7 +27,7 @@ DEBUG_MODE = True
 GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.0.30:8080/action'
+GAME_SERVER = 'http://192.168.1.144:8080/action'
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
@@ -179,8 +179,8 @@ if __name__ == '__main__':
     speech_responder = make_speech_responder()
 
     # Filling the cache takes a long time as all the tests have to run.
-    preload(fill_cache=False)
+    preload(fill_cache=True)
 
     print('Running Server')
-    socketio.run(app)
-    #socketio.run(app, host='0.0.0.0')
+    #socketio.run(app)
+    socketio.run(app, host='0.0.0.0')

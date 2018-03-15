@@ -316,7 +316,10 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
             result = parser.parse(input)
 
             if debug:
-                print(result)
+                if isinstance(result, SuccessParse):
+                    print(result.parsed, ', ', result.response)
+                else:
+                    print(result)
 
             # The maximum value of a response is 1, therefore we can exit early.
             if isinstance(result, SuccessParse):

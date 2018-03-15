@@ -217,3 +217,4 @@ def location() -> Parser:
     # Half the response to give bias towards positional locations since both use directions.
     dir = directional().map_response(lambda r: r/2)
     return strongest([end_of(), absolute(), positional(), dir, stairs(), behind()])
+    #return strongest([absolute(), positional(), dir, stairs(), behind()])
