@@ -226,10 +226,12 @@ class MoveTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('lab 300'), None)
 
     def test_randa_as_run(self):
-        pass
+        s = pre_process('randa to lab 300')
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
     def test_rhonda_as_run(self):
-        pass
+        s = pre_process('rhonda to lab 300')
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
 
 class HideTestCase(unittest.TestCase):
