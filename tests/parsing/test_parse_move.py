@@ -79,6 +79,10 @@ class ChangeStanceTestCase(unittest.TestCase):
         s = pre_process('get down')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
+    def test_grouch_as_crouch(self):
+        s = pre_process('grouch')
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
+
 
 class ChangeSpeedTestCase(unittest.TestCase):
     def test_run(self):
