@@ -241,6 +241,7 @@ class MoveTestCase(unittest.TestCase):
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
         s = pre_process('hide behind the wall')
+        print(action().parse(s).parsed)
         assert action().parse(s).parsed == Hide('wall')
 
     def test_parses_no_object(self):

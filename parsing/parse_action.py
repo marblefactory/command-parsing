@@ -40,8 +40,8 @@ def single_action() -> Parser:
         hack(),
         pick_up(),
         throw(),
-        move(),
-        hide()
+        hide(),
+        move()
     ]
 
     return strongest(parsers)

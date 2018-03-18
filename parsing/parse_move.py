@@ -6,27 +6,81 @@ from functools import partial
 from utils import partial_class
 
 
-def speed() -> Parser:
+def fast_speed_verb() -> Parser:
     """
-    :return: a parser for different speeds, i.e. slow, normal, fast.
+    :return: a parser for words that mean to move at a fast pace.
     """
-    fast_word_parsers = [
+    parsers = [
         word_meaning('quick'),
         word_meaning('fast'),
         word_meaning('sprint'),
         word_meaning('sprinting'),
         word_spelling('run'),
         word_spelling('running'),
+
+        # A few words that 'run' are mistaken for.
         word_match('randa'),
         word_match('rhonda'),
         word_match('rhondda')
     ]
 
-    fast = strongest(fast_word_parsers).ignore_parsed(Speed.FAST)
-    normal = strongest_word(['normal', 'normally', 'walk'], parser_constructors=[word_meaning]).ignore_parsed(Speed.NORMAL)
-    slow = word_meaning('slow').ignore_parsed(Speed.SLOW)
+    return strongest(parsers)
 
-    return strongest([slow, normal, fast])
+
+def normal_speed_verb() -> Parser:
+    """
+    :return: a parser for words that mean to move at a normal, i.e. walking, pace.
+    """
+    return strongest_word(['normal', 'normally', 'walk'], parser_constructors=[word_meaning])
+
+
+def slow_speed_verb() -> Parser:
+    """
+    :return: a parser for words that mean to move at a slow pace.
+    """
+    return word_meaning('slow')
+
+
+def go_verbs() -> Parser:
+    """
+    :return: parser for words that mean to go somewhere.
+    """
+    go_words = [
+        'go',   # e.g. go to the end of the corridor
+        'to',   # e.g. to the end of the corridor
+        'take'  # e.g. take the third door on your left
+    ]
+
+    go_parser = strongest_word(go_words, parser_constructors=[word_spelling, word_meaning])
+
+    # Parsers required because voice recognition sometimes mistakes words.
+    correction_parsers = [
+        'o2'  # 'to' is mistaken for 'o2'
+    ]
+
+    correction_parser = strongest_word(correction_parsers)
+
+    # All parsers which can be used to parse 'go' verbs.
+    all_parsers = [
+        go_parser,
+        correction_parser,
+        fast_speed_verb(),
+        normal_speed_verb(),
+        slow_speed_verb()
+    ]
+
+    return strongest(all_parsers)
+
+
+def speed() -> Parser:
+    """
+    :return: a parser for different speeds, i.e. slow, normal, fast.
+    """
+    fast = fast_speed_verb().ignore_parsed(Speed.FAST)
+    normal = normal_speed_verb().ignore_parsed(Speed.NORMAL)
+    slow = slow_speed_verb().ignore_parsed(Speed.SLOW)
+
+    return strongest([fast, normal, slow])
 
 
 def stance() -> Parser:
@@ -95,13 +149,7 @@ def move() -> Parser:
         # Allow the user to just say they want to move. They can then be asked a question about where they want to go.
         return partial_parser(full_parser, verb_response, Move)
 
-    verbs = ['go', 'walk', 'run', 'take', 'sprint', 'to']
-    move_verbs = anywhere(strongest_word(verbs, parser_constructors=[word_spelling, word_meaning]))
-
-    correction_verb_parsers = strongest_word(['o2', 'rhondda'])  # Because 'go to' is sometimes parsed as 'o2'.
-    all_verbs = strongest([move_verbs, correction_verb_parsers])
-
-    return all_verbs.then(combine)
+    return anywhere(go_verbs()).then(combine)
 
 
 def hide() -> Parser:
