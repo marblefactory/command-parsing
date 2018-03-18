@@ -2,6 +2,7 @@ from actions.action import Stop, Composite
 from parsing.parser import *
 from parsing.parse_move import move, change_stance, change_speed, turn, hide
 from parsing.parse_interaction import through_door, pick_up, throw, hack
+from parsing.parse_question import inventory_question, location_question
 from utils import split_list
 
 
@@ -10,13 +11,6 @@ def ignored_words() -> List[str]:
     :return: a list of words which should be removed from the input text.
     """
     return ['the']
-
-
-def failure_words() -> Parser:
-    """
-    :return: a parser which parses words which will cause parsing to fail.
-    """
-    return strongest_word([ "not", "don't", "what's", "what"])
 
 
 def stop() -> Parser:
@@ -41,7 +35,9 @@ def single_action() -> Parser:
         pick_up(),
         throw(),
         hide(),
-        move()
+        move(),
+        inventory_question(),
+        location_question()
     ]
 
     return strongest(parsers)
@@ -76,5 +72,4 @@ def action() -> Parser:
     """
     act = strongest([composite(), single_action()])
     return ignore_words(ignored_words()) \
-          .ignore_then(none(failure_words())) \
           .ignore_then(threshold(act, 0.3))
