@@ -54,7 +54,9 @@ def mock_post_action_to_game(action: Action) -> Mock:
     r = Mock(spec=Response)
     r.status_code = 200
     r.json.return_value = {
-        'success': True # Indicates whether the action could be performed in the game.
+        'success': True, # Indicates whether the action could be performed in the game.
+        'inventory_item': 'rock', # For if the user asks what the spy is carrying.
+        'location': 'the computer lab' # For if the user asks where the spy is.
     }
     return r
 
