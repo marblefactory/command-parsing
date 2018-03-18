@@ -327,9 +327,11 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
 
             if debug:
                 if isinstance(result, SuccessParse):
-                    print(result.parsed, ', ', result.response)
+                    print('Success:', result.parsed, ', ', result.response)
+                elif isinstance(result, PartialParse):
+                    print('Partial:', result.marker, ', ', result.response)
                 else:
-                    print(result)
+                    print('Failure')
 
             # The maximum value of a response is 1, therefore we can exit early.
             if isinstance(result, SuccessParse):

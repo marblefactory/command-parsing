@@ -51,7 +51,8 @@ def go_verbs() -> Parser:
         'take'  # e.g. take the third door on your left
     ]
 
-    go_parser = strongest_word(go_words, parser_constructors=[word_spelling, word_meaning])
+    spelling = partial(word_spelling, dist_threshold=0.5)
+    go_parser = strongest_word(go_words, parser_constructors=[spelling, word_meaning])
 
     # Parsers required because voice recognition sometimes mistakes words.
     correction_parsers = [

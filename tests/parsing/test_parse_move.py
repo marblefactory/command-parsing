@@ -245,6 +245,11 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('rhondda to lab 300')
         assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
+    def test_fails(self):
+        # s = pre_process("that's not very good joke")
+        s = pre_process("good")
+        assert action().parse(s).is_failure()
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
