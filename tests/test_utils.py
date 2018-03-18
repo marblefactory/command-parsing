@@ -1,5 +1,5 @@
 import unittest
-from utils import split_list, partial_class
+from utils import split_list, partial_class, compose
 
 
 class SplitListTestCase(unittest.TestCase):

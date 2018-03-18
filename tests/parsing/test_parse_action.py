@@ -20,10 +20,6 @@ class StopTestCase(unittest.TestCase):
         s = pre_process('halt')
         assert action().parse(s).parsed == Stop()
 
-    def test_does_not_parse_the(self):
-        s = pre_process('the end of the corridor')
-        assert action().parse(s).is_failure()
-
 
 class CompositeTestCase(unittest.TestCase):
     def test_parses_then(self):

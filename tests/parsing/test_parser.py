@@ -69,6 +69,60 @@ class ParserTestCase(unittest.TestCase):
         assert parser.parse(s) == SuccessParse(parsed='b', response=0.8, remaining=[''])
 
 
+class WrapTestCase(unittest.TestCase):
+    def test_wrap(self):
+        def operation(parsed: str, response: Response) -> Parser:
+            return produce('b', 1.0).map_parsed(lambda parsed2: parsed + parsed2)
+
+        def wrapper(parser: Parser, response: Response) -> Parser:
+            return parser.map(lambda parsed, response: (parsed + 'c', response / 2))
+
+        parser = produce('a', 1.0).then(wrap(operation, wrapper))
+        s = pre_process('')
+
+        assert parser.parse(s) == SuccessParse(parsed='abc', response=0.5, remaining=[''])
+
+
+class AppendTestCase(unittest.TestCase):
+    def test_parse(self):
+        p1 = word_match('hello')
+        p2 = word_match('world')
+        p3 = word_match('!')
+
+        p = p1.then(append(p2)).then(append(p3))
+        s = pre_process('hello world ! c')
+
+        assert p.parse(s) == SuccessParse('hello world !', 1, ['c'])
+
+    def test_parse_no_spaces(self):
+        p1 = word_match('hello')
+        p2 = word_match('world')
+        p3 = word_match('!')
+
+        p = p1.then(append(p2)).then(append(p3, spaces=False))
+        s = pre_process('hello world ! c')
+
+        assert p.parse(s) == SuccessParse('hello world!', 1, ['c'])
+
+    def test_combine_responses(self):
+        p1 = produce('x', 0.5)
+        p2 = produce('y', 1.0)
+
+        p = p1.then(append(p2, mix))
+
+        s = pre_process('w')
+        assert p.parse(s) == SuccessParse('x y', 0.75, ['w'])
+
+    def test_response_default(self):
+        p1 = produce('x', 0.5)
+        p2 = produce('y', 1.0)
+
+        p = p1.then(append(p2))
+
+        s = pre_process('w')
+        assert p.parse(s) == SuccessParse('x y', 0.5, ['w'])
+
+
 class PredicateTestCase(unittest.TestCase):
     def test_none_if_all_zero(self):
         def condition(input_word: Word) -> Response:
@@ -343,59 +397,19 @@ class MaybeTestCase(unittest.TestCase):
 
 class ThresholdTestCase(unittest.TestCase):
     def test_below_threshold(self):
-        parser = threshold(produce('a', 0.1), response_threshold=0.5)
+        parser = threshold_success(produce('a', 0.1), response_threshold=0.5)
         s = pre_process('')
         assert parser.parse(s).is_failure()
 
     def test_on_threshold(self):
-        parser = threshold(produce('a', 0.5), response_threshold=0.5)
+        parser = threshold_success(produce('a', 0.5), response_threshold=0.5)
         s = pre_process('')
         assert parser.parse(s).is_failure()
 
     def test_above_threshold(self):
-        parser = threshold(produce('a', 0.6), response_threshold=0.5)
+        parser = threshold_success(produce('a', 0.6), response_threshold=0.5)
         s = pre_process('a b')
         assert parser.parse(s) == SuccessParse('a', 0.6, ['a', 'b'])
-
-
-class AppendTestCase(unittest.TestCase):
-    def test_parse(self):
-        p1 = word_match('hello')
-        p2 = word_match('world')
-        p3 = word_match('!')
-
-        p = p1.then(append(p2)).then(append(p3))
-        s = pre_process('hello world ! c')
-
-        assert p.parse(s) == SuccessParse('hello world !', 1, ['c'])
-
-    def test_parse_no_spaces(self):
-        p1 = word_match('hello')
-        p2 = word_match('world')
-        p3 = word_match('!')
-
-        p = p1.then(append(p2)).then(append(p3, spaces=False))
-        s = pre_process('hello world ! c')
-
-        assert p.parse(s) == SuccessParse('hello world!', 1, ['c'])
-
-    def test_combine_responses(self):
-        p1 = produce('x', 0.5)
-        p2 = produce('y', 1.0)
-
-        p = p1.then(append(p2, mix))
-
-        s = pre_process('w')
-        assert p.parse(s) == SuccessParse('x y', 0.75, ['w'])
-
-    def test_response_default(self):
-        p1 = produce('x', 0.5)
-        p2 = produce('y', 1.0)
-
-        p = p1.then(append(p2))
-
-        s = pre_process('w')
-        assert p.parse(s) == SuccessParse('x y', 0.5, ['w'])
 
 
 class NoneTestCase(unittest.TestCase):

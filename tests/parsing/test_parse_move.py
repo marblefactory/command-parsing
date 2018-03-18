@@ -127,9 +127,13 @@ class ChangeSpeedTestCase(unittest.TestCase):
 
 
 class MoveTestCase(unittest.TestCase):
-    def test_fails_if_just_location(self):
+    def test_parses_just_location(self):
         s = pre_process('next door')
-        assert action().parse(s).is_failure()
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('door', 0, ObjectRelativeDirection.FORWARDS), None)
+
+    def test_parses_just_location_with_speed_stance(self):
+        s = pre_process('running forward standing')
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), Stance.STAND)
 
     def test_parses_standing(self):
         s = pre_process('go left standing')
@@ -241,7 +245,6 @@ class MoveTestCase(unittest.TestCase):
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
         s = pre_process('hide behind the wall')
-        print(action().parse(s).parsed)
         assert action().parse(s).parsed == Hide('wall')
 
     def test_parses_no_object(self):

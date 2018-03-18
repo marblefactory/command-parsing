@@ -40,7 +40,11 @@ def single_action() -> Parser:
         location_question()
     ]
 
-    return strongest(parsers)
+    # Removes successful parses which have below 0.3 response. This does not remove partial parses.
+    min_response = 0.3
+    thresholds = [threshold_success(p, min_response) for p in parsers]
+
+    return strongest(thresholds)
 
 
 def composite() -> Parser:
@@ -72,4 +76,4 @@ def action() -> Parser:
     """
     act = strongest([composite(), single_action()])
     return ignore_words(ignored_words()) \
-          .ignore_then(threshold(act, 0.3))
+          .ignore_then(act)

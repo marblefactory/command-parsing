@@ -146,6 +146,16 @@ class Parser:
         return self.map_parsed(lambda _: new_parsed)
 
 
+def wrap(operation: Callable[[Any, Response], Parser], wrapper: Callable[[Parser, Response], Parser]) -> Callable[[Any, Response], Parser]:
+    """
+    :return: a function which wraps the operation in the wrapper, passing the result of one to the other.
+    """
+    def op(parsed: Any, response: Response) -> Parser:
+        return wrapper(operation(parsed, response), response)
+
+    return op
+
+
 def append(parser: Parser, combine_responses: Callable[[Response, Response], Response] = None, spaces = True) -> Callable[[Any, Response], Parser]:
     """
     An operation to be used with `then`.
@@ -214,7 +224,7 @@ def word_spelling(word: Word, dist_threshold: Response = 0.49) -> Parser:
         edit_dist = editdistance.eval(word, input_word)
         return ((max_word_len - edit_dist) / max_word_len)
 
-    return threshold(predicate(condition).ignore_parsed(word), dist_threshold)
+    return threshold_success(predicate(condition).ignore_parsed(word), dist_threshold)
 
 
 def word_match(word: Word, match_plural = True) -> Parser:
@@ -247,7 +257,7 @@ def word_meaning(word: Word,
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, similarity_measure)
 
-    return threshold(predicate(condition), semantic_similarity_threshold)
+    return threshold_success(predicate(condition), semantic_similarity_threshold)
 
 
 def word_tagged(tags: List[str]) -> Parser:
@@ -384,9 +394,10 @@ def maybe(parser: Parser, response: Response = 0.0) -> Parser:
     return Parser(parse)
 
 
-def threshold(parser: Parser, response_threshold: Response) -> Parser:
+def threshold_success(parser: Parser, response_threshold: Response) -> Parser:
     """
-    :return: a parser which returns the result of `parser` if the response is above the threshold, otherwise returns None.
+    :return: a parser which returns the result of `parser` if the response successful and is above the threshold,
+             otherwise returns None.
     """
     def check_threshold(parsed: Any, response: Response) -> Parser:
         if response <= response_threshold:

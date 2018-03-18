@@ -1,5 +1,5 @@
 from functools import partialmethod
-from typing import List
+from typing import List, Callable
 
 
 def split_list(lst: List, separators: List) -> List[List]:

@@ -144,12 +144,18 @@ def move() -> Parser:
         # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
         # Partially applies the location to the Move init.
         loc_parser = anywhere(location()).map(lambda loc, loc_response: (partial_class(Move, location=loc), mix(verb_response, loc_response)))
-        full_parser = loc_parser.then(combine_speed).then(combine_stance)
+        return loc_parser.then(combine_speed).then(combine_stance)
 
-        # Allow the user to just say they want to move. They can then be asked a question about where they want to go.
-        return partial_parser(full_parser, verb_response, Move)
+    # Parses on the verb, then the location can not be specified, thereby creating a partial move.
+    # This allows the user to just say they want to move. They can then be asked a question about where they want to go.
+    make_partial = lambda parser, verb_response: partial_parser(parser, verb_response, marker=Move)
+    partial_move = anywhere(go_verbs()).then(wrap(combine, make_partial))
 
-    return anywhere(go_verbs()).then(combine)
+    # Parses moves which can optionally have a verb or not. This cannot be a partial parser otherwise everything will
+    # be considered a partial move.
+    move = maybe(anywhere(go_verbs())).then(combine)
+
+    return strongest([move, partial_move])
 
 
 def hide() -> Parser:
