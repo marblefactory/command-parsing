@@ -1,9 +1,11 @@
-import json
 from actions.action import *
 from actions.interaction import *
 from actions.move import *
+from actions.question import *
+
 from encoders.encode_interaction import *
 from encoders.encode_move import *
+from encoders.encode_question import *
 
 
 class StopEncoder(json.JSONEncoder):
@@ -61,6 +63,10 @@ class ActionEncoder(json.JSONEncoder):
             encoder = TurnEncoder
         elif isinstance(obj, Hide):
             encoder = HideEncoder
+        elif isinstance(obj, InventoryContentsQuestion):
+            encoder = InventoryContentsQuestionEncoder
+        elif isinstance(obj, LocationQuestion):
+            encoder = LocationQuestionEncoder
         else:
             raise RuntimeError('unexpected move type when encoding')
 

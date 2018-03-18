@@ -1,5 +1,6 @@
 import unittest
 from encoders.encode_location import *
+import json
 
 
 class AbsoluteEncoderTestCase(unittest.TestCase):

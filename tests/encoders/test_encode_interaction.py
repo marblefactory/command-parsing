@@ -1,7 +1,8 @@
 import unittest
+from actions.location import *
 from actions.interaction import *
-from encoders.encode_interaction import *
 from encoders.encode_action import ActionEncoder
+import json
 
 
 class ThroughDoorEncoderTestCase(unittest.TestCase):
