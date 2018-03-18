@@ -2,7 +2,15 @@ from actions.action import Action, GameResponse
 from typing import List
 
 
-class InventoryContentsQuestion(Action):
+class Question(Action):
+    """
+    Base class for questions. Used to identify questions so they can be sent
+    to a different handler in the game server.
+    """
+    pass
+
+
+class InventoryContentsQuestion(Question):
     """
     An action to ask the spy what's in their inventory.
     """
@@ -20,7 +28,7 @@ class InventoryContentsQuestion(Action):
         ]
 
 
-class LocationQuestion(Action):
+class LocationQuestion(Question):
     """
     An action to ask the spy where they are.
     """

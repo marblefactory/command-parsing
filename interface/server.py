@@ -13,6 +13,7 @@ from actions.action import Action
 from encoders.encode_action import ActionEncoder
 from parsing.parse_action import action
 from actions.action import GameResponse
+from actions.question import Question
 from random import randrange
 from unittest.mock import Mock
 
@@ -30,7 +31,7 @@ DEBUG_MODE = True
 GAME_MODE = False
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.1.144:8080/action'
+GAME_SERVER = 'http://192.168.1.144:8080/'
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
@@ -39,15 +40,16 @@ action_failed_chat_bot = ChatBot('James')
 speech_responder: SpeechResponder = None
 
 
-def post_action_to_game(action: Action) -> Response:
+def post_to_game(addr_postfix: str, action: Action) -> Response:
     """
     :return: the response of sending the action json to the server.
     """
     action_json = json.loads(json.dumps(action, cls=ActionEncoder))
-    return requests.post(GAME_SERVER, json=action_json)
+    addr = GAME_SERVER + 'action'
+    return requests.post(addr, json=action_json)
 
 
-def mock_post_action_to_game(action: Action) -> Mock:
+def mock_post_to_game(addr_postfix: str, action: Action) -> Mock:
     """
     :return: a successful response.
     """
@@ -55,8 +57,8 @@ def mock_post_action_to_game(action: Action) -> Mock:
     r.status_code = 200
     r.json.return_value = {
         'success': True, # Indicates whether the action could be performed in the game.
-        'inventory_item': 'rock', # For if the user asks what the spy is carrying.
-        'location': 'the computer lab' # For if the user asks where the spy is.
+        'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
+        'location': 'the computer lab'  # For if the user asks where the spy is.
     }
     return r
 
@@ -84,7 +86,11 @@ def process_transcript(transcript: str) -> str:
     if action:
         print('action:', action)
 
-        game_response = post_action_to_game(action) if GAME_MODE else mock_post_action_to_game(action)
+        # Where the action should be sent depends on whether it is a question or not.
+        get_game_response = post_to_game if GAME_MODE else mock_post_to_game
+        addr_postfix = 'question' if isinstance(action, Question) else 'action'
+        print('sending to:', addr_postfix)
+        game_response = get_game_response(addr_postfix, action)
 
         print('server:', game_response)
 
