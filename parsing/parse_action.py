@@ -28,8 +28,8 @@ def single_action() -> Parser:
     parsers = [
         stop(),
         through_door(),
-        change_stance().map_response(lambda r: r * 0.6),  # Because move also looks for stances.
-        change_speed().map_response(lambda r: r * 0.6), # Because move also looks for speeds.
+        change_stance().map_response(lambda r: r * 0.7),  # Because move also looks for stances, and this matches on less.
+        change_speed().map_response(lambda r: r * 0.7), # Because move also looks for speeds, and this matches on less.
         turn(),
         hack(),
         pick_up(),
@@ -41,7 +41,7 @@ def single_action() -> Parser:
     ]
 
     # Removes successful parses which have below 0.3 response. This does not remove partial parses.
-    min_response = 0.3
+    min_response = 0.24
     thresholds = [threshold_success(p, min_response) for p in parsers]
 
     return strongest(thresholds)

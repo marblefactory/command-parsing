@@ -127,9 +127,13 @@ class ChangeSpeedTestCase(unittest.TestCase):
 
 
 class MoveTestCase(unittest.TestCase):
-    def test_parses_just_location(self):
+    def test_parses_just_location1(self):
         s = pre_process('next door')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('door', 0, ObjectRelativeDirection.FORWARDS), None)
+
+    def test_parses_just_location2(self):
+        s = pre_process('forward')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
 
     def test_parses_just_location_with_speed_stance(self):
         s = pre_process('running forward standing')

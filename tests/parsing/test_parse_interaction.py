@@ -59,12 +59,6 @@ class PickUpTestCase(unittest.TestCase):
         result = action().parse(s)
         assert result.marker == PickUp
 
-    def test_pick_up_partial_if_no_object2(self):
-        # Tests that a partial is returned asking for more information if the object name is not given.
-        s = pre_process('pick up on your left')
-        result = action().parse(s)
-        assert result.marker == PickUp
-
     def test_take_is_partial(self):
         # Tests that a partial is returned if you say 'take'.
         s = pre_process('take')
