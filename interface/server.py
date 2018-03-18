@@ -32,11 +32,11 @@ GAME_MODE = False
 GAME_SERVER = 'http://192.168.1.144:8080/'
 
 # If True then the chatbot is trained fully. Otherwise the chatbot uses whatever it has been trained on.
-TRAIN_CHATBOT = True
+TRAIN_CHATBOT = False
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = True
+FILL_CACHE = False
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
@@ -133,7 +133,7 @@ def preload(fill_cache: bool):
     # Train the ChatBot in case the transcript was not parsed as an action.
     print('Training Chat Bot...')
 
-    trainer = ListTrainer if TRAIN_CHATBOT else ChatterBotCorpusTrainer
+    trainer = ChatterBotCorpusTrainer if TRAIN_CHATBOT else ListTrainer
     action_failed_chat_bot.set_trainer(trainer)
     action_failed_chat_bot.train("chatterbot.corpus.english")
 
