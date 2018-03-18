@@ -1,9 +1,9 @@
-from actions.action import Action
+from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse
 from actions.location import ObjectRelativeDirection, Location
 from typing import List
 
 
-class ThroughDoor(Action):
+class ThroughDoor(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to open the nearest door and walk through it.
     """
@@ -17,7 +17,7 @@ class ThroughDoor(Action):
         return 'through door on {}'.format(self.direction)
 
 
-class PickUp(Action):
+class PickUp(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to pick up an object, e.g. pick up the rock on your left.
     """
@@ -40,7 +40,7 @@ class PickUp(Action):
         return 'Pick-up what?'
 
 
-class Throw(Action):
+class Throw(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to throw whatever object they've picked up.
     """
@@ -53,7 +53,10 @@ class Throw(Action):
     def __str__(self):
         return 'throw to "{}"'.format(self.target)
 
-    def specific_responses(self) -> List[str]:
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: positive responses for the throw action. Does not expect anything to be given from the game.
+        """
         return [
             "I hope this distracts the guard",
             "I hope the guard falls for this"
@@ -68,7 +71,7 @@ class HackableType:
     TERMINAL = 'terminal'
 
 
-class Hack(Action):
+class Hack(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to hack an object.
     """
@@ -88,7 +91,10 @@ class Hack(Action):
     def __str__(self):
         return 'hack "{}" ({}) "{}"'.format(self.object_name, self.object_type, self.direction)
 
-    def specific_responses(self) -> List[str]:
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: positive responses for the hack action. Does not expect anything to be given from the game.
+        """
         return [
             "I'll make a GUI interface using Visual Basic, see if I can track an IP address",
             "I'll get you access to their mainframe",

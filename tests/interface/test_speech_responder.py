@@ -16,25 +16,27 @@ class SpeechResponderTestCase(unittest.TestCase):
         # A parser which parses 'hello world', but where 'world' can be asked for after (i.e. partial parsing).
         parser = word_match('hello').then(combine)
 
-        return SpeechResponder(parser, lambda _: 'success', lambda t: 'partial' + t, lambda _: 'failure')
+        return SpeechResponder(parser, lambda game_resp, action: 'success', lambda t: 'partial' + t, lambda _: 'failure')
 
     def test_generates_success_speech(self):
         responder = self.responder()
 
-        speech, parsed = responder.parse('hello world')
-        assert speech == 'success'
+        make_speech, parsed = responder.parse('hello world')
+        game_response = {}
+        assert make_speech(game_response) == 'success'
 
     def test_generates_parsed_object(self):
         responder = self.responder()
 
-        speech, parsed = responder.parse('hello world')
+        make_speech, parsed = responder.parse('hello world')
         assert parsed == 'helloworld'
 
     def test_generates_partial_speech(self):
         responder = self.responder()
 
-        speech, parsed = responder.parse('hello')
-        assert speech == 'partialType'
+        make_speech, parsed = responder.parse('hello')
+        game_response = {}
+        assert make_speech(game_response) == 'partialType'
 
     def test_generates_no_partial_parsed_object(self):
         responder = self.responder()
@@ -46,9 +48,10 @@ class SpeechResponderTestCase(unittest.TestCase):
         # Tests that after a partial parse, the full object can be parsed after.
         responder = self.responder()
         _ = responder.parse('hello')
-        speech, parsed = responder.parse('world')
+        make_speech, parsed = responder.parse('world')
 
-        assert speech == 'success'
+        game_response = {}
+        assert make_speech(game_response) == 'success'
 
     def test_parses_partial_success_object(self):
         # Tests that after a partial parse, the full object can be parsed after.
@@ -61,8 +64,9 @@ class SpeechResponderTestCase(unittest.TestCase):
     def test_generates_failure_speech(self):
         responder = self.responder()
 
-        speech, parsed = responder.parse('nothing here')
-        assert speech == 'failure'
+        make_speech, parsed = responder.parse('nothing here')
+        game_response = {}
+        assert make_speech(game_response) == 'failure'
 
     def test_generates_no_failure_parsed_object(self):
         responder = self.responder()

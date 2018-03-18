@@ -12,6 +12,9 @@ from interface.speech_responder import SpeechResponder
 from actions.action import Action
 from encoders.encode_action import ActionEncoder
 from parsing.parse_action import action
+from actions.action import GameResponse
+from random import randrange
+from unittest.mock import Mock
 
 
 app = Flask(__name__, static_url_path='')
@@ -24,7 +27,7 @@ DEBUG_MODE = True
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = True
+GAME_MODE = False
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
 GAME_SERVER = 'http://192.168.1.144:8080/action'
@@ -44,12 +47,15 @@ def post_action_to_game(action: Action) -> Response:
     return requests.post(GAME_SERVER, json=action_json)
 
 
-def mock_post_action_to_game(action: Action) -> Response:
+def mock_post_action_to_game(action: Action) -> Mock:
     """
     :return: a successful response.
     """
-    r = Response()
+    r = Mock(spec=Response)
     r.status_code = 200
+    r.json.return_value = {
+        'success': True # Indicates whether the action could be performed in the game.
+    }
     return r
 
 
@@ -69,7 +75,7 @@ def process_transcript(transcript: str) -> str:
     print('transcript:', transcript)
 
     # The responder is used to keep track of state, such as whether the last transcript parsed to a partial.
-    response, action = speech_responder.parse(transcript)
+    make_speech, action = speech_responder.parse(transcript)
 
     # If an action was parsed, send it to the server. The response is then dependent on whether the spy could
     # perform the action in the game, e.g. whether there was a rock to pick up.
@@ -78,11 +84,18 @@ def process_transcript(transcript: str) -> str:
 
         game_response = post_action_to_game(action) if GAME_MODE else mock_post_action_to_game(action)
 
-        print('response:', game_response)
+        print('server:', game_response)
 
-        # If the spy could not perform the action, the speech response is replaced with one indicating that.
-        if game_response.status_code != 200:
-            response = random_from_json('failure_responses/server.json')
+        # We got a response from the server, however this does not mean the action was necessarily performed.
+        # For example, if the spy was asked to pickup an object the action could fail if there are none of the
+        # specified objects around.
+        if game_response.status_code == 200:
+            response = make_speech(game_response.json())
+        else:
+            print('ERROR: Unsuccessful response from game', game_response)
+            response = ''
+    else:
+        response = make_speech({})
 
     return response
 
@@ -148,7 +161,27 @@ def preload(fill_cache: bool):
         TextTestRunner(verbosity=0).run(suite)
 
 
-def make_action_failure_response(transcript: str):
+def make_action_speech_response(game_response: GameResponse, action: Action) -> str:
+    """
+    :param game_response: the JSON response from the game.
+    :param action: the action that was parsed.
+    :return: the speech response to say to the user indicating whether or not the action was performed.
+    """
+    # Choose from negative or positive responses depending on whether the action could be performed.
+    responses = action.positive_responses(game_response) if game_response['success'] else action.negative_responses()
+    random_index = randrange(0, len(responses))
+    return responses[random_index]
+
+
+def make_partial_speech_response(action_type) -> str:
+    """
+    :param action_type: the class of the action for which there was a partial parse.
+    :return: a speech response indicating to give more information.
+    """
+    return action_type.partial_response()
+
+
+def make_parse_failure_speech_response(transcript: str) -> str:
     """
     :param transcript: the transcript of what the user said.
     :return: the speech response to say to the user.
@@ -165,11 +198,7 @@ def make_speech_responder() -> SpeechResponder:
                - partial with speech determined by the type that failed to parse.
                - failure with speech from a chat bot,
     """
-    success = lambda action: action.random_response()
-    partial = lambda action_type: action_type.partial_response()
-    failure = make_action_failure_response
-
-    return SpeechResponder(action(), success, partial, failure)
+    return SpeechResponder(action(), make_action_speech_response, make_partial_speech_response, make_parse_failure_speech_response)
 
 
 if __name__ == '__main__':
@@ -179,8 +208,8 @@ if __name__ == '__main__':
     speech_responder = make_speech_responder()
 
     # Filling the cache takes a long time as all the tests have to run.
-    preload(fill_cache=True)
+    preload(fill_cache=False)
 
     print('Running Server')
-    #socketio.run(app)
-    socketio.run(app, host='0.0.0.0')
+    socketio.run(app)
+    #socketio.run(app, host='0.0.0.0')

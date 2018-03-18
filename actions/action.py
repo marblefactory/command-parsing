@@ -1,6 +1,29 @@
 from typing import List
 from equatable import EquatableMixin
-from random import randrange
+from typing import Dict
+
+
+# A JSON response from the game server to an action. This contains different information depending on the action.
+# For example, for a question the response will contain the answer to the question.
+GameResponse = Dict[str, str]
+
+
+class ActionDefaultPositiveResponseMixin:
+    """
+    Mixin that provides some standard positive responses, e.g. 'OK, 'Affirmative', etc
+    """
+
+    def positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: default affirmative responses that apply to all actions, plus any responses specific to the action.
+        """
+        return self.specific_positive_responses(game_response) + ['OK', 'Affirmative', 'Roger', 'Copy']
+
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: responses specific to the action.
+        """
+        return []
 
 
 class Action(EquatableMixin):
@@ -8,25 +31,18 @@ class Action(EquatableMixin):
     An action that the player can command the spy to make.
     """
 
-    def responses(self) -> List[str]:
+    def positive_responses(self, game_response: GameResponse) -> List[str]:
         """
-        :return: default affirmative responses that apply to all actions, plus any responses specific to the action.
+        :param game_response: the JSON object returned from the game server. The contents varies depending on the action sent.
+        :return: a list of responses that can be used to speak to the player.
         """
-        return self.specific_responses() + ['OK', 'Affirmative', 'Roger', 'Copy']
+        raise NotImplementedError
 
-    def specific_responses(self):
+    def negative_responses(self) -> List[str]:
         """
-        :return: responses specific to the action.
+        :return: a list of responses that can be spoken to the player to indicate that the spy cannot perform an action.
         """
-        return []
-
-    def random_response(self) -> str:
-        """
-        :return: a random response from all possible responses to the action.
-        """
-        responses = self.responses()
-        random_index = randrange(0, len(responses))
-        return responses[random_index]
+        return ["I can't do that"]
 
     @classmethod
     def partial_response(cls) -> str:
@@ -36,7 +52,7 @@ class Action(EquatableMixin):
         raise NotImplementedError
 
 
-class Stop(Action):
+class Stop(Action, ActionDefaultPositiveResponseMixin):
     """
     Tells the spy to stop whatever they're doing.
     """
@@ -44,7 +60,10 @@ class Stop(Action):
     def __str__(self):
         return 'stop'
 
-    def specific_responses(self) -> List[str]:
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: positive responses for the stop action. Does not expect anything to be given from the game.
+        """
         return ['stopping']
 
 

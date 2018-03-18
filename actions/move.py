@@ -1,7 +1,6 @@
-from actions.action import Action
+from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse
 from actions.location import Location, MoveDirection
-from typing import Optional
-from typing import List
+from typing import Optional, List
 
 
 class Speed:
@@ -15,7 +14,7 @@ class Stance:
     STAND = 'stand'
 
 
-class Turn(Action):
+class Turn(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to turn to a particular direction.
     """
@@ -29,7 +28,7 @@ class Turn(Action):
         return 'turn {}'.format(self.direction)
 
 
-class ChangeStance(Action):
+class ChangeStance(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to change their stance.
     """
@@ -43,7 +42,7 @@ class ChangeStance(Action):
         return 'change stance to {}'.format(self.stance)
 
 
-class ChangeSpeed(Action):
+class ChangeSpeed(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to change the speed they're performing their current movement at.
     """
@@ -57,7 +56,7 @@ class ChangeSpeed(Action):
         return 'change speed to {}'.format(self.speed)
 
 
-class Move(Action):
+class Move(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to move to a location.
     """
@@ -75,7 +74,10 @@ class Move(Action):
     def __str__(self):
         return 'go "{}" at "{}" speed while "{}"'.format(self.location, self.speed, self.stance or 'no change')
 
-    def specific_responses(self) -> List[str]:
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: positive responses for the move action. Does not expect anything to be given from the game.
+        """
         return [
             "Moving to that position",
             "On my way",
@@ -90,7 +92,7 @@ class Move(Action):
         return 'To where?'
 
 
-class Hide(Action):
+class Hide(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to hide behind an object. If no object is given, the spy will hide behind the closest object.
     """
@@ -101,7 +103,7 @@ class Hide(Action):
     def __str__(self):
         return 'hide behind {}'.format(self.object_name or 'closest')
 
-    def specific_responses(self) -> List[str]:
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
         if self.object_name:
             extra = ["They won't find me behind the {}".format(self.object_name)]
         else:

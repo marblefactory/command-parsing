@@ -1,7 +1,7 @@
 from parsing.parser import Parser, strongest
 from parsing.pre_processing import pre_process
 from parsing.parse_result import SuccessParse, PartialParse, FailureParse
-from actions.action import Action
+from actions.action import Action, GameResponse
 from typing import Optional, Callable, Any
 
 
@@ -16,12 +16,13 @@ class SpeechResponder:
     _partial: Optional[Parser]
 
     def __init__(self, parser: Parser,
-                 parsed_response: Callable[[Action], str],
+                 parsed_response: Callable[[GameResponse, Action], str],
                  partial_response: Callable[[Any], str],
                  no_parsed_response: Callable[[str], str]):
         """
         :param parser: the parser to be used when parsing the transcript.
-        :param parsed_response: function used to create a response when an action was parsed from the transcript.
+        :param parsed_response: function used to create a response when an action was parsed from the transcript. Also
+                                takes the response from the game server indicating whether the action could be performed.
         :param partial_response: function used to create a response when a partial was parsed from the transcript.
                                  The marker given to the function is the marker supplied to the partial parser that failed.
         :param no_parsed_response: function used to create a response when nothing could be parsed from the transcript.
@@ -32,7 +33,7 @@ class SpeechResponder:
         self.no_parsed_response = no_parsed_response
         self._partial = None
 
-    def parse(self, transcript: str) -> (str, Optional[Action]):
+    def parse(self, transcript: str) -> (Callable[[GameResponse], str], Optional[Action]):
         """
         :param transcript: the transcript of the user's speech.
         :return: a speech response to be sent to the client to speak. An action for the spy to perform may optionally
@@ -48,15 +49,15 @@ class SpeechResponder:
         if isinstance(result, SuccessParse):
             self._partial = None
             action = result.parsed
-            return (self.parsed_response(action), action)
+            return (lambda game_response: self.parsed_response(game_response, action), action)
 
         elif isinstance(result, PartialParse):
             self._partial = result.failed_parser
             # We assume the marker is the class that failed to parse.
-            return (self.partial_response(result.marker), None)
+            return (lambda game_response: self.partial_response(result.marker), None)
 
         elif isinstance(result, FailureParse):
             self._partial = None
-            return (self.no_parsed_response(transcript), None)
+            return (lambda game_response: self.no_parsed_response(transcript), None)
 
         raise RuntimeError('unexpected ParseResult type')
