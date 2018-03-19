@@ -67,7 +67,7 @@ class Stop(ActionDefaultPositiveResponseMixin, Action):
         return ['stopping']
 
 
-class Composite(Action):
+class Composite(ActionDefaultPositiveResponseMixin, Action):
     """
     An action made of multiple actions, e.g. go left then go right.
     """
