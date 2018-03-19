@@ -52,7 +52,7 @@ class Action(EquatableMixin):
         raise NotImplementedError
 
 
-class Stop(Action, ActionDefaultPositiveResponseMixin):
+class Stop(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to stop whatever they're doing.
     """
