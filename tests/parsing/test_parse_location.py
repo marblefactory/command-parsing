@@ -71,6 +71,10 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to storage room 5')
         assert location().parse(s).parsed == Absolute('storage room 5')
 
+    def test_parses_default_number(self):
+        s = pre_process('go to the storage room')
+        assert location().parse(s).parsed == Absolute('storage room 1')
+
     def test_parses_storage_no_room(self):
         s = pre_process('go to storage 5')
         assert location().parse(s).parsed == Absolute('storage room 5')
@@ -147,6 +151,7 @@ class AbsoluteTestCase(unittest.TestCase):
 
     def test_parses_security_office(self):
         s = pre_process('go to the security office')
+        print(location().parse(s).parsed)
         assert location().parse(s).parsed == Absolute('security office')
 
 

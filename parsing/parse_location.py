@@ -73,18 +73,24 @@ def absolute_place_names() -> Parser:
     """
     :return: a parser for absolute location place names, i.e. the result of the parser is a string.
     """
-    # When describing a storage room, the player can optionally say 'room' too.xX
+
+    # Parsers a number, or if no number was parsed, returns '1'.
+    def number_or_1() -> Parser:
+        parsers = [number(), produce('1', response=0.0)]
+        return strongest(parsers)
+
+    # When describing a storage room, the player can optionally say 'room' too.
     storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
-    storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number()))
+    storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number_or_1()))
 
     lab = word_spelling('lab', dist_threshold=0.24)  # Because of errors in speech parsing.
 
-    office_x = word_match('office').then(append(number()))
-    computer_lab_x = word_match('computer').then(append(lab)).then(append(number()))
-    lab_x = lab.then(append(number()))
-    meeting_room_x = word_match('meeting').then(append(word_match('room'))).then(append(number()))
-    workshop_x = word_match('workshop').then(append(number()))
-    server_room_x = word_match('server').then(append(word_match('room'))).then(append(number()))
+    office_x = word_match('office').then(append(number_or_1()))
+    computer_lab_x = word_match('computer').then(append(lab)).then(append(number_or_1()))
+    lab_x = lab.then(append(number_or_1()))
+    meeting_room_x = word_match('meeting').then(append(word_match('room'))).then(append(number_or_1()))
+    workshop_x = word_match('workshop').then(append(number_or_1()))
+    server_room_x = word_match('server').then(append(word_match('room'))).then(append(number_or_1()))
 
     reception = word_match('reception')
     kitchen = word_match('kitchen')
@@ -93,6 +99,12 @@ def absolute_place_names() -> Parser:
     security_office = word_match('security').then(append(word_match('office')))
 
     places = [
+        reception,
+        kitchen,
+        gun_range,
+        mortuary,
+        security_office,
+
         storage_x,
         office_x,
         computer_lab_x,
@@ -100,11 +112,6 @@ def absolute_place_names() -> Parser:
         meeting_room_x,
         workshop_x,
         server_room_x,
-        reception,
-        kitchen,
-        gun_range,
-        mortuary,
-        security_office
     ]
 
     return strongest(places)
