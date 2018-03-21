@@ -52,9 +52,9 @@ def hack() -> Parser:
     """
     :return: a parser which parses hack instructions.
     """
-    hack_verb = strongest_word(['hack'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
-    text = word_match('text') # Because speech recognition mistakes 'hack' for 'text'.
-    verb_parser = strongest([hack_verb, text])
+    hack_verbs = ['hack']
+    corrections = ['text']  # 'hack' is sometimes misheard for 'text'.
+    verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     def combine_direction(make_type: Callable, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: make_type(dir))

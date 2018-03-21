@@ -39,26 +39,16 @@ def go_verbs() -> Parser:
     """
     :return: parser for words that mean to go somewhere.
     """
-    go_words = [
-        'go',   # e.g. go to the end of the corridor
-        'to',   # e.g. to the end of the corridor
-        'take'  # e.g. take the third door on your left
-    ]
+    go_verbs = ['go', 'to', 'take']
+    # S2T can mistake 'to' for 'o2.
+    corrections = ['o2']
 
     spelling = partial(word_spelling, dist_threshold=0.5)
-    go_parser = strongest_word(go_words, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
-
-    # Parsers required because voice recognition sometimes mistakes words.
-    correction_parsers = [
-        'o2'  # 'to' is mistaken for 'o2'
-    ]
-
-    correction_parser = strongest_word(correction_parsers)
+    go_verb_parser = words_and_corrections(go_verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # All parsers which can be used to parse 'go' verbs.
     all_parsers = [
-        go_parser,
-        correction_parser,
+        go_verb_parser,
         fast_speed_verb(),
         normal_speed_verb(),
         slow_speed_verb()
