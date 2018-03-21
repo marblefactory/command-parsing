@@ -27,11 +27,11 @@ def single_action() -> Parser:
     # The order these appear in here determine their precedence.
     parsers = [
         stop(),
+        hack(),
         through_door(),
         change_stance().map_response(lambda r: r * 0.7),  # Because move also looks for stances, and this matches on less.
         change_speed().map_response(lambda r: r * 0.7), # Because move also looks for speeds, and this matches on less.
         turn(),
-        hack(),
         pick_up(),
         throw(),
         hide(),

@@ -116,6 +116,10 @@ class HackTestCase(unittest.TestCase):
         s = pre_process('text the server')
         assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'server', ObjectRelativeDirection.VICINITY)
 
+    def test_hack_into(self):
+        s = pre_process('hack into a camera')
+        assert action().parse(s).parsed == Hack(HackableType.CAMERA, 'camera', ObjectRelativeDirection.VICINITY)
+
     def test_partial_if_no_object1(self):
         s = pre_process('hack')
         result = action().parse(s)
