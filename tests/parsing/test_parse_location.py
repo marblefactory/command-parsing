@@ -153,6 +153,22 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to the security office')
         assert location().parse(s).parsed == Absolute('security office')
 
+    def test_parses_basement(self):
+        s = pre_process('go to the basement')
+        assert location().parse(s).parsed == Absolute('basement')
+
+    def test_parses_floor_0_as_basement(self):
+        s = pre_process('go to floor 0')
+        assert location().parse(s).parsed == Absolute('basement')
+
+    def test_parses_floor_zero_as_basement(self):
+        s = pre_process('go to floor zero')
+        assert location().parse(s).parsed == Absolute('basement')
+
+    def test_fails_with_unknown_floor_num(self):
+        s = pre_process('go to floor 100')
+        assert location().parse(s).is_failure()
+
 
 class PositionalTestCase(unittest.TestCase):
     def test_parses(self):

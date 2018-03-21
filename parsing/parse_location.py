@@ -71,13 +71,19 @@ def distance() -> Parser:
     return strongest([short, medium, far])
 
 
-# def absolute_floor_name() -> Parser:
-#     """
-#     :return: a parser for names of floors, e.g. floor 0, basement, roof, etc.
-#     """
-#     #floor_names = ['basement', 'ground', 'roof']
-#     #numerical_name =
-#     pass
+def absolute_floor_name() -> Parser:
+    """
+    :return: a parser for names of floors, e.g. floor 0, basement, roof, etc.
+    """
+    floor_names = ['basement', 'ground', 'roof']
+    floor_parsers = strongest_word(floor_names)
+
+    # Parses floor 0, floor 1, and floor 2 as basement, ground, and roof respectively.
+    numerical_parsers = word_match('floor') \
+                       .ignore_then(number()) \
+                       .then(index_array(floor_names))
+
+    return strongest([floor_parsers, numerical_parsers])
 
 
 def absolute_place_names() -> Parser:
@@ -123,6 +129,8 @@ def absolute_place_names() -> Parser:
         meeting_room_x,
         workshop_x,
         server_room_x,
+
+        absolute_floor_name()
     ]
 
     return strongest(places)
