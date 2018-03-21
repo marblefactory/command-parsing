@@ -50,7 +50,7 @@ def go_verbs() -> Parser:
     ]
 
     spelling = partial(word_spelling, dist_threshold=0.5)
-    go_parser = strongest_word(go_words, parser_constructors=[spelling, word_meaning])
+    go_parser = strongest_word(go_words, parser_constructors=[spelling, word_meaning_pos(POS.verb)])
 
     # Parsers required because voice recognition sometimes mistakes words.
     correction_parsers = [
