@@ -232,6 +232,18 @@ class WordMeaningTestCase(unittest.TestCase):
         s = pre_process('boat walk hello')
         assert p.parse(s) == SuccessParse(parsed='hello', response=1.0, remaining=[])
 
+    def test_filter_word_pos(self):
+        """
+        Tests that the supplied POS filters the considered words.
+        """
+        p1 = word_meaning('fly')
+        p2 = word_meaning('fly', pos=POS.noun())
+
+        s = pre_process('flying')
+
+        assert p1.parse(s) == SuccessParse(parsed='flying', response=1.0, remaining=[])
+        assert p2.parse(s).is_failure()
+
 
 class WordTaggedTestCase(unittest.TestCase):
     def test_no_match(self):

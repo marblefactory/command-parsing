@@ -11,7 +11,7 @@ import numpy as np
 from functools import partial
 
 
-class PartOfSpeech:
+class POS:
     """
     A category of words. This is used when creating a parser a word with a specific meaning.
     """
@@ -22,12 +22,12 @@ class PartOfSpeech:
         self.word_net_rep = word_net_rep
 
     @staticmethod
-    def noun() -> 'PartOfSpeech':
-        return PartOfSpeech('n')
+    def noun() -> 'POS':
+        return POS('n')
 
     @staticmethod
-    def verb() -> 'PartOfSpeech':
-        return PartOfSpeech('v')
+    def verb() -> 'POS':
+        return POS('v')
 
 
 def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
@@ -39,7 +39,7 @@ def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
 
 
 @functools.lru_cache(maxsize=None)
-def semantic_similarity(w1: Word, w2: Word, pos: Optional[PartOfSpeech], similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
+def semantic_similarity(w1: Word, w2: Word, pos: Optional[POS], similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
     """
     :param similarity_measure: a word net function which give the semantic distance between two synsets.
     :return: the semantic similarity between the words using a `similarity` distance function defined by WordNet.
@@ -269,7 +269,7 @@ def word_match(word: Word, match_plural = True) -> Parser:
 
 
 def word_meaning(word: Word,
-                 pos: Optional[PartOfSpeech] = None,
+                 pos: Optional[POS] = None,
                  semantic_similarity_threshold: Response = 0.5,
                  similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
     """
