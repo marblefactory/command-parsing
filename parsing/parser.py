@@ -186,6 +186,23 @@ def append(parser: Parser, combine_responses: Callable[[Response, Response], Res
     return op
 
 
+def index_array(array: List) -> Callable[[Any, Response], Parser]:
+    """
+    An operation to be used with `then`.
+    :param array: the array to index based on the result of the previous parser.
+    :return: an operation which can be given to `then` which will index the given array using the result of the a parser
+             (which must be an integer). If the index is out of bounds then the parser will fail.
+    """
+    def op(parsed_index: int, response: Response) -> Parser:
+        try:
+            elem = array[parsed_index]
+            return produce(elem, response)
+        except IndexError:
+            return failure()
+
+    return op
+
+
 def produce(parsed: Any, response: Response) -> Parser:
     """
     :return: a parser that matches on all input, returns the supplied parsed object and response from parsing, and

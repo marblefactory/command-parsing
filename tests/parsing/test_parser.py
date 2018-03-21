@@ -123,6 +123,22 @@ class AppendTestCase(unittest.TestCase):
         assert p.parse(s) == SuccessParse('x y', 0.5, ['w'])
 
 
+class IndexArrayTestCase(unittest.TestCase):
+    def test_in_bounds(self):
+        s = pre_process('')
+        array = ['a', 'b', 'c']
+        p = produce(2, 0.5).then(index_array(array))
+
+        assert p.parse(s) == SuccessParse('c', 0.5, [''])
+
+    def test_out_of_bounds(self):
+        s = pre_process('')
+        array = ['a', 'b', 'c']
+        p = produce(3, 0.5).then(index_array(array))
+
+        assert p.parse(s).is_failure()
+
+
 class PredicateTestCase(unittest.TestCase):
     def test_none_if_all_zero(self):
         def condition(input_word: Word) -> Response:
