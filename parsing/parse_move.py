@@ -11,7 +11,7 @@ def fast_speed_verb() -> Parser:
     :return: a parser for words that mean to move at a fast pace.
     """
     def make_parser(verb: str) -> Parser:
-        return strongest_word([verb], parser_constructors=[word_spelling, word_meaning])
+        return strongest_word([verb], parser_constructors=[word_spelling, word_meaning_pos(POS.verb)])
 
     verbs = ['quick', 'fast', 'sprint', 'run']
     correction_words = ['randa', 'rhonda', 'rhondda']
