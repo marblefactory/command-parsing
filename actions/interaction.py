@@ -3,20 +3,6 @@ from actions.location import ObjectRelativeDirection, Location
 from typing import List
 
 
-class ThroughDoor(ActionDefaultPositiveResponseMixin, Action):
-    """
-    Tells the spy to open the nearest door and walk through it.
-    """
-
-    direction: ObjectRelativeDirection
-
-    def __init__(self, direction: ObjectRelativeDirection):
-        self.direction = direction
-
-    def __str__(self):
-        return 'through door on {}'.format(self.direction)
-
-
 class PickUp(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to pick up an object, e.g. pick up the rock on your left.

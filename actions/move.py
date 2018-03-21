@@ -1,5 +1,5 @@
 from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse
-from actions.location import Location, MoveDirection
+from actions.location import Location, MoveDirection, ObjectRelativeDirection
 from typing import Optional, List
 
 
@@ -113,3 +113,24 @@ class Hide(ActionDefaultPositiveResponseMixin, Action):
             "They won't find me there",
             "No one will find me there"
         ]
+
+
+class ThroughDoor(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to open the nearest door and walk through it.
+    """
+
+    direction: ObjectRelativeDirection
+
+    def __init__(self, direction: ObjectRelativeDirection):
+        self.direction = direction
+
+    def __str__(self):
+        return 'through door on {}'.format(self.direction)
+
+
+class LeaveRoom(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to leave they room they are in.
+    """
+    pass

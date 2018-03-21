@@ -267,3 +267,30 @@ class HideTestCase(unittest.TestCase):
     def test_take_cover(self):
         s = pre_process('take cover')
         assert action().parse(s).parsed == Hide(None)
+
+
+class ThroughDoorTestCase(unittest.TestCase):
+    def test_parse(self):
+        s = pre_process('go through the door')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
+    def test_missing_door(self):
+        s = pre_process('go through')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
+    def test_enter_room(self):
+        s = pre_process('enter the room')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
+    def test_enter(self):
+        s = pre_process('enter')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
+    def test_into(self):
+        # Google mistakes 'enter' for 'into'.
+        s = pre_process('into to the room')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
+    def test_direction(self):
+        s = pre_process('enter the room on your right')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.RIGHT)

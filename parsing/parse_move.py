@@ -1,7 +1,7 @@
 from actions.move import *
 from actions.location import MoveDirection
 from parsing.parser import *
-from parsing.parse_location import location, move_direction, move_object_name
+from parsing.parse_location import location, move_direction, move_object_name, object_relative_direction
 from functools import partial
 from utils import partial_class
 
@@ -169,3 +169,15 @@ def hide() -> Parser:
 
     return verb.ignore_then(obj_name) \
                .map_parsed(lambda obj_name: Hide(obj_name))
+
+
+def through_door() -> Parser:
+    """
+    :return: a parser which parses instructions to go through a door, e.g. 'go through'.
+    """
+    open = strongest_word(['open', 'through', 'enter', 'into'])  # 'into' because Google thinks 'enter' is 'into'.
+    door_parser = open.ignore_then(maybe(word_match('door')), mix)  # Reduce the response if 'door' is missing.
+
+    return door_parser \
+          .ignore_then(object_relative_direction()) \
+          .map_parsed(lambda dir: ThroughDoor(dir))
