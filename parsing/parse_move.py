@@ -10,26 +10,22 @@ def fast_speed_verb() -> Parser:
     """
     :return: a parser for words that mean to move at a fast pace.
     """
-    def make_parser(verb: str) -> Parser:
-        return strongest_word([verb], parser_constructors=[word_spelling, word_meaning_pos(POS.verb)])
-
     verbs = ['quick', 'fast', 'sprint', 'run']
-    correction_words = ['randa', 'rhonda', 'rhondda']
+    # S2T mistakes 'run' for the following words:
+    corrections = ['randa', 'rhonda', 'rhondda']
 
-    verb_parsers = list(map(make_parser, verbs))
-    correction_parsers = list(map(word_match, correction_words))
-
-    all_parsers = strongest(verb_parsers + correction_parsers)
+    # Make a parser that recognises the meaning and spelling of the actual verbs, and matches on exact corrections.
+    parser = words_and_corrections(verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     # Ignore the word go, because it *can* be parsed as to mean 'fast', but it does not necessarily.
-    return ignore_words(['go']).ignore_then(all_parsers)
+    return ignore_words(['go']).ignore_then(parser)
 
 
 def normal_speed_verb() -> Parser:
     """
     :return: a parser for words that mean to move at a normal, i.e. walking, pace.
     """
-    return strongest_word(['normal', 'normally', 'walk'], parser_constructors=[word_meaning])
+    return strongest_word(['normal', 'normally', 'walk'], make_word_parsers=[word_meaning])
 
 
 def slow_speed_verb() -> Parser:
@@ -50,7 +46,7 @@ def go_verbs() -> Parser:
     ]
 
     spelling = partial(word_spelling, dist_threshold=0.5)
-    go_parser = strongest_word(go_words, parser_constructors=[spelling, word_meaning_pos(POS.verb)])
+    go_parser = strongest_word(go_words, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # Parsers required because voice recognition sometimes mistakes words.
     correction_parsers = [
@@ -86,7 +82,7 @@ def stance() -> Parser:
     """
     :return: a parser for different stances, i.e. crouched, standing.
     """
-    crouched = strongest_word(['crouch', 'quiet', 'sneak'], parser_constructors=[word_spelling, word_meaning]).ignore_parsed(Stance.CROUCH)
+    crouched = strongest_word(['crouch', 'quiet', 'sneak'], make_word_parsers=[word_spelling, word_meaning]).ignore_parsed(Stance.CROUCH)
     crouched_correction = word_match('grouch').ignore_parsed(Stance.CROUCH)
     standing = word_meaning('stand').ignore_parsed(Stance.STAND)
 

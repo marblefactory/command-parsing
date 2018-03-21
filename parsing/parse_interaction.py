@@ -10,14 +10,14 @@ def pickupable_object_name() -> Parser:
     :return: a parser for the names of objects which can be picked up and thrown.
     """
     words = ['rock', 'hammer']
-    return strongest_word(words, parser_constructors=[word_spelling])
+    return strongest_word(words, make_word_parsers=[word_spelling])
 
 
 def pick_up() -> Parser:
     """
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
     """
-    verb_parser = strongest_word(['pick', 'take'], parser_constructors=[word_spelling, word_meaning_pos(POS.verb)])
+    verb_parser = strongest_word(['pick', 'take'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     def combine_direction(make_type: Callable, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: make_type(dir))
@@ -42,7 +42,7 @@ def hackable_object_name() -> Parser:
     camera = word_spelling('camera').map_parsed(lambda obj_name: (obj_name, HackableType.CAMERA))
 
     terminal_words = ['terminal', 'computer', 'console', 'server']
-    terminal = strongest_word(terminal_words, parser_constructors=[word_spelling]) \
+    terminal = strongest_word(terminal_words, make_word_parsers=[word_spelling]) \
               .map_parsed(lambda obj_name: (obj_name, HackableType.TERMINAL))
 
     return strongest([camera, terminal])
@@ -52,7 +52,7 @@ def hack() -> Parser:
     """
     :return: a parser which parses hack instructions.
     """
-    hack_verb = strongest_word(['hack'], parser_constructors=[word_spelling, word_meaning_pos(POS.verb)])
+    hack_verb = strongest_word(['hack'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
     text = word_match('text') # Because speech recognition mistakes 'hack' for 'text'.
     verb_parser = strongest([hack_verb, text])
 

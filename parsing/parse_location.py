@@ -33,8 +33,8 @@ def move_direction() -> Parser:
     """
     :return: a parser for movement directions, e.g. left, right, forwards, backwards, which are converted to Direction enums.
     """
-    forwards_parser = strongest_word(['forward', 'front'], parser_constructors=[word_meaning])
-    backwards_parser = strongest_word(['backward', 'behind'], parser_constructors=[word_match])
+    forwards_parser = strongest_word(['forward', 'front'], make_word_parsers=[word_meaning])
+    backwards_parser = strongest_word(['backward', 'behind'], make_word_parsers=[word_match])
 
     forwards = forwards_parser.ignore_parsed(MoveDirection.FORWARDS)
     backwards = backwards_parser.ignore_parsed(MoveDirection.BACKWARDS)
@@ -58,7 +58,7 @@ def distance() -> Parser:
     """
     # Returns a parser to recognise the given words and return the given distance.
     def make_parser(words: List[Word], dist: Distance) -> Parser:
-        return strongest_word(words, parser_constructors=[word_spelling, word_meaning]).ignore_parsed(dist)
+        return strongest_word(words, make_word_parsers=[word_spelling, word_meaning]).ignore_parsed(dist)
 
     short_words = ['short', 'close', 'little', 'bit']
     medium_words = ['medium', 'fair']

@@ -379,18 +379,18 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
     return Parser(parse)
 
 
-def strongest_word(words: List[Word], parser_constructors: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
+def strongest_word(words: List[Word], make_word_parsers: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
     """
     :param words: the list of words to compare to the input.
-    :param parser_constructors: the functions used to create a parser from a word. For each word a parser will be
-                                created using each parser in the list.
+    :param make_word_parsers: the functions used to create a parser from a word. For each word a parser will be
+                              created using each parser in the list.
     :return: created parser which matches most strongly on the input.
     """
-    if parser_constructors is None:
-        parser_constructors = [word_match]
+    if make_word_parsers is None:
+        make_word_parsers = [word_match]
 
     # Each word matched with each type of parser (i.e. Cartesian product)
-    constructors_and_words = product(parser_constructors, words)
+    constructors_and_words = product(make_word_parsers, words)
     parsers = [constructor(word) for (constructor, word) in constructors_and_words]
     return strongest(parsers, debug)
 
@@ -483,3 +483,17 @@ def partial_parser(parser: Parser, response: Response, marker: Any) -> Parser:
         return parsed
 
     return Parser(parse)
+
+
+def words_and_corrections(words: List[Word], corrections: List[Word], make_word_parsers: [Callable[[Word], Parser]] = None) -> Parser:
+    """
+    :param words: the words the parser should recognise.
+    :param corrections: the words the speech-to-text service mistakes for words in the list of words.
+    :param make_word_parsers: the functions used to create a parser from a word. For each word a parser will be
+                              created using each parser in the list.
+    :return: a parser that is useful of if a speech-to-text service frequently mishears words. Parses the words and
+             corrections.
+    """
+    words_parser = strongest_word(words, make_word_parsers=make_word_parsers)
+    corrections_parser = strongest_word(corrections)
+    return strongest([words_parser, corrections_parser])

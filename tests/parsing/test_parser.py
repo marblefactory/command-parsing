@@ -364,7 +364,7 @@ class StrongestWordTestCase(unittest.TestCase):
         Tests that every parser constructor is combined with every word to match on.
         """
         s = pre_process('orange hillo')
-        parser = strongest_word(['blue', 'hello'], parser_constructors=[word_spelling, word_meaning])
+        parser = strongest_word(['blue', 'hello'], make_word_parsers=[word_spelling, word_meaning])
         assert parser.parse(s).parsed == 'hello'
 
     def test_cartesian_product_of_parser_constructors2(self):
@@ -372,7 +372,7 @@ class StrongestWordTestCase(unittest.TestCase):
         Tests that every parser constructor is combined with every word to match on.
         """
         s = pre_process('run whale')
-        parser = strongest_word(['go', 'hi'], parser_constructors=[word_spelling, word_meaning])
+        parser = strongest_word(['go', 'hi'], make_word_parsers=[word_spelling, word_meaning])
         assert parser.parse(s).parsed == 'run'
 
 
