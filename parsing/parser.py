@@ -313,6 +313,7 @@ def string_number() -> Parser:
     :return: a parser which matches on string numbers, e.g. three parses to '3'
     """
     all_words = [
+        ['zero'],
         ['one'],
         ['to', 'two', 'too'],
         ['three'],
@@ -329,7 +330,7 @@ def string_number() -> Parser:
 
     for num, words in enumerate(all_words):
         for word in words:
-            parser = word_match(word).ignore_parsed(str(num + 1))
+            parser = word_match(word).ignore_parsed(str(num))
             parsers.append(parser)
 
     return strongest(parsers)

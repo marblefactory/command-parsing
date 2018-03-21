@@ -270,6 +270,10 @@ class CardinalNumberTestCase(unittest.TestCase):
 
 
 class StringNumberTestCase(unittest.TestCase):
+    def test_match_zero(self):
+        s = pre_process('zero')
+        assert string_number().parse(s).parsed == '0'
+
     def test_match_one(self):
         s = pre_process('one')
         assert string_number().parse(s).parsed == '1'
