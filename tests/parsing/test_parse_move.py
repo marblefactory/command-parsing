@@ -71,6 +71,10 @@ class ChangeStanceTestCase(unittest.TestCase):
         s = pre_process('be quiet')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
+    def test_sneak_as_crouch(self):
+        s = pre_process('sneak')
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
+
     def test_get_up(self):
         s = pre_process('get up')
         assert action().parse(s).parsed == ChangeStance(Stance.STAND)
@@ -258,4 +262,8 @@ class HideTestCase(unittest.TestCase):
 
     def test_parses_no_object(self):
         s = pre_process('hide')
+        assert action().parse(s).parsed == Hide(None)
+
+    def test_take_cover(self):
+        s = pre_process('take cover')
         assert action().parse(s).parsed == Hide(None)
