@@ -266,47 +266,53 @@ class WordTaggedTestCase(unittest.TestCase):
 class CardinalNumberTestCase(unittest.TestCase):
     def test_match(self):
         s = pre_process('201 hello')
-        assert cardinal_number().parse(s) == SuccessParse(parsed='201', response=1.0, remaining=['hello'])
+        assert cardinal_number().parse(s) == SuccessParse(parsed=201, response=1.0, remaining=['hello'])
 
 
 class StringNumberTestCase(unittest.TestCase):
     def test_match_zero(self):
         s = pre_process('zero')
-        assert string_number().parse(s).parsed == '0'
+        assert string_number().parse(s).parsed == 0
 
     def test_match_one(self):
         s = pre_process('one')
-        assert string_number().parse(s).parsed == '1'
+        assert string_number().parse(s).parsed == 1
 
     def test_match_two(self):
         s = pre_process('two')
-        assert string_number().parse(s).parsed == '2'
+        assert string_number().parse(s).parsed == 2
 
     def test_match_two_alt1(self):
         s = pre_process('to')
-        assert string_number().parse(s).parsed == '2'
+        assert string_number().parse(s).parsed == 2
 
     def test_match_two_alt2(self):
         s = pre_process('too')
-        assert string_number().parse(s).parsed == '2'
+        assert string_number().parse(s).parsed == 2
 
     def test_match_four(self):
         s = pre_process('four')
-        assert string_number().parse(s).parsed == '4'
+        assert string_number().parse(s).parsed == 4
 
     def test_match_four_alt1(self):
         s = pre_process('for')
-        assert string_number().parse(s).parsed == '4'
+        assert string_number().parse(s).parsed == 4
 
 
 class NumberTestCase(unittest.TestCase):
     def test_match_cardinal(self):
         s = pre_process('201 hello')
-        assert number().parse(s).parsed == '201'
+        assert number().parse(s).parsed == 201
 
     def test_match_string(self):
         s = pre_process('three hello')
-        assert number().parse(s).parsed == '3'
+        assert number().parse(s).parsed == 3
+
+
+class NumberStrTestCase(unittest.TestCase):
+    def test_converts_to_string(self):
+        s = pre_process('one')
+        assert number_str().parse(s).parsed == '1'
 
 
 class StrongestTestCase(unittest.TestCase):

@@ -78,7 +78,7 @@ def absolute_place_names() -> Parser:
 
     # Parsers a number, or if no number was parsed, returns '1'.
     def number_or_1() -> Parser:
-        parsers = [number(), produce('1', response=0.0)]
+        parsers = [number_str(), produce('1', response=0.0)]
         return strongest(parsers)
 
     # When describing a storage room, the player can optionally say 'room' too.

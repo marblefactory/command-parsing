@@ -303,14 +303,14 @@ def word_tagged(tags: List[str]) -> Parser:
 
 def cardinal_number() -> Parser:
     """
-    :return: a parser which matches on cardinal numbers, e.g. 102. The parse result is a string of the number.
+    :return: a parser which matches on string cardinal numbers, e.g. '102', and returns integers, e.g. 102.
     """
-    return word_tagged(['CD'])
+    return word_tagged(['CD']).map_parsed(lambda str_num: int(str_num))
 
 
 def string_number() -> Parser:
     """
-    :return: a parser which matches on string numbers, e.g. three parses to '3'
+    :return: a parser which matches on string numbers and returns integers, e.g. three parses to the integer 3.
     """
     all_words = [
         ['zero'],
@@ -330,7 +330,7 @@ def string_number() -> Parser:
 
     for num, words in enumerate(all_words):
         for word in words:
-            parser = word_match(word).ignore_parsed(str(num))
+            parser = word_match(word).ignore_parsed(num)
             parsers.append(parser)
 
     return strongest(parsers)
@@ -338,9 +338,17 @@ def string_number() -> Parser:
 
 def number() -> Parser:
     """
-    :return: a parser which parses string numbers, e.g. one, up to 10. Or, any cardinal number, e.g. 201.
+    :return: a parser which parses string numbers, e.g. 'one', up to 'ten'. Or, any cardinal number, e.g. '201'.
+             Returns an integer representation of the number.
     """
     return strongest([string_number(), cardinal_number()])
+
+
+def number_str() -> Parser:
+    """
+    :return: a parser which parses string number, e.g. 'one', and returns a string representation of the integer, e.g. '1'.
+    """
+    return number().map_parsed(lambda num: str(num))
 
 
 def strongest(parsers: List[Parser], debug = False) -> Parser:
