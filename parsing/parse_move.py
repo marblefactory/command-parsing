@@ -10,21 +10,19 @@ def fast_speed_verb() -> Parser:
     """
     :return: a parser for words that mean to move at a fast pace.
     """
-    parsers = [
-        word_meaning('quick'),
-        word_meaning('fast'),
-        word_meaning('sprint'),
-        word_meaning('sprinting'),
-        word_spelling('run'),
-        word_spelling('running'),
+    def make_parser(verb: str) -> Parser:
+        return strongest_word([verb], parser_constructors=[word_spelling, word_meaning])
 
-        # A few words that 'run' are mistaken for.
-        word_match('randa'),
-        word_match('rhonda'),
-        word_match('rhondda')
-    ]
+    verbs = ['quick', 'fast', 'sprint', 'run']
+    correction_words = ['randa', 'rhonda', 'rhondda']
 
-    return strongest(parsers)
+    verb_parsers = list(map(make_parser, verbs))
+    correction_parsers = list(map(word_match, correction_words))
+
+    all_parsers = strongest(verb_parsers + correction_parsers)
+
+    # Ignore the word go, because it *can* be parsed as to mean 'fast', but it does not necessarily.
+    return ignore_words(['go']).ignore_then(all_parsers)
 
 
 def normal_speed_verb() -> Parser:
