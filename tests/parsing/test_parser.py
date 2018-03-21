@@ -237,7 +237,7 @@ class WordMeaningTestCase(unittest.TestCase):
         Tests that the supplied POS filters the considered words.
         """
         p1 = word_meaning('fly')
-        p2 = word_meaning('fly', pos=POS.noun())
+        p2 = word_meaning('fly', pos=POS.noun)
 
         s = pre_process('flying')
 

@@ -17,7 +17,7 @@ def pick_up() -> Parser:
     """
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
     """
-    verb_parser = strongest_word(['pick', 'take'], parser_constructors=[word_meaning, word_spelling])
+    verb_parser = strongest_word(['pick', 'take'], parser_constructors=[word_spelling, word_meaning_pos(POS.verb)])
 
     def combine_direction(make_type: Callable, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: make_type(dir))
@@ -52,7 +52,7 @@ def hack() -> Parser:
     """
     :return: a parser which parses hack instructions.
     """
-    hack_verb = strongest_word(['hack'], parser_constructors=[word_spelling, word_meaning])
+    hack_verb = strongest_word(['hack'], parser_constructors=[word_spelling, word_meaning_pos(POS.verb)])
     text = word_match('text') # Because speech recognition mistakes 'hack' for 'text'.
     verb_parser = strongest([hack_verb, text])
 
