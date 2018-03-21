@@ -95,3 +95,27 @@ class HideEncoder(json.JSONEncoder):
             'type': 'hide',
             'name': obj.object_name
         }
+
+
+class ThroughDoorEncoder(json.JSONEncoder):
+    """
+    Encodes a ThroughDoor action.
+
+    Fields:
+        'type'    : The type of action
+    """
+    def default(self, obj):
+        return {
+            'type': 'opendoor',
+            'direction': obj.direction
+        }
+
+
+class LeaveRoomEncoder(json.JSONEncoder):
+    """
+    Encodes a LeaveRoom action.
+    """
+    def default(self, obj):
+        return {
+            'type': 'leave_room'
+        }

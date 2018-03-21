@@ -133,4 +133,5 @@ class LeaveRoom(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to leave they room they are in.
     """
-    pass
+    def __str__(self):
+        return 'leave the room'

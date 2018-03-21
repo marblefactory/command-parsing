@@ -1,20 +1,6 @@
 from encoders.encode_location import *
 
 
-class ThroughDoorEncoder(json.JSONEncoder):
-    """
-    Encodes a ThroughDoor action.
-
-    Fields:
-        'type'    : The type of action
-    """
-    def default(self, obj):
-        return {
-            'type': 'opendoor',
-            'direction': obj.direction
-        }
-
-
 class PickUpEncoder(json.JSONEncoder):
     """
     Encodes a PickUp action.

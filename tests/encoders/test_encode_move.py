@@ -134,3 +134,26 @@ class HideEncoderTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(hide, cls=ActionEncoder))
+
+
+class ThroughDoorEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        through_door = ThroughDoor(ObjectRelativeDirection.BACKWARDS)
+
+        expected = {
+            'type': 'opendoor',
+            'direction': 'backwards'
+        }
+
+        assert expected == json.loads(json.dumps(through_door, cls=ActionEncoder))
+
+
+class LeaveRoomEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        leave_room = LeaveRoom()
+
+        expected = {
+            'type': 'leave_room',
+        }
+
+        assert expected == json.loads(json.dumps(leave_room, cls=ActionEncoder))

@@ -181,3 +181,10 @@ def through_door() -> Parser:
     return door_parser \
           .ignore_then(object_relative_direction()) \
           .map_parsed(lambda dir: ThroughDoor(dir))
+
+
+def leave_room() -> Parser:
+    """
+    :return: a parser which tells the spy to leave the room they're in, e.g. 'leave the room'.
+    """
+    return strongest_word(['leave', 'out']).ignore_parsed(LeaveRoom())

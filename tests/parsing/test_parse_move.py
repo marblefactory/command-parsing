@@ -149,6 +149,7 @@ class MoveTestCase(unittest.TestCase):
 
     def test_parses_crouching(self):
         s = pre_process('walk left crouching')
+        print(action().parse(s).parsed)
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.CROUCH)
 
     def test_parses_crouching_as_crouch(self):
@@ -294,3 +295,9 @@ class ThroughDoorTestCase(unittest.TestCase):
     def test_direction(self):
         s = pre_process('enter the room on your right')
         assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.RIGHT)
+
+
+class LeaveRoomTestCase(unittest.TestCase):
+    def test_parse(self):
+        s = pre_process('leave the room')
+        assert action().parse(s).parsed == LeaveRoom()

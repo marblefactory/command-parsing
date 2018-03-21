@@ -151,7 +151,6 @@ class AbsoluteTestCase(unittest.TestCase):
 
     def test_parses_security_office(self):
         s = pre_process('go to the security office')
-        print(location().parse(s).parsed)
         assert location().parse(s).parsed == Absolute('security office')
 
 

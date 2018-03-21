@@ -5,18 +5,6 @@ from encoders.encode_action import ActionEncoder
 import json
 
 
-class ThroughDoorEncoderTestCase(unittest.TestCase):
-    def test_encode(self):
-        through_door = ThroughDoor(ObjectRelativeDirection.BACKWARDS)
-
-        expected = {
-            'type': 'opendoor',
-            'direction': 'backwards'
-        }
-
-        assert expected == json.loads(json.dumps(through_door, cls=ActionEncoder))
-
-
 class PickUpEncoderTestCase(unittest.TestCase):
     def test_encode(self):
         pick_up = PickUp('rock', ObjectRelativeDirection.VICINITY)
