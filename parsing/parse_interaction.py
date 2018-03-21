@@ -9,7 +9,7 @@ def pickupable_object_name() -> Parser:
     """
     :return: a parser for the names of objects which can be picked up and thrown.
     """
-    words = ['rock', 'hammer']
+    words = ['rock', 'hammer', 'bottle', 'cup', 'can']
     return strongest_word(words, make_word_parsers=[word_spelling])
 
 
@@ -76,11 +76,12 @@ def throw() -> Parser:
     :return: a parser which parses instructions to throw the object the spy is holding.
     """
     # Defaults to throwing forwards.
+    default_target_parser = produce(Directional(ObjectRelativeDirection.FORWARDS, Distance.MEDIUM), 0.0)
     target_location_parsers = [
         positional(),
         behind(),
         directional(),
-        produce(Directional(ObjectRelativeDirection.FORWARDS, Distance.MEDIUM), 0.5)
+        default_target_parser
     ]
     target = strongest(target_location_parsers).map_response(lambda _: 1.0)
     throw_verb = strongest_word(['chuck', 'throw'])
