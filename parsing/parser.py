@@ -8,6 +8,26 @@ import editdistance
 from itertools import product
 import functools
 import numpy as np
+from functools import partial
+
+
+class PartOfSpeech:
+    """
+    A category of words. This is used when creating a parser a word with a specific meaning.
+    """
+    def __init__(self, word_net_rep: str):
+        """
+        :param word_net_rep: the string used to represent the POS in WordNet. E.g. noun = 'n'
+        """
+        self.word_net_rep = word_net_rep
+
+    @staticmethod
+    def noun() -> 'PartOfSpeech':
+        return PartOfSpeech('n')
+
+    @staticmethod
+    def verb() -> 'PartOfSpeech':
+        return PartOfSpeech('v')
 
 
 def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
@@ -19,16 +39,19 @@ def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
 
 
 @functools.lru_cache(maxsize=None)
-def semantic_similarity(w1: Word, w2: Word, similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
+def semantic_similarity(w1: Word, w2: Word, pos: Optional[PartOfSpeech], similarity_measure: Callable[[Synset, Synset], Response]) -> Response:
     """
     :param similarity_measure: a word net function which give the semantic distance between two synsets.
     :return: the semantic similarity between the words using a `similarity` distance function defined by WordNet.
     """
 
+    # If a category of words (POS) was supplied, fill that in.
+    make_synsets = partial(wn.synsets, pos=pos.word_net_rep) if pos else wn.synsets
+
     # Each synset contains different meanings of the word, e.g. fly is a noun and verb.
     # We'll find the maximum semantic similarity between any pairing of words from both synsets.
-    w1_synsets: List[Synset] = wn.synsets(w1)
-    w2_synsets: List[Synset] = wn.synsets(w2)
+    w1_synsets: List[Synset] = make_synsets(w1)
+    w2_synsets: List[Synset] = make_synsets(w2)
 
     if len(w1_synsets) == 0 or len(w2_synsets) == 0:
         return 0.0
@@ -246,16 +269,18 @@ def word_match(word: Word, match_plural = True) -> Parser:
 
 
 def word_meaning(word: Word,
+                 pos: Optional[PartOfSpeech] = None,
                  semantic_similarity_threshold: Response = 0.5,
                  similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
     """
     :param word: the word to find similar words to.
+    :param pos: defines the category of words to compare (e.g. verbs). Words not in this category will have a similarity of 0.
     :param semantic_similarity_threshold: the minimum semantic distance for an input word to be from the supplied word.
     :param similarity_measure: used to compare the semantic similarity of two words.
     :return: a parser which matches on words which have a similar meaning to the supplied word.
     """
     def condition(input_word: Word) -> Response:
-        return semantic_similarity(input_word, word, similarity_measure)
+        return semantic_similarity(input_word, word, pos, similarity_measure)
 
     return threshold_success(predicate(condition), semantic_similarity_threshold)
 
