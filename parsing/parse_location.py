@@ -136,14 +136,14 @@ def positional() -> Parser:
         ord = strongest([anywhere(ordinal_number()), default])
 
         # Partially applies the parsed position to the constructor of Positional.
-        return ord.map(lambda parsed_num, r2: (partial(makePos, parsed_num), mix(r1, r2, 0.8)))
+        return ord.map(lambda parsed_num, r2: (partial(makePos, parsed_num), mix(r1, r2, 0.2)))
 
     def combine_direction(makePos: Callable, r1: Response) -> Parser:
         default = produce(parsed=MoveDirection.FORWARDS, response=0)
         dir = strongest([anywhere(move_direction()), default])
 
         # Completes the Positional constructor by supplying the direction.
-        return dir.map(lambda parsed_dir, r2: (makePos(parsed_dir), mix(r1, r2, 0.8)))
+        return dir.map(lambda parsed_dir, r2: (makePos(parsed_dir), mix(r1, r2, 0.2)))
 
 
     # Partially applies the parsed object name to the Positional init.
@@ -181,7 +181,7 @@ def stairs() -> Parser:
     # E.g. 'go up' or 'go up the stairs', where the latter has a stronger response.
     def make_parser(dir: (str, FloorDirection), loc: str) -> Parser:
         # Increase the penalty for not having the location. This allows change stances to be parsed correctly.
-        combine = lambda r1, r2: mix(r1, r2, 0.2)
+        combine = lambda r1, r2: mix(r1, r2, 0.8)
 
         return anywhere(word_match(dir[0])) \
               .then_ignore(maybe(word_match(loc)), combine) \

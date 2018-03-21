@@ -12,10 +12,10 @@ import numpy as np
 
 def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
     """
-    :param proportion:
-    :return: the mean response of r1 and r2.
+    :param proportion: the ratio of r1 to r2/
+    :return: a mix response of r1 and r2  in the ratio 1-proportion:proportion.
     """
-    return r1 * proportion + r2 * (1 - proportion)
+    return r1 * (1 - proportion) + r2 * proportion
 
 
 @functools.lru_cache(maxsize=None)
