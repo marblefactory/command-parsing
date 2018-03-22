@@ -1,6 +1,8 @@
 from actions.action import Action, GameResponse
+from utils import join_with_last
 from typing import List
-
+import inflect
+from itertools import groupby
 
 class Question(Action):
     """
@@ -95,4 +97,27 @@ class SurroundingsQuestion(Question):
                               which is a list of strings of objects around the spy.
         :return: a list of responses describing what the spy can see.
         """
-        return []
+        engine = inflect.engine()
+
+        # The objects around the spy.
+        objects = game_response['surroundings']
+
+        # Group the objects into tuples containing their name and the number of times they were found around the spy.
+        # Therefore the spy can say things like 'I can see a server and two cameras'.
+        groups = [list(v) for k,v in groupby(objects)]
+
+        # Returns the description of a group of objects, e.g. ['camera', 'camera'] goes to '2 cameras'.
+        def make_description(group: List[str]) -> str:
+            count = len(group)
+            # Adds an 's' the name if there is more than 1.
+            plural = engine.plural(text=group[0], count=count)
+            # Adds 'a' or 'an' to the front of the names of the objects. Also gives the
+            return engine.a(plural, count=count)
+
+        object_descriptions = list(map(make_description, groups))
+
+        objects_description = join_with_last(object_descriptions, ', ', ' and ')
+        return [
+            "I can see {}".format(objects_description),
+            "There's {}".format(objects_description)
+        ]

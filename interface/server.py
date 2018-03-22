@@ -65,6 +65,7 @@ def mock_post_to_game(addr_postfix: str, action: Action) -> Mock:
         'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
         'location': 'the computer lab',  # For if the user asks where the spy is.
         'num_guards': randrange(0, 10), # For if the user asks about guards
+        'surroundings': ['server', 'camera', 'camera']
     }
     return r
 

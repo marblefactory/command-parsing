@@ -29,3 +29,12 @@ class GuardsQuestionEncoder(json.JSONEncoder):
         return {
             'type': 'guards_question'
         }
+
+class SurroundingsQuestionEncoder(json.JSONEncoder):
+    """
+    Encodes a SurroundingsQuestion.
+    """
+    def default(self, obj):
+        return {
+            'type': 'surroundings_question'
+        }
