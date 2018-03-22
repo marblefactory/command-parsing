@@ -42,6 +42,25 @@ class PickUpTestCase(unittest.TestCase):
         s = pre_process('pick up the rope')
         assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
 
+    def test_parses_noun(self):
+        """
+        Tests that other nouns that haven't been explicitly listed can also be recognised.
+        """
+        s = pre_process('pick up the phone')
+        assert action().parse(s).parsed == PickUp('phone', ObjectRelativeDirection.VICINITY)
+
+    def test_parses_noun_lower_response(self):
+        """
+        Tests that although other nouns can be recognised, they have a lower response than objects in the game.
+        """
+        real_obj_s = pre_process('pick up the rock')
+        fake_obj_s = pre_process('pick up the phone')
+
+        real_r = action().parse(real_obj_s)
+        fake_r = action().parse(fake_obj_s)
+
+        assert fake_r.response < real_r.response
+
 
 class ThrowTestCase(unittest.TestCase):
     def test_parse_directional(self):

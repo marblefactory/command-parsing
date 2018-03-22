@@ -8,8 +8,14 @@ def pickupable_object_name() -> Parser:
     """
     :return: a parser for the names of objects which can be picked up and thrown.
     """
-    words = ['rock', 'hammer', 'bottle', 'cup', 'can']
-    return strongest_word(words, make_word_parsers=[word_spelling])
+    # Objects the player can actually pick up.
+    object_names = ['rock', 'hammer', 'bottle', 'cup', 'can']
+    objects = strongest_word(object_names, make_word_parsers=[word_spelling])
+
+    # Objects which are recognised, but the user cannot pickup. These have a lower response.
+    other_objects = word_tagged(['NN']).map_response(lambda _: 0.25)
+
+    return strongest([objects, other_objects])
 
 
 def pick_up() -> Parser:
@@ -18,13 +24,13 @@ def pick_up() -> Parser:
     """
     verb_parser = strongest_word(['pick', 'take'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
-    def combine_direction(make_type: Callable, _: Response) -> Parser:
-        return object_relative_direction().map_parsed(lambda dir: make_type(dir))
+    def combine_direction(make_type: Callable, response: Response) -> Parser:
+        return object_relative_direction().map(lambda dir, _: (make_type(dir), response))
 
     def combine(_: Any, verb_response: Response) -> Parser:
         # Parses the name of the object and then the direction.
         data_parser = pickupable_object_name() \
-                     .map_parsed(lambda obj_name: partial(PickUp.partial_init(), obj_name)) \
+                     .map(lambda obj_name, obj_name_resp: (partial(PickUp.partial_init(), obj_name), obj_name_resp)) \
                      .then(combine_direction)
 
         # If we only get the verb and no data, use the response from the verb parser.
