@@ -88,8 +88,7 @@ def throw() -> Parser:
 
     throw_verbs = ['chuck', 'throw']
     corrections = ['show', 'stoner']
-    verb_parser = words_and_corrections(throw_verbs, corrections,
-                                        make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    verb_parser = words_and_corrections(throw_verbs, corrections)
 
     return verb_parser.ignore_then(target) \
                       .map_parsed(lambda loc: Throw(loc))
