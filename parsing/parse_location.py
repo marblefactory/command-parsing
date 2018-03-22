@@ -200,7 +200,7 @@ def stairs() -> Parser:
         combine = lambda r1, r2: mix(r1, r2, 0.8)
 
         return anywhere(word_match(dir[0])) \
-              .then_ignore(maybe(word_match(loc)), combine) \
+              .then_ignore(word_match(loc), combine) \
               .ignore_parsed(dir[1])
 
     parsers = [make_parser(dir, loc) for dir, loc  in itertools.product(directions, location_words)]
