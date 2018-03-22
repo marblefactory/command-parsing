@@ -71,7 +71,7 @@ def stance() -> Parser:
     """
     :return: a parser for different stances, i.e. crouched, standing.
     """
-    crouched = strongest_word(['crouch', 'quiet', 'sneak'], make_word_parsers=[word_spelling, word_meaning]).ignore_parsed(Stance.CROUCH)
+    crouched = strongest_word(['crouch', 'quiet', 'sneak', 'lie'], make_word_parsers=[word_spelling, word_meaning]).ignore_parsed(Stance.CROUCH)
     crouched_correction = word_match('grouch').ignore_parsed(Stance.CROUCH)
     standing = word_meaning('stand').ignore_parsed(Stance.STAND)
 
