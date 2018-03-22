@@ -123,12 +123,12 @@ class HackTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
 
     def test_break_into(self):
-        s = pre_process('break into the computer')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
+        s = pre_process('break into the cctv')
+        assert action().parse(s).parsed == Hack(HackableType.CAMERA, 'cctv', ObjectRelativeDirection.VICINITY)
 
     def test_breaking(self):
-        s = pre_process('breaking the computer')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
+        s = pre_process('breaking the mainframe')
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'mainframe', ObjectRelativeDirection.VICINITY)
 
     def test_partial_if_no_object1(self):
         s = pre_process('hack')

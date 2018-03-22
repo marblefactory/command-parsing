@@ -40,9 +40,11 @@ def hackable_object_name() -> Parser:
     :return: a parser for the names of objects which can be hacked. Returns a tuple containing the name of the
              hacked object (e.g. server) and the type of object it is (e.g. TERMINAL).
     """
-    camera = word_spelling('camera').map_parsed(lambda obj_name: (obj_name, HackableType.CAMERA))
+    camera_words = ['camera', 'cctv']
+    camera = strongest_word(camera_words, make_word_parsers=[word_spelling]) \
+            .map_parsed(lambda obj_name: (obj_name, HackableType.CAMERA))
 
-    terminal_words = ['terminal', 'computer', 'console', 'server']
+    terminal_words = ['terminal', 'computer', 'console', 'server', 'mainframe']
     terminal = strongest_word(terminal_words, make_word_parsers=[word_spelling]) \
               .map_parsed(lambda obj_name: (obj_name, HackableType.TERMINAL))
 
