@@ -6,6 +6,13 @@ from parsing.parse_question import inventory_question, location_question, guards
 from utils import split_list
 
 
+def failure_words() -> Parser:
+    """
+    :return: a parser which parses words which will cause parsing to fail.
+    """
+    return strongest_word([ "not", "don't"])
+
+
 def ignored_words() -> List[str]:
     """
     :return: a list of words which should be removed from the input text.
@@ -78,5 +85,6 @@ def action() -> Parser:
     :return: a parser for single or composite actions. Nothing will be parsed if the text contains "not" or "don't".
     """
     act = strongest([composite(), single_action()])
-    return ignore_words(ignored_words()) \
+    return none(failure_words()) \
+          .ignore_then(ignore_words(ignored_words())) \
           .ignore_then(act)

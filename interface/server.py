@@ -26,7 +26,7 @@ socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = False
+GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
 GAME_SERVER = 'http://192.168.1.101:8080/'
@@ -36,7 +36,7 @@ TRAIN_CHATBOT = False
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = True
+FILL_CACHE = False
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('James')
@@ -105,7 +105,16 @@ def process_transcript(transcript: str) -> str:
         # For example, if the spy was asked to pickup an object the action could fail if there are none of the
         # specified objects around.
         if game_response.status_code == 200:
-            response = make_speech(game_response.json())
+            sample_json = {
+                'success': True, # Indicates whether the action could be performed in the game.
+                'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
+                'location': 'the computer lab',  # For if the user asks where the spy is.
+                'num_guards': randrange(0, 10), # For if the user asks about guards
+                'surroundings': ['server', 'camera', 'camera'] # For if the user asks about the spy's surroundings
+            }
+            response = make_speech(sample_json)
+            # TODO: Remove sample JSON
+            #response = make_speech(game_response.json())
         else:
             log_conversation('ERROR: Unsuccessful response from game', game_response)
             response = ''

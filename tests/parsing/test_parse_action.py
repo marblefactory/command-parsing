@@ -69,3 +69,12 @@ class CompositeTestCase(unittest.TestCase):
     def test_fails_if_only_then(self):
         s = pre_process('then')
         assert action().parse(s).is_failure()
+
+
+class DontTestCase(unittest.TestCase):
+    def test_no_parse(self):
+        """
+        Tests that if the player says "don't" no action is performed.
+        """
+        s = "don't go forwards".split()
+        assert action().parse(s).is_failure()
