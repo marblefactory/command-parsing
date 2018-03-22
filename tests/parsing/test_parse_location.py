@@ -173,6 +173,10 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to floor 100')
         assert location().parse(s).is_failure()
 
+    def test_fails_with_unknown_ordinal_floor_num(self):
+        s = pre_process('go to the ninth floor')
+        assert location().parse(s).is_failure()
+
 
 class PositionalTestCase(unittest.TestCase):
     def test_parses(self):

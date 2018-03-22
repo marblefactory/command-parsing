@@ -76,17 +76,14 @@ def absolute_floor_name() -> Parser:
     :return: a parser for names of floors, e.g. floor 0, basement, roof, etc.
     """
     floor_names = ['basement', 'ground', 'roof']
+
     floor_parsers = strongest_word(floor_names)
-
     # Parses floor 0, floor 1, and floor 2 as basement, ground, and roof respectively.
-    numerical_parsers = word_match('floor') \
-                       .ignore_then(number()) \
-                       .then(index_array(floor_names))
+    numerical_parsers = word_match('floor').ignore_then(number()).then(index_array(floor_names))
+    # Parses 'first floor', 'second floor' etc. +2 because the first floor is the roof.
+    ordinal_parsers = ordinal_number().then_ignore(word_match('floor')).map_parsed(lambda n: n+2).then(index_array(floor_names))
 
-    # i.e. the roof
-    first_floor = anywhere(word_match('floor')).ignore_then(word_match('first')).ignore_parsed('roof')
-
-    return strongest([floor_parsers, numerical_parsers, first_floor])
+    return strongest([floor_parsers, numerical_parsers, ordinal_parsers])
 
 
 def absolute_place_names() -> Parser:
