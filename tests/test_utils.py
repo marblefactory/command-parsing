@@ -1,5 +1,5 @@
 import unittest
-from utils import split_list, PartialClassMixin
+from utils import split_list, PartialClassMixin, join_with_last
 from functools import partial
 
 
@@ -43,3 +43,14 @@ class PartialClassTestCase(unittest.TestCase):
         assert bound_y.x == 'X'
         assert bound_y.y == 'Y'
         assert isinstance(bound_y, PartialClassTestCase.TestClass)
+
+
+class JoinWithLastTestCase(unittest.TestCase):
+    def test_join_empty(self):
+        assert '-'.join([]) == join_with_last([], '-', '#')
+
+    def test_join_single(self):
+        assert '-'.join('a') == join_with_last(['a'], '-', '#')
+
+    def test_join(self):
+        assert join_with_last(['a', 'b', 'c'], ', ', ' and ') == 'a, b and c'

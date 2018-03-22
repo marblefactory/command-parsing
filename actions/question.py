@@ -83,3 +83,16 @@ class GuardsQuestion(Question):
                 "There's a lot of guards",
                 "I can see {} guards".format(num_guards),
             ]
+
+
+class SurroundingsQuestion(Question):
+    """
+    An action to ask the spy what they can see around them.
+    """
+    def positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :param game_response: the json response from the game. Expects this to contain a key named 'surroundings'
+                              which is a list of strings of objects around the spy.
+        :return: a list of responses describing what the spy can see.
+        """
+        return []
