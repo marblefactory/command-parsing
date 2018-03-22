@@ -9,7 +9,7 @@ def pickupable_object_name() -> Parser:
     :return: a parser for the names of objects which can be picked up and thrown.
     """
     # Objects the player can actually pick up.
-    names = ['rock', 'hammer', 'bottle', 'cup', 'can']
+    names = ['rock', 'hammer', 'bottle', 'cup', 'can', 'rifle']
     # Strongly recognises the names of actual objects in the game, and weakly matches on other nouns.
     return object_spelled(names, other_noun_response=0.25)
 

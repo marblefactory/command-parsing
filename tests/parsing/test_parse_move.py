@@ -262,9 +262,12 @@ class MoveTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
     def test_fails(self):
-        # s = pre_process("that's not very good joke")
         s = pre_process("good")
         assert action().parse(s).is_failure()
+
+    def test_pick_up_is_not_move(self):
+        s = pre_process('pick up the assault rifle')
+        assert type(action().parse(s).parsed) != Move
 
 
 class HideTestCase(unittest.TestCase):
