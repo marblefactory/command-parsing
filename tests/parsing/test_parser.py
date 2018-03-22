@@ -485,3 +485,41 @@ class PartialTestCase(unittest.TestCase):
         s = pre_process('b c x')
 
         assert p.parse(s) == PartialParse(a_matcher, response=0.7, marker='MyType')
+
+
+class ObjectSpelledTestCase(unittest.TestCase):
+    def test_parses_object_name(self):
+        s = pre_process('phone')
+        p = object_spelled(['phone', 'car'], other_noun_response=0.2)
+
+        assert p.parse(s).parsed == 'phone'
+
+    def test_parses_object_response(self):
+        s = pre_process('phone')
+        p = object_spelled(['phone', 'car'], other_noun_response=0.2)
+
+        assert p.parse(s).response == 1.0
+
+    def test_parses_object_spelled_similar(self):
+        s = pre_process('phon')
+        p = object_spelled(['phone', 'car'], other_noun_response=0.2)
+
+        assert p.parse(s).parsed == 'phone'
+
+    def test_parses_object_spelled_similar_response(self):
+        s = pre_process('phon')
+        p = object_spelled(['phone', 'car'], other_noun_response=0.2)
+
+        assert p.parse(s).response == 0.8
+
+    def test_parses_other_nouns(self):
+        s = pre_process('boat')
+        p = object_spelled(['phone', 'car'], other_noun_response=0.2)
+
+        assert p.parse(s).parsed == 'boat'
+
+    def test_parses_other_nouns_response(self):
+        s = pre_process('boat')
+        p = object_spelled(['phone', 'car'], other_noun_response=0.2)
+
+        assert p.parse(s).response == 0.2
