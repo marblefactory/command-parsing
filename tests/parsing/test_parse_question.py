@@ -1,5 +1,5 @@
 import unittest
-from actions.question import InventoryContentsQuestion, LocationQuestion
+from actions.question import InventoryContentsQuestion, LocationQuestion, GuardsQuestion
 from parsing.pre_processing import pre_process
 from parsing.parse_action import action
 
@@ -22,3 +22,13 @@ class LocationQuestionTestCase(unittest.TestCase):
     def test_parse(self):
         s = pre_process('where are you')
         assert action().parse(s).parsed == LocationQuestion()
+
+
+class GuardsQuestionTestCase(unittest.TestCase):
+    def test_parse(self):
+        s = pre_process('can you see any guards')
+        assert action().parse(s).parsed == GuardsQuestion()
+
+    def test_parses_god_as_guard(self):
+        s = pre_process('can you see any gods')
+        assert action().parse(s).parsed == GuardsQuestion()

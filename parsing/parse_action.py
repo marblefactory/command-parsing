@@ -2,7 +2,7 @@ from actions.action import Stop, Composite
 from parsing.parser import *
 from parsing.parse_move import move, change_stance, change_speed, turn, hide, through_door, leave_room
 from parsing.parse_interaction import pick_up, throw, hack
-from parsing.parse_question import inventory_question, location_question
+from parsing.parse_question import inventory_question, location_question, guards_question
 from utils import split_list
 
 
@@ -38,7 +38,8 @@ def single_action() -> Parser:
         move(),
         leave_room(),
         inventory_question(),
-        location_question()
+        location_question(),
+        guards_question()
     ]
 
     # Removes successful parses which have below 0.3 response. This does not remove partial parses.

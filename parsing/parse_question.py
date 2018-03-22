@@ -1,5 +1,5 @@
 from parsing.parser import *
-from actions.question import InventoryContentsQuestion, LocationQuestion
+from actions.question import InventoryContentsQuestion, LocationQuestion, GuardsQuestion
 
 
 def inventory_question() -> Parser:
@@ -18,4 +18,16 @@ def location_question() -> Parser:
     :return: a parser for asking the spy where they are.
     """
     where = strongest_word(['where'], make_word_parsers=[word_spelling, word_meaning])
-    return where.ignore_parsed(LocationQuestion())
+    return where.ignore_then(word_match('you')).ignore_parsed(LocationQuestion())
+
+
+def guards_question() -> Parser:
+    """
+    :return: a parser for asking questions about guards.
+    """
+    guard_words = ['guard', 'enemy']
+    corrections = ['card', 'god', 'aids', 'jobs', 'dogs']
+
+    parser = words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
+
+    return parser.ignore_parsed(GuardsQuestion())

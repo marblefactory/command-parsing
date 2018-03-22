@@ -63,12 +63,14 @@ class ActionEncoder(json.JSONEncoder):
             encoder = TurnEncoder
         elif isinstance(obj, Hide):
             encoder = HideEncoder
+        elif isinstance(obj, LeaveRoom):
+            encoder = LeaveRoomEncoder
         elif isinstance(obj, InventoryContentsQuestion):
             encoder = InventoryContentsQuestionEncoder
         elif isinstance(obj, LocationQuestion):
             encoder = LocationQuestionEncoder
-        elif isinstance(obj, LeaveRoom):
-            encoder = LeaveRoomEncoder
+        elif isinstance(obj, GuardsQuestion):
+            encoder = GuardsQuestionEncoder
         else:
             raise RuntimeError('unexpected move type when encoding')
 

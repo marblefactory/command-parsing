@@ -19,3 +19,13 @@ class LocationQuestionEncoder(json.JSONEncoder):
         return {
             'type': 'location_question'
         }
+
+
+class GuardsQuestionEncoder(json.JSONEncoder):
+    """
+    Encodes a GuardQuestion.
+    """
+    def default(self, obj):
+        return {
+            'type': 'guards_question'
+        }

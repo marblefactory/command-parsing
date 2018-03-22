@@ -1,11 +1,11 @@
 from typing import List
 from equatable import EquatableMixin
-from typing import Dict
+from typing import Dict, Any
 
 
 # A JSON response from the game server to an action. This contains different information depending on the action.
 # For example, for a question the response will contain the answer to the question.
-GameResponse = Dict[str, str]
+GameResponse = Dict[str, Any]
 
 
 class ActionDefaultPositiveResponseMixin:

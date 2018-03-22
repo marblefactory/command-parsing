@@ -24,3 +24,14 @@ class LocationQuestionTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(question, cls=ActionEncoder))
+
+
+class GuardQuestionTestCase(unittest.TestCase):
+    def test_encode(self):
+        question = GuardsQuestion()
+
+        expected = {
+            'type': 'guards_question'
+        }
+
+        assert expected == json.loads(json.dumps(question, cls=ActionEncoder))
