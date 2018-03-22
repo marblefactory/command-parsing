@@ -9,7 +9,7 @@ def fast_speed_verb() -> Parser:
     """
     :return: a parser for words that mean to move at a fast pace.
     """
-    verbs = ['quick', 'fast', 'sprint', 'run']
+    verbs = ['quick', 'fast', 'sprint', 'run', 'hurry']
     # S2T mistakes 'run' for the following words:
     corrections = ['randa', 'rhonda', 'rhondda']
 
@@ -94,7 +94,7 @@ def change_stance() -> Parser:
     :return: a parser for stance changes, e.g. crouch, stand up, etc
     """
     get_up = word_match('get').then_ignore(word_match('up')).ignore_parsed(Stance.STAND)
-    get_down = word_match('get').then_ignore(word_match('down')).ignore_parsed(Stance.CROUCH)
+    get_down = word_match('get').then_ignore(strongest_word(['down', 'low'])).ignore_parsed(Stance.CROUCH)
     parser = strongest([stance(), get_up, get_down])
 
     return parser.map_parsed(lambda s: ChangeStance(s))

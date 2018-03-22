@@ -91,6 +91,10 @@ class ChangeStanceTestCase(unittest.TestCase):
         s = pre_process('lie down')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
+    def test_get_low(self):
+        s = pre_process('get low')
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
+
 
 class ChangeSpeedTestCase(unittest.TestCase):
     def test_run(self):
@@ -115,6 +119,10 @@ class ChangeSpeedTestCase(unittest.TestCase):
 
     def test_run_quick(self):
         s = pre_process('run quick')
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
+    def test_hurry(self):
+        s = pre_process('hurry up')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
     def test_slow(self):
