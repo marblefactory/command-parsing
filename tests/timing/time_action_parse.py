@@ -21,7 +21,10 @@ action_transcripts = [
     'stop then turn around then throw the rock',
     'hide behind the door',
     'go',
-    'pickup'
+    'pickup',
+    'can you see any guards',
+    'this is nonsense',
+    'go to the fifth floor',
 ]
 
 
