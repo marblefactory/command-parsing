@@ -4,6 +4,7 @@ from parsing.parse_move import move, change_stance, change_speed, turn, hide, th
 from parsing.parse_interaction import pick_up, throw, hack
 from parsing.parse_question import inventory_question, location_question, guards_question
 from utils import split_list
+# import multiprocessing
 
 
 def ignored_words() -> List[str]:
@@ -48,6 +49,9 @@ def single_action() -> Parser:
 
     return strongest(thresholds)
 
+def f(words):
+    return single_action().parse(words)
+
 
 def composite() -> Parser:
     """
@@ -62,6 +66,9 @@ def composite() -> Parser:
         if len(inputs) <= 1:
             # There were no occurrences of the separators.
             return FailureParse()
+
+        # with multiprocessing.Pool() as pool:
+        #     results = pool.map(f, inputs)
 
         results = [single_action().parse(words) for words in inputs]
         filtered = [result for result in results if result.is_success()] # Ignore partials

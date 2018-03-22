@@ -1,7 +1,6 @@
 from actions.location import *
 from parsing.parser import *
 from functools import partial
-from utils import partial_class
 import itertools
 
 
@@ -165,7 +164,7 @@ def positional() -> Parser:
 
     # Partially applies the parsed object name to the Positional init.
     obj = anywhere(move_object_name()) \
-         .map_parsed(lambda parsed_name: partial_class(Positional, parsed_name))
+         .map_parsed(lambda parsed_name: partial(Positional.partial_init(), parsed_name))
 
     return obj.then(combine_ordinal_num) \
               .then(combine_direction)

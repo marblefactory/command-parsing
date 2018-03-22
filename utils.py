@@ -1,4 +1,4 @@
-from functools import partialmethod
+from functools import partial
 from typing import List, Callable
 
 
@@ -25,11 +25,10 @@ def split_list(lst: List, separators: List) -> List[List]:
     return chunks
 
 
-def partial_class(cls, *args, **kwargs):
-    """
-    Partially applies the init method of the given class.
-    """
-    class NewCls(cls):
-        __init__ = partialmethod(cls.__init__, *args, **kwargs)
+class PartialClassMixin:
+    @classmethod
+    def partial_init(cls) -> Callable:
+        def f(*args, **kwargs):
+            return cls(*args, **kwargs)
 
-    return NewCls
+        return partial(f)

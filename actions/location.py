@@ -1,4 +1,5 @@
 from equatable import EquatableMixin
+from utils import PartialClassMixin
 
 
 class MoveDirection(EquatableMixin):
@@ -60,7 +61,7 @@ class Absolute(Location):
         return self.place_name
 
 
-class Positional(Location):
+class Positional(PartialClassMixin, Location):
     """
     The location of an object, out of many, relative to the player. E.g. the third door on the left.
     """

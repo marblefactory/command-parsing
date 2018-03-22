@@ -3,7 +3,6 @@ from actions.location import MoveDirection
 from parsing.parser import *
 from parsing.parse_location import location, move_direction, move_object_name, object_relative_direction
 from functools import partial
-from utils import partial_class
 
 
 def fast_speed_verb() -> Parser:
@@ -128,7 +127,7 @@ def move() -> Parser:
     def combine(_: Any, verb_response: Response) -> Parser:
         # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
         # Partially applies the location to the Move init.
-        loc_parser = anywhere(location()).map(lambda loc, loc_response: (partial_class(Move, location=loc), mix(verb_response, loc_response)))
+        loc_parser = anywhere(location()).map(lambda loc, loc_response: (partial(Move.partial_init(), location=loc), mix(verb_response, loc_response)))
         return loc_parser.then(combine_speed).then(combine_stance)
 
     # Parses on the verb, then the location can not be specified, thereby creating a partial move.

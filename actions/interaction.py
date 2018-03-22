@@ -1,9 +1,10 @@
 from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse
 from actions.location import ObjectRelativeDirection, Location
+from utils import PartialClassMixin
 from typing import List
 
 
-class PickUp(ActionDefaultPositiveResponseMixin, Action):
+class PickUp(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
     """
     Tells the spy to pick up an object, e.g. pick up the rock on your left.
     """
@@ -57,7 +58,7 @@ class HackableType:
     TERMINAL = 'terminal'
 
 
-class Hack(ActionDefaultPositiveResponseMixin, Action):
+class Hack(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
     """
     Tells the spy to hack an object.
     """

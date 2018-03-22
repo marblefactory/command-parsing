@@ -2,7 +2,6 @@ from actions.interaction import *
 from parsing.parser import *
 from parsing.parse_location import object_relative_direction, positional, directional, behind
 from actions.location import Directional, Distance
-from utils import partial_class
 
 
 def pickupable_object_name() -> Parser:
@@ -25,7 +24,7 @@ def pick_up() -> Parser:
     def combine(_: Any, verb_response: Response) -> Parser:
         # Parses the name of the object and then the direction.
         data_parser = pickupable_object_name() \
-                     .map_parsed(lambda obj_name: partial_class(PickUp, obj_name)) \
+                     .map_parsed(lambda obj_name: partial(PickUp.partial_init(), obj_name)) \
                      .then(combine_direction)
 
         # If we only get the verb and no data, use the response from the verb parser.
@@ -62,7 +61,7 @@ def hack() -> Parser:
     def combine(_: Any, verb_response: Response) -> Parser:
         # Parses the name of the object and then the direction.
         data_parser = hackable_object_name() \
-                     .map_parsed(lambda obj_data: partial_class(Hack, obj_data[1], obj_data[0])) \
+                     .map_parsed(lambda obj_data: partial(Hack.partial_init(), obj_data[1], obj_data[0])) \
                      .then(combine_direction)
 
         # If we only get the verb and no data, use the response from the verb parser.

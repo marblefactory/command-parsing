@@ -1,5 +1,6 @@
 from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse
 from actions.location import Location, MoveDirection, ObjectRelativeDirection
+from utils import PartialClassMixin
 from typing import Optional, List
 
 
@@ -56,7 +57,7 @@ class ChangeSpeed(ActionDefaultPositiveResponseMixin, Action):
         return 'change speed to {}'.format(self.speed)
 
 
-class Move(ActionDefaultPositiveResponseMixin, Action):
+class Move(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
     """
     Tells the spy to move to a location.
     """

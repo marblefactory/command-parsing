@@ -1,5 +1,6 @@
 import unittest
-from utils import split_list, partial_class, compose
+from utils import split_list, PartialClassMixin
+from functools import partial
 
 
 class SplitListTestCase(unittest.TestCase):
@@ -26,23 +27,19 @@ class SplitListTestCase(unittest.TestCase):
 
 
 class PartialClassTestCase(unittest.TestCase):
-    class TestClass:
+    class TestClass(PartialClassMixin):
         def __init__(self, x, y):
             self.x = x
             self.y = y
 
+        def __str__(self):
+            return "x = {}, y = {}".format(self.x, self.y)
+
     def test_sets_properties(self):
-        bound_x = partial_class(PartialClassTestCase.TestClass, x='X')
-        obj = bound_x(y='Y')
+        p = PartialClassTestCase.TestClass.partial_init()
+        bound_x = partial(p, x='X')
+        bound_y = bound_x(y='Y')
 
-        assert obj.x == 'X'
-        assert obj.y == 'Y'
-        assert isinstance(obj, PartialClassTestCase.TestClass)
-
-    def test_isinstance(self):
-        bound_x = partial_class(PartialClassTestCase.TestClass, x='X')
-        obj = bound_x(y='Y')
-
-        assert obj.x == 'X'
-        assert obj.y == 'Y'
-        assert isinstance(obj, PartialClassTestCase.TestClass)
+        assert bound_y.x == 'X'
+        assert bound_y.y == 'Y'
+        assert isinstance(bound_y, PartialClassTestCase.TestClass)
