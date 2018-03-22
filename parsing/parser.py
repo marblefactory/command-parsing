@@ -511,7 +511,7 @@ def partial_parser(parser: Parser, response: Response, marker: Any) -> Parser:
     return Parser(parse)
 
 
-def words_and_corrections(words: List[Word], corrections: List[Word], make_word_parsers: [Callable[[Word], Parser]] = None) -> Parser:
+def words_and_corrections(words: List[Word], corrections: List[Word], make_word_parsers: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
     """
     :param words: the words the parser should recognise.
     :param corrections: the words the speech-to-text service mistakes for words in the list of words.
@@ -522,7 +522,7 @@ def words_and_corrections(words: List[Word], corrections: List[Word], make_word_
     """
     words_parser = strongest_word(words, make_word_parsers=make_word_parsers)
     corrections_parser = strongest_word(corrections)
-    return strongest([words_parser, corrections_parser])
+    return strongest([words_parser, corrections_parser], debug=debug)
 
 
 def object_spelled(names: List[str], other_noun_response: Response) -> Parser:

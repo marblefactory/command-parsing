@@ -53,8 +53,8 @@ def hack() -> Parser:
     """
     :return: a parser which parses hack instructions.
     """
-    hack_verbs = ['hack']
-    corrections = ['text']  # 'hack' is sometimes misheard for 'text'.
+    hack_verbs = ['hack', 'log']
+    corrections = ['text', 'break']  # 'hack' is sometimes misheard for 'text'.
     verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     def combine_direction(make_type: Callable, _: Response) -> Parser:

@@ -118,6 +118,14 @@ class HackTestCase(unittest.TestCase):
         s = pre_process('hack into a camera')
         assert action().parse(s).parsed == Hack(HackableType.CAMERA, 'camera', ObjectRelativeDirection.VICINITY)
 
+    def test_log_into(self):
+        s = pre_process('log into the computer')
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
+
+    def test_break_into(self):
+        s = pre_process('break into the computer')
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
+
     def test_partial_if_no_object1(self):
         s = pre_process('hack')
         result = action().parse(s)
