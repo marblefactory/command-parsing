@@ -16,6 +16,9 @@ class InventoryContentsQuestion(Question):
     """
     An action to ask the spy what's in their inventory.
     """
+    def __str__(self):
+        return 'inventory contents question'
+
     def positive_responses(self, game_response: GameResponse) -> List[str]:
         """
         :param game_response: the json response from the game. Expects this to contain a key named 'inventory_items'
@@ -34,6 +37,9 @@ class LocationQuestion(Question):
     """
     An action to ask the spy where they are.
     """
+    def __str__(self):
+        return 'location question'
+
     def positive_responses(self, game_response: GameResponse) -> List[str]:
         """
         :param game_response: the json response from the game. Expects this to contain a key named 'location'
@@ -51,6 +57,9 @@ class GuardsQuestion(Question):
     """
     An action to ask the spy if they can see any guards.
     """
+    def __str__(self):
+        return 'guards question'
+
     def positive_responses(self, game_response: GameResponse) -> List[str]:
         """
         :param game_response: the json response from the game. Expects this to contain a key named 'num_guards'
@@ -91,6 +100,9 @@ class SurroundingsQuestion(Question):
     """
     An action to ask the spy what they can see around them.
     """
+    def __str__(self):
+        return 'surroundings question'
+
     def positive_responses(self, game_response: GameResponse) -> List[str]:
         """
         :param game_response: the json response from the game. Expects this to contain a key named 'surroundings'
