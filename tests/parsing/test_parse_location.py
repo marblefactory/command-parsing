@@ -165,6 +165,10 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to floor zero')
         assert location().parse(s).parsed == Absolute('basement')
 
+    def test_parses_first_floor(self):
+        s = pre_process('go to the first floor')
+        assert location().parse(s).parsed == Absolute('roof')
+
     def test_fails_with_unknown_floor_num(self):
         s = pre_process('go to floor 100')
         assert location().parse(s).is_failure()

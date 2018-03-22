@@ -83,7 +83,10 @@ def absolute_floor_name() -> Parser:
                        .ignore_then(number()) \
                        .then(index_array(floor_names))
 
-    return strongest([floor_parsers, numerical_parsers])
+    # i.e. the roof
+    first_floor = anywhere(word_match('floor')).ignore_then(word_match('first')).ignore_parsed('roof')
+
+    return strongest([floor_parsers, numerical_parsers, first_floor])
 
 
 def absolute_place_names() -> Parser:
