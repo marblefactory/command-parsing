@@ -85,6 +85,12 @@ class ThrowTestCase(unittest.TestCase):
         expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
 
+    def test_show_as_throw(self):
+        s = pre_process('show the rock')
+
+        expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
+        assert action().parse(s).parsed == Throw(expected_loc)
+
 
 class HackTestCase(unittest.TestCase):
     def test_parse(self):

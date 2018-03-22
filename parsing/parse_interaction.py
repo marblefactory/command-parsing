@@ -85,7 +85,11 @@ def throw() -> Parser:
         default_target_parser
     ]
     target = strongest(target_location_parsers).map_response(lambda _: 1.0)
-    throw_verb = strongest_word(['chuck', 'throw'])
 
-    return throw_verb.ignore_then(target) \
-                     .map_parsed(lambda loc: Throw(loc))
+    throw_verbs = ['chuck', 'throw']
+    corrections = ['show', 'stoner']
+    verb_parser = words_and_corrections(throw_verbs, corrections,
+                                        make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+
+    return verb_parser.ignore_then(target) \
+                      .map_parsed(lambda loc: Throw(loc))
