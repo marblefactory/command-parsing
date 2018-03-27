@@ -50,6 +50,14 @@ class Throw(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
+class Drop(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to drop the object they're holding.
+    """
+    def __str__(self):
+        return 'drop'
+
+
 class HackableType:
     """
     The types of objects which can be hacked.

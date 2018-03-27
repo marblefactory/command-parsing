@@ -73,6 +73,8 @@ class ActionEncoder(json.JSONEncoder):
             encoder = GuardsQuestionEncoder
         elif isinstance(obj, SurroundingsQuestion):
             encoder = SurroundingsQuestionEncoder
+        elif isinstance(obj, Drop):
+            encoder = DropEncoder
         else:
             raise RuntimeError('unexpected move type when encoding')
 

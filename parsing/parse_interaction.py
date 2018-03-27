@@ -35,6 +35,16 @@ def pick_up() -> Parser:
     return verb_parser.then(combine)
 
 
+def drop() -> Parser:
+    """
+    :return: a parser which parses an instruction for the spy to drop whatever they're holding.
+    """
+    put_down_verb = word_match('put').then_ignore(word_match('down'))
+    drop_verb = word_meaning('drop', pos=POS.verb)
+
+    return strongest([put_down_verb, drop_verb]).ignore_parsed(Drop())
+
+
 def hackable_object_name() -> Parser:
     """
     :return: a parser for the names of objects which can be hacked. Returns a tuple containing the name of the

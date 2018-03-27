@@ -32,6 +32,17 @@ class ThrowEncoder(json.JSONEncoder):
         }
 
 
+class DropEncoder(json.JSONEncoder):
+    """
+    Encodes a Drop action.
+    """
+
+    def default(self, obj):
+        return {
+            'type': 'drop'
+        }
+
+
 class HackEncoder(json.JSONEncoder):
     """
     Encodes a Hack action.

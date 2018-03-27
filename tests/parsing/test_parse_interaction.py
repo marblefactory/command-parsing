@@ -92,6 +92,24 @@ class ThrowTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Throw(expected_loc)
 
 
+class DropTestCase(unittest.TestCase):
+    def test_drop(self):
+        s = pre_process('drop the rock')
+        assert action().parse(s).parsed == Drop()
+
+    def test_put_down(self):
+        s = pre_process('put down the rock')
+        assert action().parse(s).parsed == Drop()
+
+    def test_fails_if_just_put(self):
+        s = pre_process('put the rock')
+        assert action().parse(s).is_failure()
+
+    def test_fails_if_just_down(self):
+        s = pre_process('down the rock')
+        assert action().parse(s).is_failure()
+
+
 class HackTestCase(unittest.TestCase):
     def test_parse(self):
         s = pre_process('hack the terminal on your left')
