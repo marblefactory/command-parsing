@@ -16,8 +16,8 @@ def fast_speed_verb() -> Parser:
     # Make a parser that recognises the meaning and spelling of the actual verbs, and matches on exact corrections.
     parser = words_and_corrections(verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
-    # Ignore the word go, because it *can* be parsed as to mean 'fast', but it does not necessarily.
-    return ignore_words(['go']).ignore_then(parser)
+    # Ignore the go verbs, because it *can* be parsed as to mean 'fast', but it does not necessarily.
+    return ignore_words(go_verb_words()).ignore_then(parser)
 
 
 def normal_speed_verb() -> Parser:
@@ -34,11 +34,18 @@ def slow_speed_verb() -> Parser:
     return word_meaning('slow')
 
 
+def go_verb_words() -> List[Word]:
+    """
+    :return: a list of words which can mean 'go'.
+    """
+    return ['go', 'to', 'take', 'move']
+
+
 def go_verbs() -> Parser:
     """
     :return: parser for words that mean to go somewhere.
     """
-    go_verbs = ['go', 'to', 'take']
+    go_verbs = go_verb_words()
     # S2T can mistake 'to' for 'o2.
     corrections = ['o2']
 

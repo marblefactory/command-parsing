@@ -269,6 +269,22 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('pick up the assault rifle')
         assert type(action().parse(s).parsed) != Move
 
+    def test_move_forwards(self):
+        s = pre_process('move forwards')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+
+    def test_move_backwards(self):
+        s = pre_process('move backwards')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.BACKWARDS, Distance.MEDIUM), None)
+
+    def test_move_left(self):
+        s = pre_process('move left')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None)
+
+    def test_move_right(self):
+        s = pre_process('move right')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.RIGHT, Distance.MEDIUM), None)
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
