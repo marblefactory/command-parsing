@@ -68,23 +68,23 @@ class PickUpTestCase(unittest.TestCase):
 
 class ThrowTestCase(unittest.TestCase):
     def test_parse_directional(self):
-        s = pre_process('chuck to your left')
+        s = pre_process('chuck the rock to your left')
 
         expected_loc = Directional(MoveDirection.LEFT, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
 
     def test_parse_positional(self):
-        s = pre_process('throw to the next door')
+        s = pre_process('throw the rock to the next door')
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         assert action().parse(s).parsed == Throw(expected_loc)
 
     def test_throw_behind_object(self):
-        s = pre_process('throw behind the desk')
+        s = pre_process('throw the hammer behind the desk')
         assert action().parse(s).parsed == Throw(Behind('desk'))
 
     def test_defaults_forwards(self):
-        s = pre_process('throw')
+        s = pre_process('throw the rock')
 
         expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
@@ -94,6 +94,16 @@ class ThrowTestCase(unittest.TestCase):
 
         expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
+
+    def test_through_as_throw(self):
+        s = pre_process('through the rock')
+
+        expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
+        assert action().parse(s).parsed == Throw(expected_loc)
+
+    def test_fails_if_no_object(self):
+        s = pre_process('throw')
+        assert type(action().parse(s)) != Throw
 
 
 class DropTestCase(unittest.TestCase):

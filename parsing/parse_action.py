@@ -35,12 +35,12 @@ def single_action() -> Parser:
     parsers = [
         stop(),
         hack(),
+        throw(),
         through_door(),
         change_stance().map_response(lambda r: r * 0.7),  # Because move also looks for stances, and this matches on less.
         change_speed().map_response(lambda r: r * 0.7), # Because move also looks for speeds, and this matches on less.
         turn(),
         pick_up(),
-        throw(),
         drop(),
         hide(),
         move(),

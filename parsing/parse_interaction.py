@@ -70,7 +70,7 @@ def hack() -> Parser:
     :return: a parser which parses hack instructions.
     """
     hack_verbs = ['hack', 'log']
-    corrections = ['text']  # 'hack' is sometimes misheard for 'text'.
+    corrections = ['text', 'taxi']  # 'hack' is sometimes misheard for 'text'.
     verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     # Only want the spelling of the word 'break', not the meaning.
@@ -109,8 +109,11 @@ def throw() -> Parser:
     target = strongest(target_location_parsers).map_response(lambda _: 1.0)
 
     throw_verbs = ['chuck', 'throw']
-    corrections = ['show', 'stoner']
+    corrections = ['show', 'stoner', 'through']
     verb_parser = words_and_corrections(throw_verbs, corrections)
 
-    return verb_parser.ignore_then(target) \
+    # The name of the object is not used, since the spy can only hold one object at once, however it is needed for a
+    # successful parse.
+    return verb_parser.ignore_then(pickupable_object_name(), lambda verb_r, obj_r: obj_r) \
+                      .ignore_then(target, mix) \
                       .map_parsed(lambda loc: Throw(loc))

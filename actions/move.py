@@ -82,7 +82,9 @@ class Move(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
         return [
             "Moving to that position",
             "On my way",
-            "Going there now"
+            "Going there now",
+            'OK',
+            'Affirmative'
         ]
 
     @classmethod

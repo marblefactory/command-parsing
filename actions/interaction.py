@@ -93,7 +93,7 @@ class Hack(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
         return [
             "I'll make a GUI interface using Visual Basic, see if I can track an IP address",
             "I'll get you access to their mainframe",
-            "You'll need to isolate the node and dump it on the other side of the router",
+            "I'll need to isolate the node and dump it on the other side of the router",
             "I'll plug the communicator into the {}".format(self.object_name),
             "I'll get you access to their {}".format(self.object_name)
         ]

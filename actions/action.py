@@ -17,7 +17,10 @@ class ActionDefaultPositiveResponseMixin:
         """
         :return: default affirmative responses that apply to all actions, plus any responses specific to the action.
         """
-        return self.specific_positive_responses(game_response) + ['OK', 'Affirmative', 'Roger', 'Copy']
+        rs = self.specific_positive_responses(game_response)
+        if rs == []:
+            return ['OK', 'Affirmative', 'Roger', 'Copy']
+        return rs
 
     def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
         """
