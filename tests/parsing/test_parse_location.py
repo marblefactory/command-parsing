@@ -213,6 +213,10 @@ class DirectionalTestCase(unittest.TestCase):
         s = pre_process('go forwards')
         assert location().parse(s).parsed == Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
 
+    def test_parses_affords_as_forwards(self):
+        s = pre_process('affords')
+        assert location().parse(s).parsed == Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
+
     def test_parses_backwards(self):
         s = pre_process('go backwards')
         assert location().parse(s).parsed == Directional(MoveDirection.BACKWARDS, Distance.MEDIUM)

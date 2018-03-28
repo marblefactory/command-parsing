@@ -32,7 +32,10 @@ def move_direction() -> Parser:
     """
     :return: a parser for movement directions, e.g. left, right, forwards, backwards, which are converted to Direction enums.
     """
-    forwards_parser = strongest_word(['forward', 'front'], make_word_parsers=[word_meaning])
+    forwards_words = ['forwards', 'front']
+    forwards_corrections = ['affords']
+
+    forwards_parser = words_and_corrections(forwards_words, forwards_corrections, make_word_parsers=[word_meaning])
     backwards_parser = strongest_word(['backward', 'behind'], make_word_parsers=[word_match])
 
     forwards = forwards_parser.ignore_parsed(MoveDirection.FORWARDS)
