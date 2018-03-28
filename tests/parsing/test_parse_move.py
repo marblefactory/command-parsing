@@ -285,6 +285,10 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('move right')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.RIGHT, Distance.MEDIUM), None)
 
+    def test_go_forward_a_little(self):
+        s = pre_process('go forwards a little')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.SHORT), None)
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):

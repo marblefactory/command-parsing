@@ -42,6 +42,10 @@ class PickUpTestCase(unittest.TestCase):
         s = pre_process('pick up the rope')
         assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
 
+    def test_ra_as_rock(self):
+        s = pre_process('pick up the ra')
+        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
+
     def test_parses_noun(self):
         """
         Tests that other nouns that haven't been explicitly listed can also be recognised.

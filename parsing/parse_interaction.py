@@ -10,8 +10,12 @@ def pickupable_object_name() -> Parser:
     """
     # Objects the player can actually pick up.
     names = ['rock', 'hammer', 'bottle', 'cup', 'can']
+
+    rock_correction = word_match('ra').ignore_parsed('rock')
     # Strongly recognises the names of actual objects in the game, and weakly matches on other nouns.
-    return object_spelled(names, other_noun_response=0.25)
+    objects = object_spelled(names, other_noun_response=0.25)
+
+    return strongest([objects, rock_correction])
 
 
 def pick_up() -> Parser:
