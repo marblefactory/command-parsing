@@ -57,3 +57,15 @@ class HackEncoderTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(hack, cls=ActionEncoder))
+
+
+class PickpocketEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        pickpocket = Pickpocket(ObjectRelativeDirection.RIGHT)
+
+        expected = {
+            'type': 'pickpocket',
+            'direction': 'right'
+        }
+
+        assert expected == json.loads(json.dumps(pickpocket, cls=ActionEncoder))

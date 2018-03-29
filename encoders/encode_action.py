@@ -75,7 +75,9 @@ class ActionEncoder(json.JSONEncoder):
             encoder = SurroundingsQuestionEncoder
         elif isinstance(obj, Drop):
             encoder = DropEncoder
+        elif isinstance(obj, Pickpocket):
+            encoder = PickpocketEncoder
         else:
-            raise RuntimeError('unexpected move type when encoding')
+            raise RuntimeError('unexpected action type when encoding')
 
         return encoder.default(self, obj)

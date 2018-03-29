@@ -104,3 +104,18 @@ class Hack(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
         :return: a response for just being asked to 'hack'.
         """
         return 'Hack what?'
+
+
+class Pickpocket(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to pickpocket a guard.
+    """
+
+    # The direction of the guard relative to the spy.
+    direction: ObjectRelativeDirection
+
+    def __init__(self, direction: ObjectRelativeDirection):
+        self.direction = direction
+
+    def __str__(self):
+        return 'pickpocket the guard on {}'.format(self.direction)

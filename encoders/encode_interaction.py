@@ -54,3 +54,15 @@ class HackEncoder(json.JSONEncoder):
             'hack_type': obj.object_type,
             'direction': obj.direction
         }
+
+
+class PickpocketEncoder(json.JSONEncoder):
+    """
+    Encodes a Pickpocket action.
+    """
+
+    def default(self, obj):
+        return {
+            'type': 'pickpocket',
+            'direction': obj.direction
+        }
