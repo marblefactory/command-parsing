@@ -50,6 +50,30 @@ class Throw(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
+class ThrowAtGuard(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to throw whatever they've picked up at a guard.
+    """
+
+    # The direction of the guard to throw something at, relative to the spy.
+    direction: ObjectRelativeDirection
+
+    def __init__(self, direction: ObjectRelativeDirection):
+        self.direction = direction
+
+    def __str__(self):
+        return 'throw at guard'
+
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: positive responses for the throw action. Does not expect anything to be given from the game.
+        """
+        return [
+            "Take that!",
+            "I hope this hurts!"
+        ]
+
+
 class Drop(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to drop the object they're holding.

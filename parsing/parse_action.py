@@ -1,7 +1,7 @@
 from actions.action import Stop, Composite
 from parsing.parser import *
 from parsing.parse_move import move, change_stance, change_speed, turn, hide, through_door, leave_room
-from parsing.parse_interaction import pick_up, throw, hack, drop, pickpocket
+from parsing.parse_interaction import pick_up, throw, hack, drop, pickpocket, throw_at_guard
 from parsing.parse_question import inventory_question, location_question, guards_question, surroundings_question
 from utils import split_list
 
@@ -35,6 +35,7 @@ def single_action() -> Parser:
     parsers = [
         stop(),
         hack(),
+        throw_at_guard(),
         throw(),
         through_door(),
         change_stance().map_response(lambda r: r * 0.7),  # Because move also looks for stances, and this matches on less.

@@ -18,12 +18,12 @@ def pickupable_object_name() -> Parser:
     return strongest([objects, rock_correction])
 
 
-def guard_word() -> Parser:
+def guard_noun() -> Parser:
     """
     :return: a parser for the word guard, or similar words.
     """
     guard_words = ['guard', 'enemy']
-    corrections = ['card', 'god', 'aids', 'jobs', 'dogs']
+    corrections = ['card', 'god', 'aids', 'jobs', 'dogs', 'car']
     return words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 
 
@@ -103,6 +103,15 @@ def hack() -> Parser:
     return parser.then(combine)
 
 
+def throw_verb() -> Parser:
+    """
+    :return: a parser for verbs that mean 'to throw'.
+    """
+    throw_verbs = ['chuck', 'throw']
+    corrections = ['show', 'stoner', 'through', 'check']
+    return  words_and_corrections(throw_verbs, corrections)
+
+
 def throw() -> Parser:
     """
     :return: a parser which parses instructions to throw the object the spy is holding.
@@ -117,16 +126,22 @@ def throw() -> Parser:
     ]
     target = strongest(target_location_parsers).map_response(lambda _: 1.0)
 
-    throw_verbs = ['chuck', 'throw']
-    corrections = ['show', 'stoner', 'through']
-    verb_parser = words_and_corrections(throw_verbs, corrections)
-
     # The name of the object is not used, since the spy can only hold one object at once, however it is needed for a
     # successful parse.
-    return anywhere(verb_parser) \
+    return throw_verb() \
           .ignore_then(pickupable_object_name(), lambda verb_r, obj_r: obj_r) \
           .ignore_then(target, mix) \
           .map_parsed(lambda loc: Throw(loc))
+
+
+def throw_at_guard() -> Parser:
+    """
+    :return: a parser which parses instructions to throw an object at a guard.
+    """
+    return throw_verb() \
+          .ignore_then(guard_noun()) \
+          .ignore_then(object_relative_direction()) \
+          .map_parsed(lambda dir: ThrowAtGuard(dir))
 
 
 def pickpocket() -> Parser:
@@ -135,7 +150,7 @@ def pickpocket() -> Parser:
     """
     pickpocket_words = ['pickpocket', 'steal']
     pickpocket = strongest_word(pickpocket_words, make_word_parsers=[word_match, word_meaning_pos(POS.verb)])
-    take = word_match('take').ignore_then(guard_word())
+    take = word_match('take').ignore_then(guard_noun())
     verb_parser = strongest([pickpocket, take])
 
     return verb_parser \

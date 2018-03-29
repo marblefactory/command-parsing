@@ -109,6 +109,16 @@ class ThrowTestCase(unittest.TestCase):
         assert type(action().parse(s)) != Throw
 
 
+class ThrowAtGuardTestCase(unittest.TestCase):
+    def test_throw_at_guard(self):
+        s = pre_process('throw at the guard')
+        assert action().parse(s).parsed == ThrowAtGuard(ObjectRelativeDirection.VICINITY)
+
+    def test_direction(self):
+        s = pre_process('chuck at the enemy on your left')
+        assert action().parse(s).parsed == ThrowAtGuard(ObjectRelativeDirection.LEFT)
+
+
 class DropTestCase(unittest.TestCase):
     def test_drop(self):
         s = pre_process('drop the rock')

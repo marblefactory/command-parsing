@@ -32,6 +32,18 @@ class ThrowEncoder(json.JSONEncoder):
         }
 
 
+class ThrowAtGuardEncoder(json.JSONEncoder):
+    """
+    Encodes a ThrowAtGuard action.
+    """
+
+    def default(self, obj):
+        return {
+            'type': 'throw_at_guard',
+            'direction': obj.direction
+        }
+
+
 class DropEncoder(json.JSONEncoder):
     """
     Encodes a Drop action.
