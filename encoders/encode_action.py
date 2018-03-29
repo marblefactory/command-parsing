@@ -79,6 +79,8 @@ class ActionEncoder(json.JSONEncoder):
             encoder = PickpocketEncoder
         elif isinstance(obj, ThrowAtGuard):
             encoder = ThrowAtGuardEncoder
+        elif isinstance(obj, SeeObjectQuestion):
+            encoder = SeeObjectQuestionEncoder
         else:
             raise RuntimeError('unexpected action type when encoding')
 

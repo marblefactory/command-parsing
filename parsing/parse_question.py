@@ -1,5 +1,13 @@
 from parsing.parser import *
 from actions.question import *
+from parsing.parse_interaction import pickupable_object_name
+
+def see_verb() -> Parser:
+    """
+    :return: a parser for words that mean 'to see'.
+    """
+    verbs = ['see', 'around', 'near']
+    return strongest_word(verbs, make_word_parsers=[word_spelling, word_meaning])
 
 
 def inventory_question() -> Parser:
@@ -37,6 +45,18 @@ def surroundings_question() -> Parser:
     :return: a parser for asking questions about what the spy can see around them.
     """
     what = strongest_word(['what'], make_word_parsers=[word_spelling, word_meaning])
-    see = strongest_word(['see', 'around', 'near'], make_word_parsers=[word_spelling, word_meaning])
+    return what \
+          .ignore_then(see_verb()) \
+          .ignore_parsed(SurroundingsQuestion())
 
-    return what.ignore_then(see).ignore_parsed(SurroundingsQuestion())
+
+def see_object_question() -> Parser:
+    """
+    :return: a parser for asking whether the spy can see a specific object.
+    """
+    there = word_match('there') # E.g. "are there any ... ?"
+    verb = strongest([see_verb(), there])
+
+    return verb \
+          .ignore_then(pickupable_object_name()) \
+          .map_parsed(lambda obj: SeeObjectQuestion(obj))

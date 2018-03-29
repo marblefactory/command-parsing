@@ -126,10 +126,48 @@ class SurroundingsQuestion(Question):
             # Adds 'a' or 'an' to the front of the names of the objects. Also gives the
             return engine.a(plural, count=count)
 
-        object_descriptions = list(map(make_description, groups))
+        descriptions = list(map(make_description, groups))
+        # The descriptions join with commas, and an 'and' at the end.
+        joined_descriptions = join_with_last(descriptions, ', ', ' and ')
 
-        objects_description = join_with_last(object_descriptions, ', ', ' and ')
         return [
-            "I can see {}".format(objects_description),
-            "There's {}".format(objects_description)
+            "I can see {}".format(joined_descriptions),
+            "There's {}".format(joined_descriptions)
+        ]
+
+
+class SeeObjectQuestion(Question):
+    """
+    An action to ask the spy whether they can see a specific object, e.g. 'Can you see a rock near you?'
+    """
+
+    def __init__(self, object_name: str):
+        """
+        :param object_name: the name of the object for the spy to look for.
+        """
+        self.object_name = object_name
+
+    def __str__(self):
+        return 'see object question'
+
+    def positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :return: responses that confirm that the spy can see the requested object.
+        """
+        return [
+            "There's a {} near me".format(self.object_name),
+            "I can see a {}".format(self.object_name),
+            "I can",
+            "Yes"
+        ]
+
+    def negative_responses(self) -> List[str]:
+        """
+        :return: responses that tell the player the requested object is not near the spy.
+        """
+        return [
+            "I can't see any",
+            "No",
+            "Umm, I can't see any here",
+            "I'm afraid not"
         ]

@@ -38,3 +38,13 @@ class SurroundingsTestCase(unittest.TestCase):
     def test_parse(self):
         s = pre_process('what can you see around you')
         assert action().parse(s).parsed == SurroundingsQuestion()
+
+
+class SeeObjectTestCase(unittest.TestCase):
+    def test_parse(self):
+        s = pre_process('can you see a rock nearby')
+        assert action().parse(s).parsed == SeeObjectQuestion('rock')
+
+    def test_are_there(self):
+        s = pre_process('are there any rocks nearby')
+        assert action().parse(s).parsed == SeeObjectQuestion('rock')

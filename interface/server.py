@@ -105,16 +105,16 @@ def process_transcript(transcript: str) -> str:
         # For example, if the spy was asked to pickup an object the action could fail if there are none of the
         # specified objects around.
         if game_response.status_code == 200:
-            sample_json = {
-                'success': True, # Indicates whether the action could be performed in the game.
-                'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
-                'location': 'the computer lab',  # For if the user asks where the spy is.
-                'num_guards': randrange(0, 10), # For if the user asks about guards
-                'surroundings': ['server', 'camera', 'camera'] # For if the user asks about the spy's surroundings
-            }
-            response = make_speech(sample_json)
-            # TODO: Remove sample JSON
-            #response = make_speech(game_response.json())
+            # sample_json = {
+            #     'success': True, # Indicates whether the action could be performed in the game.
+            #     'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
+            #     'location': 'the computer lab',  # For if the user asks where the spy is.
+            #     'num_guards': randrange(0, 10), # For if the user asks about guards
+            #     'surroundings': ['server', 'camera', 'camera'] # For if the user asks about the spy's surroundings
+            # }
+            # response = make_speech(sample_json)
+            # # TODO: Remove sample JSON
+            response = make_speech(game_response.json())
         else:
             log_conversation('ERROR: Unsuccessful response from game', game_response)
             response = ''

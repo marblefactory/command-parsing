@@ -38,3 +38,14 @@ class SurroundingsQuestionEncoder(json.JSONEncoder):
         return {
             'type': 'surroundings_question'
         }
+
+
+class SeeObjectQuestionEncoder(json.JSONEncoder):
+    """
+    Encodes a SeeObjectQuestion.
+    """
+    def default(self, obj):
+        return {
+            'type': 'see_object_question',
+            'object_name': obj.object_name
+        }
