@@ -18,6 +18,15 @@ def pickupable_object_name() -> Parser:
     return strongest([objects, rock_correction])
 
 
+def guard_word() -> Parser:
+    """
+    :return: a parser for the word guard, or similar words.
+    """
+    guard_words = ['guard', 'enemy']
+    corrections = ['card', 'god', 'aids', 'jobs', 'dogs']
+    return words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
+
+
 def pick_up() -> Parser:
     """
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
@@ -114,6 +123,21 @@ def throw() -> Parser:
 
     # The name of the object is not used, since the spy can only hold one object at once, however it is needed for a
     # successful parse.
-    return verb_parser.ignore_then(pickupable_object_name(), lambda verb_r, obj_r: obj_r) \
-                      .ignore_then(target, mix) \
-                      .map_parsed(lambda loc: Throw(loc))
+    return anywhere(verb_parser) \
+          .ignore_then(pickupable_object_name(), lambda verb_r, obj_r: obj_r) \
+          .ignore_then(target, mix) \
+          .map_parsed(lambda loc: Throw(loc))
+
+
+def pickpocket() -> Parser:
+    """
+    :return: a parser which parses instructions to pickpocket a guard.
+    """
+    pickpocket_words = ['pickpocket', 'steal']
+    pickpocket = strongest_word(pickpocket_words, make_word_parsers=[word_match, word_meaning_pos(POS.verb)])
+    take = word_match('take').ignore_then(guard_word())
+    verb_parser = strongest([pickpocket, take])
+
+    return verb_parser \
+          .ignore_then(object_relative_direction()) \
+          .map_parsed(lambda dir: Pickpocket(dir))

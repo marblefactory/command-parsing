@@ -101,6 +101,9 @@ class ThrowTestCase(unittest.TestCase):
         expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
 
+    def test_loc_first(self):
+        pass
+
     def test_fails_if_no_object(self):
         s = pre_process('throw')
         assert type(action().parse(s)) != Throw
@@ -171,3 +174,21 @@ class HackTestCase(unittest.TestCase):
         s = pre_process('hack something')
         result = action().parse(s)
         assert result.marker == Hack
+
+
+class PickpocketTestCase(unittest.TestCase):
+    def test_parse_pickpocket(self):
+        s = pre_process('pickpocket the guard')
+        assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.VICINITY)
+
+    def test_parse_direction(self):
+        s = pre_process('steal from the guard behind you')
+        assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.BACKWARDS)
+
+    def test_parse_take(self):
+        s = pre_process('take from the guard')
+        assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.VICINITY)
+
+    def test_parse_take_object(self):
+        s = pre_process('take the rock from the guard')
+        assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.VICINITY)

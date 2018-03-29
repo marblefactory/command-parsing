@@ -27,7 +27,6 @@ def guards_question() -> Parser:
     """
     guard_words = ['guard', 'enemy']
     corrections = ['card', 'god', 'aids', 'jobs', 'dogs']
-
     parser = words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 
     return parser.ignore_parsed(GuardsQuestion())
