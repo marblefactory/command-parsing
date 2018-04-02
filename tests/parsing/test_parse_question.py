@@ -61,6 +61,10 @@ class SeeObjectTestCase(unittest.TestCase):
         s = pre_process('are there any submarines around you')
         assert action().parse(s).parsed == SeeObjectQuestion('submarines')
 
+    def test_can_you_see(self):
+        s = pre_process('can you see any rocks')
+        assert action().parse(s).parsed == SeeObjectQuestion('rock')
+
     def test_nan_is_nothing(self):
         s = pre_process('nan')
         assert action().parse(s).is_failure()
