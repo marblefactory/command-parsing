@@ -4,6 +4,16 @@ from typing import List
 import inflect
 from itertools import groupby
 
+
+def a_singular_obj(obj_name: str) -> str:
+    """
+    :return: the singular version of the object name, prepended with 'a' or 'an'.
+    """
+    engine = inflect.engine()
+    singular_obj_name = engine.singular_noun(obj_name) or obj_name
+    return engine.a(singular_obj_name)
+
+
 class Question(Action):
     """
     Base class for questions. Used to identify questions so they can be sent
@@ -27,9 +37,12 @@ class InventoryContentsQuestion(Question):
         """
         # The items the spy is holding.
         item = game_response['inventory_item']
+        print(item)
+        obj_description = a_singular_obj(item)
+        print(obj_description)
         return [
-            "I'm holding a {}".format(item),
-            "I've got a {}".format(item)
+            "I'm holding {}".format(obj_description),
+            "I've got {}".format(obj_description)
         ]
 
 
@@ -155,14 +168,12 @@ class SeeObjectQuestion(Question):
         :param game_response: does not expect any response from game, except success bool.
         :return: responses that confirm that the spy can see the requested object.
         """
-        engine = inflect.engine()
-        singular_obj_name = engine.singular_noun(self.object_name)
-        a_obj_name = engine.a(singular_obj_name)
+        obj_description = a_singular_obj(self.object_name)
 
         return [
-            "There's {} near me".format(a_obj_name),
-            "I can see {}".format(a_obj_name),
-            "Yes, there's {} near me".format(a_obj_name)
+            "There's {} near me".format(obj_description),
+            "I can see {}".format(obj_description),
+            "Yes, there's {} near me".format(obj_description)
         ]
 
     def negative_responses(self) -> List[str]:
