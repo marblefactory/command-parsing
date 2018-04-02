@@ -44,7 +44,7 @@ class ParseResult(EquatableMixin):
         def rank(result: ParseResult) -> int:
             return result.either(lambda _: 2, lambda _: 1, lambda _: 0)
 
-        # Used for intraclass comparison
+        # Used for intra-class comparison.
         def response(result: ParseResult) -> int:
             success = lambda s: s.response
             partial = lambda p: p.response

@@ -155,7 +155,7 @@ def take_out_guard() -> Parser:
 
     verb_parser = strongest([kill_parser, knock_out, take_out])
 
-    return anywhere(verb_parser) \
+    return non_consuming(verb_parser) \
           .ignore_then(guard_noun()) \
           .ignore_then(object_relative_direction()) \
           .map_parsed(lambda dir: TakeOutGuard(dir))
@@ -187,6 +187,6 @@ def destroy_generator() -> Parser:
     generator_nouns = ['generator', 'engine']
     generator_parser = strongest_word(generator_nouns, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 
-    return anywhere(verb_parser) \
+    return non_consuming(verb_parser) \
           .ignore_then(generator_parser) \
           .ignore_parsed(DestroyGenerator())

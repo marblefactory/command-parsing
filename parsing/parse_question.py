@@ -57,7 +57,7 @@ def see_object_question() -> Parser:
     there = word_match('there') # E.g. "are there any ... ?"
     verb = strongest([see_verb(), there])
 
-    return anywhere(verb) \
+    return non_consuming(verb) \
           .ignore_then(pickupable_object_name(), combine_responses=mix) \
           .map_parsed(lambda obj: SeeObjectQuestion(obj))
 
@@ -72,6 +72,6 @@ def time_remaining_question() -> Parser:
     left = strongest_word(left_words)
     time = strongest_word(time_words)
 
-    return maybe(anywhere(left)) \
+    return maybe(non_consuming(left)) \
           .ignore_then(time, combine_responses=max) \
           .ignore_parsed(TimeRemainingQuestion())

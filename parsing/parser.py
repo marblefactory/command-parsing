@@ -286,7 +286,7 @@ def word_match(word: Word, match_plural = True, first_only = False) -> Parser:
         def condition(input_word: Word) -> Response:
             return float(input_word == word)
 
-    return predicate(condition, first_only)
+    return predicate(condition, first_only).map_parsed(lambda _: word)
 
 
 def word_meaning(word: Word,
@@ -455,11 +455,10 @@ def strongest_word(words: List[Word], make_word_parsers: [Callable[[Word], Parse
     return strongest(parsers, debug)
 
 
-def anywhere(parser: Parser) -> Parser:
+def non_consuming(parser: Parser) -> Parser:
     """
     :return: a parser which consumes none of the input, therefore any chained parsers can match anywhere in the text.
     """
-
     def parse(input: List[Word]) -> ParseResult:
         result = parser.parse(input)
         if isinstance(result, SuccessParse):
@@ -565,7 +564,7 @@ def object_spelled(names: List[str], other_noun_response: Response) -> Parser:
     :return: a parser which strongly recognises spelling of the given names, and can also recognise other nouns.
     """
     # Objects the player can actually pick up.
-    objects = strongest_word(names, make_word_parsers=[word_spelling])
+    objects = strongest_word(names, make_word_parsers=[word_match, word_spelling])
     # Objects which are recognised, but the user cannot pickup. These have a lower response.
     nouns = ['NN', 'NNS']
     other_objects = word_tagged(nouns).map_response(lambda _: other_noun_response)

@@ -234,7 +234,7 @@ class WordMatchTestCase(unittest.TestCase):
 
     def test_matches_plural_default(self):
         s = pre_process('hacks hello')
-        assert word_match('hack').parse(s) == SuccessParse(parsed='hacks', response=1.0, remaining=['hello'])
+        assert word_match('hack').parse(s) == SuccessParse(parsed='hack', response=1.0, remaining=['hello'])
 
     def test_does_not_match_plural(self):
         s = pre_process('hacks hello')
@@ -456,7 +456,7 @@ class AnywhereTestCase(unittest.TestCase):
         none of the input text is consumed.
         """
         s = pre_process('b a c')
-        parser = anywhere(word_match('a'))
+        parser = non_consuming(word_match('a'))
 
         assert parser.parse(s) == SuccessParse(parsed='a', response=1.0, remaining=s)
 

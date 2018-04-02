@@ -152,21 +152,21 @@ def positional() -> Parser:
     def combine_ordinal_num(makePos: Callable, r1: Response) -> Parser:
         # Parses an ordinal number, or defaults to 0 if there is no ordinal number.
         default = produce(parsed=0, response=0)
-        ord = strongest([anywhere(ordinal_number()), default])
+        ord = strongest([non_consuming(ordinal_number()), default])
 
         # Partially applies the parsed position to the constructor of Positional.
         return ord.map(lambda parsed_num, r2: (partial(makePos, parsed_num), mix(r1, r2, 0.2)))
 
     def combine_direction(makePos: Callable, r1: Response) -> Parser:
         default = produce(parsed=MoveDirection.FORWARDS, response=0)
-        dir = strongest([anywhere(move_direction()), default])
+        dir = strongest([non_consuming(move_direction()), default])
 
         # Completes the Positional constructor by supplying the direction.
         return dir.map(lambda parsed_dir, r2: (makePos(parsed_dir), mix(r1, r2, 0.2)))
 
 
     # Partially applies the parsed object name to the Positional init.
-    obj = anywhere(move_object_name()) \
+    obj = non_consuming(move_object_name()) \
          .map_parsed(lambda parsed_name: partial(Positional.partial_init(), parsed_name))
 
     return obj.then(combine_ordinal_num) \
@@ -182,7 +182,7 @@ def directional() -> Parser:
         dist_parser = strongest([distance(), produce(Distance.MEDIUM, 0)])
         return dist_parser.map(lambda dist, _: (Directional(dir, dist), dir_resp))
 
-    return anywhere(move_direction()).then(combine_distance)
+    return non_consuming(move_direction()).then(combine_distance)
 
 
 def stairs() -> Parser:
@@ -202,7 +202,7 @@ def stairs() -> Parser:
         # Increase the penalty for not having the location. This allows change stances to be parsed correctly.
         combine = lambda r1, r2: mix(r1, r2, 0.8)
 
-        return anywhere(word_match(dir[0])) \
+        return non_consuming(word_match(dir[0])) \
               .then_ignore(word_match(loc), combine) \
               .ignore_parsed(dir[1])
 

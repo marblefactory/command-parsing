@@ -123,11 +123,11 @@ def move() -> Parser:
         # The speed defaults to normal.
         speed_parser = strongest([speed(), produce(Speed.NORMAL, 0.5)])
         # Partially applies the speed to the Move init.
-        return anywhere(speed_parser).map(lambda parsed_speed, _: (partial(makeMove, speed=parsed_speed), r))
+        return non_consuming(speed_parser).map(lambda parsed_speed, _: (partial(makeMove, speed=parsed_speed), r))
 
     def combine_stance(makeMove: Callable, r: Response) -> Parser:
         # If no stance is found, default to None, meaning there is no change in the stance.
-        stance_parser = maybe(anywhere(stance()))
+        stance_parser = maybe(non_consuming(stance()))
         # Passes through the response, ignoring the response of the stance parser.
         # Applies the stance to the Move init.
         return stance_parser.map(lambda parsed_stance, _: (makeMove(stance=parsed_stance), r))
@@ -135,17 +135,17 @@ def move() -> Parser:
     def combine(_: Any, verb_response: Response) -> Parser:
         # Defaults the location to forwards, therefore if the user just says 'go', the spy moves forwards.
         # Partially applies the location to the Move init.
-        loc_parser = anywhere(location()).map(lambda loc, loc_response: (partial(Move.partial_init(), location=loc), mix(verb_response, loc_response)))
+        loc_parser = non_consuming(location()).map(lambda loc, loc_response: (partial(Move.partial_init(), location=loc), mix(verb_response, loc_response)))
         return loc_parser.then(combine_speed).then(combine_stance)
 
     # Parses on the verb, then the location can not be specified, thereby creating a partial move.
     # This allows the user to just say they want to move. They can then be asked a question about where they want to go.
     make_partial = lambda parser, verb_response: partial_parser(parser, verb_response, marker=Move)
-    partial_move = anywhere(go_verbs()).then(wrap(combine, make_partial))
+    partial_move = non_consuming(go_verbs()).then(wrap(combine, make_partial))
 
     # Parses moves which can optionally have a verb or not. This cannot be a partial parser otherwise everything will
     # be considered a partial move.
-    move = maybe(anywhere(go_verbs())).then(combine)
+    move = maybe(non_consuming(go_verbs())).then(combine)
 
     return strongest([move, partial_move])
 
