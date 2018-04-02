@@ -9,7 +9,8 @@ import editdistance
 from itertools import product
 import functools
 import numpy as np
-from functools import partial, reduce
+from functools import partial
+from enum import Enum
 
 
 class POS:
@@ -18,6 +19,17 @@ class POS:
     """
     noun = 'n'
     verb = 'v'
+
+
+class Consume(Enum):
+    """
+    Tells the predicate parser the policy to use when generating the remaining words.
+    """
+
+    # Consume all the words up to and including the parsed word.
+    UP_TO_WORD = 0
+    # Consume only the parsed word.
+    WORD_ONLY = 1
 
 
 def mix(r1: Response, r2: Response, proportion: float = 0.5) -> Response:
@@ -222,9 +234,11 @@ def failure() -> Parser:
     return Parser(lambda input: FailureParse())
 
 
-def predicate(condition: Callable[[Word], Response], first_only = False) -> Parser:
+def predicate(condition: Callable[[Word], Response], first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
+    :param consume_to_word: whether to consume all the words on the input up and including to the parsed word, or
+                            whether to just consume the parsed word and leave the rest of the input untouched.
     :return: a parser which matches on the word which gives the highest response to the condition.
     """
 
@@ -239,21 +253,28 @@ def predicate(condition: Callable[[Word], Response], first_only = False) -> Pars
         word = input[index]
         return index, word, condition(word)
 
+    # Returns: the words to be in the remaining of this parser.
+    def output_words(input: List[Word], word_match_idx: int) -> List[Word]:
+        if consume == Consume.UP_TO_WORD:
+            return input[word_match_idx + 1:]
+        elif consume == Consume.WORD_ONLY:
+            return input[:word_match_idx] + input[word_match_idx+1 :]
+
     def parse(input: List[Word]) -> ParseResult:
         if len(input) == 0:
             return FailureParse()
 
         i, word, max_response = generate_response_first(input) if first_only else generate_responses(input)
-
         if max_response == 0:
             return FailureParse()
 
-        return SuccessParse(word, max_response, input[i + 1:])
+        remaining = output_words(input, i)
+        return SuccessParse(word, max_response, remaining)
 
     return Parser(parse)
 
 
-def word_spelling(word: Word, dist_threshold: Response = 0.49, first_only = False) -> Parser:
+def word_spelling(word: Word, dist_threshold: Response = 0.49, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
@@ -267,10 +288,10 @@ def word_spelling(word: Word, dist_threshold: Response = 0.49, first_only = Fals
         edit_dist = editdistance.eval(word, input_word)
         return ((max_word_len - edit_dist) / max_word_len)
 
-    return threshold_success(predicate(condition, first_only).ignore_parsed(word), dist_threshold)
+    return threshold_success(predicate(condition, first_only, consume).ignore_parsed(word), dist_threshold)
 
 
-def word_match(word: Word, match_plural = True, first_only = False) -> Parser:
+def word_match(word: Word, match_plural = True, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param match_plural: whether to match on the plural of the word as well as the word.
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
@@ -286,14 +307,15 @@ def word_match(word: Word, match_plural = True, first_only = False) -> Parser:
         def condition(input_word: Word) -> Response:
             return float(input_word == word)
 
-    return predicate(condition, first_only).map_parsed(lambda _: word)
+    return predicate(condition, first_only, consume).map_parsed(lambda _: word)
 
 
 def word_meaning(word: Word,
                  pos: Optional[str] = None,
                  semantic_similarity_threshold: Response = 0.5,
                  similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity,
-                 first_only = False) -> Parser:
+                 first_only = False,
+                 consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param word: the word to find similar words to.
     :param pos: defines the category of words to compare (e.g. verbs). Words not in this category will have a similarity of 0.
@@ -305,13 +327,14 @@ def word_meaning(word: Word,
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, pos, similarity_measure)
 
-    return threshold_success(predicate(condition, first_only), semantic_similarity_threshold)
+    return threshold_success(predicate(condition, first_only, consume), semantic_similarity_threshold)
 
 
 def word_meaning_pos(pos: POS,
                      semantic_similarity_threshold: Response = 0.5,
                      similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity,
-                     first_only = False) -> Callable[[Word], Parser]:
+                     first_only = False,
+                     consume = Consume.UP_TO_WORD) -> Callable[[Word], Parser]:
     """
     :param pos: defines the category of words to compare (e.g. verbs). Words not in this category will have a similarity of 0.
     :param semantic_similarity_threshold: the minimum semantic distance for an input word to be from the supplied word.
@@ -324,10 +347,11 @@ def word_meaning_pos(pos: POS,
                    pos=pos,
                    semantic_similarity_threshold=semantic_similarity_threshold,
                    similarity_measure=similarity_measure,
-                   first_only=first_only)
+                   first_only=first_only,
+                   consume=consume)
 
 
-def word_tagged(tags: List[str], first_only = False) -> Parser:
+def word_tagged(tags: List[str], first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches on words with the given tags.
@@ -336,7 +360,7 @@ def word_tagged(tags: List[str], first_only = False) -> Parser:
         word, tag = nltk.pos_tag([input_word])[0]
         return float(tag in tags)
 
-    return predicate(condition, first_only)
+    return predicate(condition, first_only, consume)
 
 
 def phrase(words_phrase: str) -> Parser:

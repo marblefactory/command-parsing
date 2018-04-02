@@ -174,8 +174,15 @@ class PredicateTestCase(unittest.TestCase):
         assert predicate(condition, first_only=False).parse(s).parsed == 'b'
         assert predicate(condition, first_only=True).parse(s).is_failure()
 
+    def test_consume_word_only(self):
+        def condition(input_word: Word) -> Response:
+            return 1.0 if input_word == 'b' else 0.0
 
-class WordEditDistTestCase(unittest.TestCase):
+        s = pre_process('a b c')
+        assert predicate(condition, consume=Consume.WORD_ONLY).parse(s) == SuccessParse('b', 1.0, ['a', 'c'])
+
+
+class WordSpellingTestCase(unittest.TestCase):
     def test_no_match1(self):
         """
         Tests None is returned if the words share no similarities.
@@ -216,6 +223,10 @@ class WordEditDistTestCase(unittest.TestCase):
         assert word_spelling('hello', dist_threshold=0, first_only=False).parse(s).parsed == 'hello'
         assert word_spelling('hello', dist_threshold=0, first_only=True).parse(s).is_failure()
 
+    def test_consume_word_only(self):
+        s = pre_process('aa bb cc')
+        assert word_spelling('bb', consume=Consume.WORD_ONLY).parse(s) == SuccessParse('bb', 1.0, ['aa', 'cc'])
+
 
 class WordMatchTestCase(unittest.TestCase):
     def test_no_match(self):
@@ -248,6 +259,10 @@ class WordMatchTestCase(unittest.TestCase):
         s = pre_process('hello world')
         assert word_match('world', first_only=False).parse(s).parsed == 'world'
         assert word_match('world', first_only=True).parse(s).is_failure()
+
+    def test_consume_word_only(self):
+        s = pre_process('aa bb cc')
+        assert word_match('bb', consume=Consume.WORD_ONLY).parse(s) == SuccessParse('bb', 1.0, ['aa', 'cc'])
 
 
 class WordMeaningTestCase(unittest.TestCase):
@@ -283,6 +298,11 @@ class WordMeaningTestCase(unittest.TestCase):
         assert word_meaning('hi', first_only=False).parse(s).parsed == 'hello'
         assert word_meaning('hi', first_only=True).parse(s).is_failure()
 
+    def test_consume_word_only(self):
+        p = word_meaning('hi', consume=Consume.WORD_ONLY)
+        s = pre_process('boat hello walk')
+        assert p.parse(s) == SuccessParse(parsed='hello', response=1.0, remaining=['boat', 'walk'])
+
 
 class WordTaggedTestCase(unittest.TestCase):
     def test_no_match(self):
@@ -305,6 +325,11 @@ class WordTaggedTestCase(unittest.TestCase):
         s = pre_process('go tree')
         assert word_tagged(['NN'], first_only=False).parse(s).parsed == 'tree'
         assert word_tagged(['NN'], first_only=True).parse(s).is_failure()
+
+    def test_consume_word_only(self):
+        parser = word_tagged(['NN'], consume=Consume.WORD_ONLY)
+        s = pre_process('go tree listening')
+        assert parser.parse(s) == SuccessParse(parsed='tree', response=1.0, remaining=['go', 'listening'])
 
 
 class PhraseTestCase(unittest.TestCase):
