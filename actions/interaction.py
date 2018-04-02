@@ -143,3 +143,11 @@ class Pickpocket(ActionDefaultPositiveResponseMixin, Action):
 
     def __str__(self):
         return 'pickpocket the guard on {}'.format(self.direction)
+
+
+class DestroyGenerator(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to destroy the generator.
+    """
+    def __str__(self):
+        return 'destroy generator'

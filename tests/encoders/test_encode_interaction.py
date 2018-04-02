@@ -81,3 +81,14 @@ class PickpocketEncoderTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(pickpocket, cls=ActionEncoder))
+
+
+class DestroyGeneratorEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        destroy = DestroyGenerator()
+
+        expected = {
+            'type': 'destroy_generator'
+        }
+
+        assert expected == json.loads(json.dumps(destroy, cls=ActionEncoder))

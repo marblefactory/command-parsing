@@ -26,7 +26,6 @@ def guard_noun() -> Parser:
     corrections = ['card', 'god', 'aids', 'jobs', 'dogs', 'car']
     return words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 
-
 def pick_up() -> Parser:
     """
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
@@ -156,3 +155,20 @@ def pickpocket() -> Parser:
     return verb_parser \
           .ignore_then(object_relative_direction()) \
           .map_parsed(lambda dir: Pickpocket(dir))
+
+
+def destroy_generator() -> Parser:
+    """
+    :return: a parser which parses instructions to destroy the generator.
+    """
+    destroy_verbs = ['destroy', 'break', 'kill']
+    destroy_verbs = strongest_word(destroy_verbs, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    take_out = word_match('take').ignore_then(word_match('out'))
+    verb_parser = strongest([destroy_verbs, take_out])
+
+    generator_nouns = ['generator', 'engine']
+    generator_parser = strongest_word(generator_nouns, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
+
+    return verb_parser \
+          .ignore_then(generator_parser) \
+          .ignore_parsed(DestroyGenerator())

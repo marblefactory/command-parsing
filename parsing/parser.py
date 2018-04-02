@@ -430,7 +430,6 @@ def anywhere(parser: Parser) -> Parser:
         result = parser.parse(input)
         if isinstance(result, SuccessParse):
             return SuccessParse(result.parsed, result.response, input)
-
         return result
 
     return Parser(parse)

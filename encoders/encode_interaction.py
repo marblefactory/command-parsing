@@ -8,7 +8,6 @@ class PickUpEncoder(json.JSONEncoder):
     Fields:
         'type'    : The type of action
     """
-
     def default(self, obj):
         return {
             'type': 'pickup',
@@ -24,7 +23,6 @@ class ThrowEncoder(json.JSONEncoder):
     Fields:
         'type'    : The type of action
     """
-
     def default(self, obj):
         return {
             'type': 'throw',
@@ -36,7 +34,6 @@ class ThrowAtGuardEncoder(json.JSONEncoder):
     """
     Encodes a ThrowAtGuard action.
     """
-
     def default(self, obj):
         return {
             'type': 'throw_at_guard',
@@ -48,7 +45,6 @@ class DropEncoder(json.JSONEncoder):
     """
     Encodes a Drop action.
     """
-
     def default(self, obj):
         return {
             'type': 'drop'
@@ -59,7 +55,6 @@ class HackEncoder(json.JSONEncoder):
     """
     Encodes a Hack action.
     """
-
     def default(self, obj):
         return {
             'type': 'hack',
@@ -72,9 +67,18 @@ class PickpocketEncoder(json.JSONEncoder):
     """
     Encodes a Pickpocket action.
     """
-
     def default(self, obj):
         return {
             'type': 'pickpocket',
             'direction': obj.direction
+        }
+
+
+class DestroyGeneratorEncoder(json.JSONEncoder):
+    """
+    Encodes a DestroyGenerator action.
+    """
+    def default(self, obj):
+        return {
+            'type': 'destroy_generator'
         }

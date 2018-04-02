@@ -202,3 +202,17 @@ class PickpocketTestCase(unittest.TestCase):
     def test_parse_take_object(self):
         s = pre_process('take the rock from the guard')
         assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.VICINITY)
+
+
+class DestroyGeneratorTestCase(unittest.TestCase):
+    def test_parse_destroy(self):
+        s = pre_process('destroy the generator')
+        assert action().parse(s).parsed == DestroyGenerator()
+
+    def test_parse_take_out(self):
+        s = pre_process('take out the generator')
+        assert action().parse(s).parsed == DestroyGenerator()
+
+    def test_parse_kill(self):
+        s = pre_process('kill the generator')
+        assert action().parse(s).parsed == DestroyGenerator()
