@@ -61,11 +61,12 @@ def mock_post_to_game(addr_postfix: str, action: Action) -> Mock:
     r = Mock(spec=Response)
     r.status_code = 200
     r.json.return_value = {
-        'success': True, # Indicates whether the action could be performed in the game.
+        'success': True,  # Indicates whether the action could be performed in the game.
         'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
         'location': 'the computer lab',  # For if the user asks where the spy is.
-        'num_guards': randrange(0, 10), # For if the user asks about guards
-        'surroundings': ['server', 'camera', 'camera'] # For if the user asks about the spy's surroundings
+        'num_guards': randrange(0, 10),  # For if the user asks about guards
+        'surroundings': ['server', 'camera', 'camera'],  # For if the user asks about the spy's surroundings
+        'mins_remaining': randrange(1, 5)
     }
     return r
 

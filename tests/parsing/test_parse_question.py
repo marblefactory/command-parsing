@@ -49,6 +49,22 @@ class SeeObjectTestCase(unittest.TestCase):
         s = pre_process('are there any rocks nearby')
         assert action().parse(s).parsed == SeeObjectQuestion('rock')
 
+    def test_you_see(self):
+        s = pre_process('you see any rocks')
+        assert action().parse(s).parsed == SeeObjectQuestion('rock')
+
+    def test_around_you(self):
+        s = pre_process('are there any rocks around you')
+        assert action().parse(s).parsed == SeeObjectQuestion('rock')
+
+    def test_other_nouns(self):
+        s = pre_process('are there any submarines around you')
+        assert action().parse(s).parsed == SeeObjectQuestion('submarines')
+
+    def test_nan_is_nothing(self):
+        s = pre_process('nan')
+        assert action().parse(s).is_failure()
+
 
 class TimeRemainingTestCase(unittest.TestCase):
     def test_parse_longer(self):

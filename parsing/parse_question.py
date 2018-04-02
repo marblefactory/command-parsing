@@ -7,7 +7,7 @@ def see_verb() -> Parser:
     :return: a parser for words that mean 'to see'.
     """
     verbs = ['see', 'around', 'near']
-    return strongest_word(verbs, make_word_parsers=[word_spelling, word_meaning])
+    return strongest_word(verbs, make_word_parsers=[word_match, word_meaning])
 
 
 def inventory_question() -> Parser:
@@ -57,8 +57,8 @@ def see_object_question() -> Parser:
     there = word_match('there') # E.g. "are there any ... ?"
     verb = strongest([see_verb(), there])
 
-    return verb \
-          .ignore_then(pickupable_object_name()) \
+    return anywhere(verb) \
+          .ignore_then(pickupable_object_name(), combine_responses=mix) \
           .map_parsed(lambda obj: SeeObjectQuestion(obj))
 
 
@@ -73,5 +73,5 @@ def time_remaining_question() -> Parser:
     time = strongest_word(time_words)
 
     return maybe(anywhere(left)) \
-          .ignore_then(time, combine_responses=mix) \
+          .ignore_then(time, combine_responses=max) \
           .ignore_parsed(TimeRemainingQuestion())

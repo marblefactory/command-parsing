@@ -567,6 +567,7 @@ def object_spelled(names: List[str], other_noun_response: Response) -> Parser:
     # Objects the player can actually pick up.
     objects = strongest_word(names, make_word_parsers=[word_spelling])
     # Objects which are recognised, but the user cannot pickup. These have a lower response.
-    other_objects = word_tagged(['NN']).map_response(lambda _: other_noun_response)
+    nouns = ['NN', 'NNS']
+    other_objects = word_tagged(nouns).map_response(lambda _: other_noun_response)
 
     return strongest([objects, other_objects])

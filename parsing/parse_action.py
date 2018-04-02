@@ -9,7 +9,7 @@ def failure_words() -> Parser:
     """
     :return: a parser which parses words which will cause parsing to fail.
     """
-    return strongest_word([ "not", "don't"])
+    return strongest_word(["not", "don't"])
 
 
 def ignored_words() -> List[str]:
@@ -52,8 +52,8 @@ def single_action() -> Parser:
         location_question(),
         guards_question(),
         surroundings_question(),
-        see_object_question(),
-        time_remaining_question()
+        time_remaining_question(),
+        see_object_question()
     ]
 
     # Removes successful parses which have below 0.3 response. This does not remove partial parses.

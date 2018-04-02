@@ -148,7 +148,7 @@ class SeeObjectQuestion(Question):
         self.object_name = object_name
 
     def __str__(self):
-        return 'see object question'
+        return 'see "{}" question'.format(self.object_name)
 
     def positive_responses(self, game_response: GameResponse) -> List[str]:
         """
