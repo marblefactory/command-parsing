@@ -48,3 +48,33 @@ class SeeObjectTestCase(unittest.TestCase):
     def test_are_there(self):
         s = pre_process('are there any rocks nearby')
         assert action().parse(s).parsed == SeeObjectQuestion('rock')
+
+
+class TimeRemainingTestCase(unittest.TestCase):
+    def test_parse_longer(self):
+        s = pre_process('how much longer is there')
+        assert action().parse(s).parsed == TimeRemainingQuestion()
+
+    def test_parse_time_left(self):
+        s = pre_process('how much time is left')
+        assert action().parse(s).parsed == TimeRemainingQuestion()
+
+    def test_parse_long_left(self):
+        s = pre_process('how long have we got left')
+        assert action().parse(s).parsed == TimeRemainingQuestion()
+
+    def test_parse_left_clock(self):
+        s = pre_process("what's left on the clock")
+        assert action().parse(s).parsed == TimeRemainingQuestion()
+
+    def test_parse_remaining(self):
+        s = pre_process('how much time is remaining')
+        assert action().parse(s).parsed == TimeRemainingQuestion()
+
+    def test_parse_clock(self):
+        s = pre_process('what does the clock say')
+        assert action().parse(s).parsed == TimeRemainingQuestion()
+
+    def test_more_time(self):
+        s = pre_process('how much more time is there')
+        assert action().parse(s).parsed == TimeRemainingQuestion()

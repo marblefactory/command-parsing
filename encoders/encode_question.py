@@ -49,3 +49,13 @@ class SeeObjectQuestionEncoder(json.JSONEncoder):
             'type': 'see_object_question',
             'object_name': obj.object_name
         }
+
+
+class TimeRemainingQuestionEncoder(json.JSONEncoder):
+    """
+    Encodes a TimeRemaining question.
+    """
+    def default(self, obj):
+        return {
+            'type': 'time_remaining_question'
+        }

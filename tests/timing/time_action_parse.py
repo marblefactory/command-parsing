@@ -25,6 +25,9 @@ action_transcripts = [
     'can you see any guards',
     'this is nonsense',
     'go to the fifth floor',
+    'take out the guard',
+    'throw the rock at the guard',
+    'how much more time is there'
 ]
 
 

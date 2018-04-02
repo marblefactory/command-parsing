@@ -58,3 +58,14 @@ class SeeObjectQuestionTestCase(unittest.TestCase):
         }
 
         assert expected == json.loads(json.dumps(question, cls=ActionEncoder))
+
+
+class TimeRemainingQuestionTestCase(unittest.TestCase):
+    def test_encode(self):
+        question = TimeRemainingQuestion()
+
+        expected = {
+            'type': 'time_remaining_question'
+        }
+
+        assert expected == json.loads(json.dumps(question, cls=ActionEncoder))

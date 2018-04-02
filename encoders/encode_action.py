@@ -85,6 +85,8 @@ class ActionEncoder(json.JSONEncoder):
             encoder = DestroyGeneratorEncoder
         elif isinstance(obj, TakeOutGuard):
             encoder = TakeOutGuardEncoder
+        elif isinstance(obj, TimeRemainingQuestion):
+            encoder = TimeRemainingQuestionEncoder
         else:
             raise RuntimeError('unexpected action type when encoding')
 

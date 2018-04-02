@@ -215,7 +215,6 @@ class PickpocketTestCase(unittest.TestCase):
 
     def test_parse_steal(self):
         s = pre_process('steal from the guard')
-        print(action().parse(s).parsed)
         assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.VICINITY)
 
     def test_parse_direction(self):

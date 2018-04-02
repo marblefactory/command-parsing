@@ -60,3 +60,18 @@ def see_object_question() -> Parser:
     return verb \
           .ignore_then(pickupable_object_name()) \
           .map_parsed(lambda obj: SeeObjectQuestion(obj))
+
+
+def time_remaining_question() -> Parser:
+    """
+    :return: a parser for asking how much time is remaining.
+    """
+    left_words = ['left', 'remaining']
+    time_words = ['time', 'longer', 'long', 'clock']
+
+    left = strongest_word(left_words)
+    time = strongest_word(time_words)
+
+    return maybe(anywhere(left)) \
+          .ignore_then(time, combine_responses=mix) \
+          .ignore_parsed(TimeRemainingQuestion())
