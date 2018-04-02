@@ -155,12 +155,14 @@ class SeeObjectQuestion(Question):
         :param game_response: does not expect any response from game, except success bool.
         :return: responses that confirm that the spy can see the requested object.
         """
-        singular_obj_name = inflect.engine().singular_noun(self.object_name)
+        engine = inflect.engine()
+        singular_obj_name = engine.singular_noun(self.object_name)
+        a_obj_name = engine.a(singular_obj_name)
+
         return [
-            "There's a {} near me".format(singular_obj_name),
-            "I can see a {}".format(singular_obj_name),
-            "I can",
-            "Yes"
+            "There's {} near me".format(a_obj_name),
+            "I can see {}".format(a_obj_name),
+            "Yes, there's {} near me".format(a_obj_name)
         ]
 
     def negative_responses(self) -> List[str]:
