@@ -4,10 +4,13 @@ from parsing.parse_interaction import pickupable_object_name
 
 def see_verb() -> Parser:
     """
-    :return: a parser for words that mean 'to see'.
+    :return: a parser for words that mean 'to see'. This only consumes the parsed words.
     """
-    verbs = ['see', 'around', 'near']
-    return strongest_word(verbs, make_word_parsers=[word_match, word_meaning])
+    can_see = maybe(word_match('can', consume=Consume.WORD_ONLY)).ignore_then(word_meaning('see', consume=Consume.WORD_ONLY))
+    around = word_meaning('around', consume=Consume.WORD_ONLY)
+    near = word_meaning('near', consume=Consume.WORD_ONLY)
+
+    return strongest([can_see, around, near])
 
 
 def inventory_question() -> Parser:
@@ -57,7 +60,7 @@ def see_object_question() -> Parser:
     there = word_match('there') # E.g. "are there any ... ?"
     verb = strongest([see_verb(), there])
 
-    return non_consuming(verb) \
+    return verb \
           .ignore_then(pickupable_object_name(), combine_responses=mix) \
           .map_parsed(lambda obj: SeeObjectQuestion(obj))
 
