@@ -136,6 +136,10 @@ class TakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('take out the guard behind you')
         assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.BACKWARDS)
 
+    def test_take_guard_out(self):
+        s = pre_process('take the guard out')
+        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+
 
 class DropTestCase(unittest.TestCase):
     def test_drop(self):
@@ -234,6 +238,10 @@ class DestroyGeneratorTestCase(unittest.TestCase):
 
     def test_parse_take_out(self):
         s = pre_process('take out the generator')
+        assert action().parse(s).parsed == DestroyGenerator()
+
+    def test_take_generator_out(self):
+        s = pre_process('take the generator out')
         assert action().parse(s).parsed == DestroyGenerator()
 
     def test_parse_kill(self):
