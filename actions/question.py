@@ -152,6 +152,7 @@ class SeeObjectQuestion(Question):
 
     def positive_responses(self, game_response: GameResponse) -> List[str]:
         """
+        :param game_response: does not expect any response from game, except success bool.
         :return: responses that confirm that the spy can see the requested object.
         """
         return [
@@ -163,6 +164,7 @@ class SeeObjectQuestion(Question):
 
     def negative_responses(self) -> List[str]:
         """
+        :param game_response: does not expect any response from game, except success bool.
         :return: responses that tell the player the requested object is not near the spy.
         """
         return [
@@ -170,4 +172,25 @@ class SeeObjectQuestion(Question):
             "No",
             "Umm, I can't see any here",
             "I'm afraid not"
+        ]
+
+
+class TimeRemainingQuestion(Question):
+    """
+    An action to ask the spy how much longer is left on the clock.
+    """
+
+    def __str__(self):
+        return 'time remaining question'
+
+    def positive_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :param game_response: expects this to contain a field 'mins_remaining' with an integer value.
+        :return: responses that confirm that the spy can see the requested object.
+        """
+        mins_remaining = game_response['mins_remaining']
+        return [
+            "There's only {} minutes remaining".format(mins_remaining),
+            "There's only {} minutes left".format(mins_remaining),
+            "Hurry, we've only got {} minutes".format(mins_remaining)
         ]

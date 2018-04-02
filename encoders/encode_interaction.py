@@ -41,6 +41,17 @@ class ThrowAtGuardEncoder(json.JSONEncoder):
         }
 
 
+class TakeOutGuardEncoder(json.JSONEncoder):
+    """
+    Encodes a TakeOutGuard action.
+    """
+    def default(self, obj):
+        return {
+            'type': 'take_out_guard',
+            'direction': obj.direction
+        }
+
+
 class DropEncoder(json.JSONEncoder):
     """
     Encodes a Drop action.

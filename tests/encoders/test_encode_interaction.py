@@ -47,6 +47,18 @@ class ThrowAtGuardEncoderTestCase(unittest.TestCase):
         assert expected == json.loads(json.dumps(throw, cls=ActionEncoder))
 
 
+class TakeOutGuardEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        take_out = TakeOutGuard(ObjectRelativeDirection.FORWARDS)
+
+        expected = {
+            'type': 'take_out_guard',
+            'direction': 'forwards'
+        }
+
+        assert expected == json.loads(json.dumps(take_out, cls=ActionEncoder))
+
+
 class DropEncoderTestCase(unittest.TestCase):
     def test_encode(self):
         drop = Drop()
