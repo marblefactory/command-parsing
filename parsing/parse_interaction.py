@@ -143,6 +143,24 @@ def throw_at_guard() -> Parser:
           .map_parsed(lambda dir: ThrowAtGuard(dir))
 
 
+def take_out_guard() -> Parser:
+    """
+    :return: a parser which parsers instructions to kill a guard.
+    """
+    kill_words = ['kill', 'strangle', 'destroy']
+    kill_parser = strongest_word(kill_words, make_word_parsers=[word_meaning_pos(POS.verb)])
+
+    knock_out = phrase('knock out')
+    take_out = phrase('take out')
+
+    verb_parser = strongest([kill_parser, knock_out, take_out])
+
+    return verb_parser \
+          .ignore_then(guard_noun()) \
+          .ignore_then(object_relative_direction()) \
+          .map_parsed(lambda dir: TakeOutGuard(dir))
+
+
 def pickpocket() -> Parser:
     """
     :return: a parser which parses instructions to pickpocket a guard.

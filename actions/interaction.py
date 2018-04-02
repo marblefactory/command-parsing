@@ -74,6 +74,21 @@ class ThrowAtGuard(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
+class TakeOutGuard(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to kill the guard.
+    """
+
+    # The direction of the guard.
+    direction: ObjectRelativeDirection
+
+    def __init__(self, direction: ObjectRelativeDirection):
+        self.direction = direction
+
+    def __str__(self):
+        return 'take out guard'
+
+
 class Drop(ActionDefaultPositiveResponseMixin, Action):
     """
     Tells the spy to drop the object they're holding.

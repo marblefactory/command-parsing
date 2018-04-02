@@ -1,5 +1,6 @@
-from typing import Tuple, Optional, Callable
+from typing import Tuple, Optional
 from parsing.parse_result import *
+from parsing.pre_processing import pre_process
 import nltk
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
@@ -8,7 +9,7 @@ import editdistance
 from itertools import product
 import functools
 import numpy as np
-from functools import partial
+from functools import partial, reduce
 
 
 class POS:
@@ -221,16 +222,28 @@ def failure() -> Parser:
     return Parser(lambda input: FailureParse())
 
 
-def predicate(condition: Callable[[Word], Response]) -> Parser:
+def predicate(condition: Callable[[Word], Response], first_only = False) -> Parser:
     """
+    :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches on the word which gives the highest response to the condition.
     """
+
+    # Returns the index of the word with the maximum response, that word, and its response.
+    def generate_responses(input: List[Word]) -> (int, Word, Response):
+        responses = [(i, word, condition(word)) for i, word in enumerate(input)]
+        return max(responses, key=lambda r: r[2])
+
+    # Returns the index of the first word, the first word, and its response to the predicate.
+    def generate_response_first(input: List[Word]) -> (int, Word, Response):
+        index = 0
+        word = input[index]
+        return index, word, condition(word)
+
     def parse(input: List[Word]) -> ParseResult:
         if len(input) == 0:
             return FailureParse()
 
-        responses = [(i, word, condition(word)) for i, word in enumerate(input)]
-        i, word, max_response = max(responses, key=lambda r: r[2])
+        i, word, max_response = generate_response_first(input) if first_only else generate_responses(input)
 
         if max_response == 0:
             return FailureParse()
@@ -240,8 +253,9 @@ def predicate(condition: Callable[[Word], Response]) -> Parser:
     return Parser(parse)
 
 
-def word_spelling(word: Word, dist_threshold: Response = 0.49) -> Parser:
+def word_spelling(word: Word, dist_threshold: Response = 0.49, first_only = False) -> Parser:
     """
+    :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
              response. If matches then `word` is the parsed string, not the word from the input text.
     """
@@ -253,13 +267,14 @@ def word_spelling(word: Word, dist_threshold: Response = 0.49) -> Parser:
         edit_dist = editdistance.eval(word, input_word)
         return ((max_word_len - edit_dist) / max_word_len)
 
-    return threshold_success(predicate(condition).ignore_parsed(word), dist_threshold)
+    return threshold_success(predicate(condition, first_only).ignore_parsed(word), dist_threshold)
 
 
-def word_match(word: Word, match_plural = True) -> Parser:
+def word_match(word: Word, match_plural = True, first_only = False) -> Parser:
     """
     :param match_plural: whether to match on the plural of the word as well as the word.
-    :return: a parser which matches on the first occurrence of the supplied word.
+    :param first_only: whether to only match the predicate on the first word in the remaining list of words.
+    :return: a parser which matches on the first occurrence of the supplied word anywhere in the remaining words.
     """
     if match_plural:
         plural = inflect.engine().plural(word)
@@ -271,51 +286,70 @@ def word_match(word: Word, match_plural = True) -> Parser:
         def condition(input_word: Word) -> Response:
             return float(input_word == word)
 
-    return predicate(condition)
+    return predicate(condition, first_only)
 
 
 def word_meaning(word: Word,
                  pos: Optional[str] = None,
                  semantic_similarity_threshold: Response = 0.5,
-                 similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Parser:
+                 similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity,
+                 first_only = False) -> Parser:
     """
     :param word: the word to find similar words to.
     :param pos: defines the category of words to compare (e.g. verbs). Words not in this category will have a similarity of 0.
     :param semantic_similarity_threshold: the minimum semantic distance for an input word to be from the supplied word.
     :param similarity_measure: used to compare the semantic similarity of two words.
+    :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches on words which have a similar meaning to the supplied word.
     """
     def condition(input_word: Word) -> Response:
         return semantic_similarity(input_word, word, pos, similarity_measure)
 
-    return threshold_success(predicate(condition), semantic_similarity_threshold)
+    return threshold_success(predicate(condition, first_only), semantic_similarity_threshold)
 
 
 def word_meaning_pos(pos: POS,
                      semantic_similarity_threshold: Response = 0.5,
-                     similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity) -> Callable[[Word], Parser]:
+                     similarity_measure: Callable[[Synset, Synset], Response] = Synset.path_similarity,
+                     first_only = False) -> Callable[[Word], Parser]:
     """
     :param pos: defines the category of words to compare (e.g. verbs). Words not in this category will have a similarity of 0.
     :param semantic_similarity_threshold: the minimum semantic distance for an input word to be from the supplied word.
     :param similarity_measure: used to compare the semantic similarity of two words.
+    :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a function which takes a word and returns a parser which matches on words which have a similar meaning to
              that word.
     """
     return partial(word_meaning,
                    pos=pos,
                    semantic_similarity_threshold=semantic_similarity_threshold,
-                   similarity_measure=similarity_measure)
+                   similarity_measure=similarity_measure,
+                   first_only=first_only)
 
 
-def word_tagged(tags: List[str]) -> Parser:
+def word_tagged(tags: List[str], first_only = False) -> Parser:
     """
+    :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches on words with the given tags.
     """
     def condition(input_word: Word) -> Response:
         word, tag = nltk.pos_tag([input_word])[0]
         return float(tag in tags)
 
-    return predicate(condition)
+    return predicate(condition, first_only)
+
+
+def phrase(words_phrase: str) -> Parser:
+    """
+    :param words_phrase: a string of the phrase, e.g. "take out"
+    :return: a parser that looks for the consecutive words in the phrase, without other words in between.
+    """
+    words = pre_process(words_phrase)
+
+    acc = word_match(words[0])
+    for word in words[1:]:
+        acc = acc.then(append(word_match(word, first_only=True)))
+    return acc
 
 
 def cardinal_number() -> Parser:

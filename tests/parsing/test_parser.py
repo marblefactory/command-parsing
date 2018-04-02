@@ -166,6 +166,14 @@ class PredicateTestCase(unittest.TestCase):
         s = pre_process('a b c')
         assert predicate(condition).parse(s) == SuccessParse('b', 0.8, ['c'])
 
+    def test_matches_first_only(self):
+        def condition(input_word: Word) -> Response:
+            return 0.0 if input_word == 'a' else 1.0
+
+        s = pre_process('a b')
+        assert predicate(condition, first_only=False).parse(s).parsed == 'b'
+        assert predicate(condition, first_only=True).parse(s).is_failure()
+
 
 class WordEditDistTestCase(unittest.TestCase):
     def test_no_match1(self):
@@ -203,6 +211,11 @@ class WordEditDistTestCase(unittest.TestCase):
         s = pre_process('abbb aacc')
         assert word_spelling('aaaa', dist_threshold=0).parse(s) == SuccessParse('aaaa', 0.5, [])
 
+    def test_matches_first_only(self):
+        s = pre_process('dello hello')
+        assert word_spelling('hello', dist_threshold=0, first_only=False).parse(s).parsed == 'hello'
+        assert word_spelling('hello', dist_threshold=0, first_only=True).parse(s).is_failure()
+
 
 class WordMatchTestCase(unittest.TestCase):
     def test_no_match(self):
@@ -230,6 +243,11 @@ class WordMatchTestCase(unittest.TestCase):
     def test_matches_word_with_numbers(self):
         s = pre_process('b o2 c')
         assert word_match('o2').parse(s) == SuccessParse(parsed='o2', response=1.0, remaining=['c'])
+
+    def test_matches_first_only(self):
+        s = pre_process('hello world')
+        assert word_match('world', first_only=False).parse(s).parsed == 'world'
+        assert word_match('world', first_only=True).parse(s).is_failure()
 
 
 class WordMeaningTestCase(unittest.TestCase):
@@ -260,6 +278,11 @@ class WordMeaningTestCase(unittest.TestCase):
         assert p1.parse(s) == SuccessParse(parsed='flying', response=1.0, remaining=[])
         assert p2.parse(s).is_failure()
 
+    def test_matches_first_only(self):
+        s = pre_process('boat hello')
+        assert word_meaning('hi', first_only=False).parse(s).parsed == 'hello'
+        assert word_meaning('hi', first_only=True).parse(s).is_failure()
+
 
 class WordTaggedTestCase(unittest.TestCase):
     def test_no_match(self):
@@ -278,6 +301,30 @@ class WordTaggedTestCase(unittest.TestCase):
         s = pre_process('go tree listening')
         assert parser.parse(s) == SuccessParse(parsed='tree', response=1.0, remaining=['listening'])
 
+    def test_matches_first_only(self):
+        s = pre_process('go tree')
+        assert word_tagged(['NN'], first_only=False).parse(s).parsed == 'tree'
+        assert word_tagged(['NN'], first_only=True).parse(s).is_failure()
+
+
+class PhraseTestCase(unittest.TestCase):
+    def test_match(self):
+        s = pre_process('a b')
+        parser = phrase('a b')
+
+        assert parser.parse(s).parsed == 'a b'
+
+    def test_match_not_at_start(self):
+        s = pre_process('c d a b c')
+        parser = phrase('a b')
+
+        assert parser.parse(s) == SuccessParse('a b', 1.0, ['c'])
+
+    def test_fail_if_in_between(self):
+        s = pre_process('a c b')
+        parser = phrase('a b')
+
+        assert parser.parse(s).is_failure()
 
 class CardinalNumberTestCase(unittest.TestCase):
     def test_match(self):
