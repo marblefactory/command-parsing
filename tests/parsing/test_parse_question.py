@@ -39,6 +39,10 @@ class SurroundingsTestCase(unittest.TestCase):
         s = pre_process('what can you see around you')
         assert action().parse(s).parsed == SurroundingsQuestion()
 
+    def test_missing_what(self):
+        s = pre_process('can you see')
+        assert action().parse(s).parsed == SurroundingsQuestion()
+
 
 class SeeObjectTestCase(unittest.TestCase):
     def test_parse(self):

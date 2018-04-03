@@ -127,6 +127,12 @@ class SurroundingsQuestion(Question):
         # The objects around the spy.
         objects = game_response['surroundings']
 
+        if len(objects) == 0:
+            return [
+                "I can't see anything useful",
+                "There's nothing useful here"
+            ]
+
         # Group the objects into tuples containing their name and the number of times they were found around the spy.
         # Therefore the spy can say things like 'I can see a server and two cameras'.
         groups = [list(v) for k,v in groupby(objects)]

@@ -48,8 +48,8 @@ def surroundings_question() -> Parser:
     :return: a parser for asking questions about what the spy can see around them.
     """
     what = strongest_word(['what'], make_word_parsers=[word_spelling, word_meaning])
-    return what \
-          .ignore_then(see_verb()) \
+    return maybe(what) \
+          .ignore_then(see_verb(), combine_responses=mix) \
           .ignore_parsed(SurroundingsQuestion())
 
 
