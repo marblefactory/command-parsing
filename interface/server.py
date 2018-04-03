@@ -187,8 +187,13 @@ def make_parse_failure_speech_response(transcript: str) -> str:
     :param transcript: the transcript of what the user said.
     :return: the speech response to say to the user.
     """
-    r = action_failed_chat_bot.get_response(transcript)
-    log_conversation('chatbot reply', r)
+    # 1 in 10 times use the chatbot to create a reply.
+    if randrange(0, 9) == 0:
+        r = action_failed_chat_bot.get_response(transcript)
+    else:
+        r = random_from_json('failure_responses/action_parse.json')
+
+    log_conversation('reply', r)
     return r
 
 
