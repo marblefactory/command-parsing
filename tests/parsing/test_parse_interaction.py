@@ -140,6 +140,10 @@ class TakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('take the guard out')
         assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
 
+    def test_attack_guard(self):
+        s = pre_process('attack the guard')
+        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+
 
 class DropTestCase(unittest.TestCase):
     def test_drop(self):
@@ -197,6 +201,10 @@ class HackTestCase(unittest.TestCase):
         s = pre_process('breaking the mainframe')
         assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'mainframe', ObjectRelativeDirection.VICINITY)
 
+    def test_attack(self):
+        s = pre_process('attack their server')
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'server', ObjectRelativeDirection.VICINITY)
+
     def test_partial_if_no_object1(self):
         s = pre_process('hack')
         result = action().parse(s)
@@ -245,4 +253,8 @@ class DestroyGeneratorTestCase(unittest.TestCase):
 
     def test_parse_kill(self):
         s = pre_process('kill the generator')
+        assert action().parse(s).parsed == DestroyGenerator()
+
+    def test_parse_attack(self):
+        s = pre_process('attack the generator')
         assert action().parse(s).parsed == DestroyGenerator()

@@ -77,7 +77,7 @@ def hack() -> Parser:
     """
     :return: a parser which parses hack instructions.
     """
-    hack_verbs = ['hack', 'log']
+    hack_verbs = ['hack', 'log', 'attack']
     corrections = ['text', 'taxi']  # 'hack' is sometimes misheard for 'text'.
     verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
@@ -147,7 +147,7 @@ def take_out_guard() -> Parser:
     """
     :return: a parser which parsers instructions to kill a guard.
     """
-    kill_words = ['kill', 'strangle', 'destroy']
+    kill_words = ['kill', 'strangle', 'destroy', 'attack']
     kill_parser = strongest_word(kill_words, make_word_parsers=[word_meaning_pos(POS.verb)])
 
     knock_out = word_match('knock').ignore_then(word_match('out'))
@@ -179,7 +179,7 @@ def destroy_generator() -> Parser:
     """
     :return: a parser which parses instructions to destroy the generator.
     """
-    destroy_verbs = ['destroy', 'break', 'kill']
+    destroy_verbs = ['destroy', 'break', 'kill', 'attack']
     destroy_verbs = strongest_word(destroy_verbs, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
     take_out = word_match('take').ignore_then(word_match('out'))
     verb_parser = strongest([destroy_verbs, take_out])
