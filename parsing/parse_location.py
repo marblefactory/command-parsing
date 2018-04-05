@@ -206,12 +206,21 @@ def stairs() -> Parser:
               .then_ignore(word_match(loc), combine) \
               .ignore_parsed(dir[1])
 
-    parsers = [make_parser(dir, loc) for dir, loc  in itertools.product(directions, location_words)]
+    # E.g. up stairs or down stairs, as opposed to upstairs or downstairs.
+    separate_word_parsers = [make_parser(dir, loc) for dir, loc in itertools.product(directions, location_words)]
+
+    # Only 'stairs' can be used without a direction, e.g. take the stairs. This is because 'take the floor' does not
+    # make sense. None indicates that there is no direction.
+    no_direction_parser = word_match('stairs').ignore_parsed(None)
 
     upstairs = word_match('upstairs').ignore_parsed(FloorDirection.UP)
     downstairs = word_match('downstairs').ignore_parsed(FloorDirection.DOWN)
 
-    return strongest(parsers + [upstairs, downstairs]).map_parsed(lambda dir: Stairs(dir))
+    # All the parsers used to parse stairs.
+    all_parsers = separate_word_parsers + [no_direction_parser, upstairs, downstairs]
+
+    return strongest(all_parsers) \
+          .map_parsed(lambda dir: Stairs(dir))
 
 
 def behind() -> Parser:

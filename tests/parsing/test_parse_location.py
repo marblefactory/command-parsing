@@ -263,6 +263,17 @@ class StairsTestCase(unittest.TestCase):
         s = pre_process('go down a floor')
         assert location().parse(s).parsed == Stairs(FloorDirection.DOWN)
 
+    def test_parses_no_direction(self):
+        """
+        This allowed the game to decide which direction the spy should go in.
+        """
+        s = pre_process('stairs')
+        assert location().parse(s).parsed == Stairs(direction=None)
+
+    def test_fails_if_just_floor(self):
+        s = pre_process('floor')
+        assert location().parse(s).is_failure()
+
     def test_fails_if_just_up(self):
         s = pre_process('go up')
         assert location().parse(s).is_failure()

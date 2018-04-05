@@ -1,5 +1,6 @@
 from equatable import EquatableMixin
 from utils import PartialClassMixin
+from typing import Optional
 
 
 class MoveDirection(EquatableMixin):
@@ -100,9 +101,10 @@ class Stairs(Location):
     A location up or downstairs from the current location of the player.
     """
 
-    direction: FloorDirection
+    # If None, then the game decides where the spy should go, e.g. if there are only stairs upwards.
+    direction: Optional[FloorDirection]
 
-    def __init__(self, direction: FloorDirection):
+    def __init__(self, direction: Optional[FloorDirection]):
         self.direction = direction
 
     def __str__(self):
