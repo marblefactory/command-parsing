@@ -59,7 +59,7 @@ class StairsEncoder(json.JSONEncoder):
     def default(self, obj):
         return {
             'type': 'stairs',
-            'direction': obj.direction
+            'direction': obj.direction or 'none'
         }
 
 

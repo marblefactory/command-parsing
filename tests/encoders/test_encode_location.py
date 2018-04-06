@@ -53,6 +53,16 @@ class StairsEncoderTestCase(unittest.TestCase):
 
         assert expected == json.loads(json.dumps(stairs, cls=LocationEncoder))
 
+    def test_encode_no_direction(self):
+        stairs = Stairs(None)
+
+        expected = {
+            'type': 'stairs',
+            'direction': 'none'
+        }
+
+        assert expected == json.loads(json.dumps(stairs, cls=LocationEncoder))
+
 
 class BehindEncoderTestCase(unittest.TestCase):
     def test_encode(self):
