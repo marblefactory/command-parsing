@@ -358,6 +358,7 @@ def word_tagged(tags: List[str], first_only = False, consume = Consume.UP_TO_WOR
     """
     def condition(input_word: Word) -> Response:
         word, tag = nltk.pos_tag([input_word])[0]
+        print(word, tag)
         return float(tag in tags)
 
     return predicate(condition, first_only, consume)

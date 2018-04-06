@@ -5,7 +5,6 @@ from actions.action import *
 from actions.interaction import *
 from actions.move import *
 from actions.location import *
-from nltk.corpus import wordnet as wn
 
 
 class StopTestCase(unittest.TestCase):
