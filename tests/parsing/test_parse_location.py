@@ -177,6 +177,14 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to the ninth floor')
         assert location().parse(s).is_failure()
 
+    def test_generator_room(self):
+        s = pre_process('go to the generator room')
+        assert location().parse(s).parsed == Absolute('generator room')
+
+    def test_car_park(self):
+        s = pre_process('go to the car park')
+        assert location().parse(s).parsed == Absolute('car park')
+
 
 class PositionalTestCase(unittest.TestCase):
     def test_parses(self):
