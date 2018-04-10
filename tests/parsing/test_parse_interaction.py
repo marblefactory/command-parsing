@@ -101,9 +101,6 @@ class ThrowTestCase(unittest.TestCase):
         expected_loc = Directional(MoveDirection.FORWARDS, Distance.MEDIUM)
         assert action().parse(s).parsed == Throw(expected_loc)
 
-    def test_loc_first(self):
-        pass
-
     def test_fails_if_no_object(self):
         s = pre_process('throw')
         assert type(action().parse(s)) != Throw

@@ -86,7 +86,7 @@ class TakeOutGuard(ActionDefaultPositiveResponseMixin, Action):
         self.direction = direction
 
     def __str__(self):
-        return 'take out guard'
+        return 'take out guard at {}'.format(self.direction)
 
 
 class Drop(ActionDefaultPositiveResponseMixin, Action):
