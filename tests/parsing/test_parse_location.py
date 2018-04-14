@@ -1,6 +1,6 @@
 import unittest
 from parsing.pre_processing import pre_process
-from parsing.parse_location import location, ordinal_number, move_direction, object_relative_direction, Parser, distance
+from parsing.parse_location import location, ordinal_number, move_direction, object_relative_direction, Parser, distance, description_number
 from actions.location import *
 
 
@@ -19,11 +19,8 @@ class DistanceTestCase(unittest.TestCase):
 
 
 class OrdinalNumberTestCase(unittest.TestCase):
-    def test_parses_next(self):
-        """
-        Tests 'next' is considered as an ordinal number.
-        """
-        assert ordinal_number().parse(['next']).parsed == 0
+    def parser(self) -> Parser:
+        return ordinal_number()
 
     def test_parses_ordinal_numbers(self):
         """
@@ -32,7 +29,24 @@ class OrdinalNumberTestCase(unittest.TestCase):
         words = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 
         for num, word in enumerate(words):
-            assert ordinal_number().parse([word]).parsed == num
+            s = pre_process(word)
+            assert self.parser().parse(s).parsed == num
+
+    def test_parses_sorry_as_three(self):
+        s = pre_process('sorry')
+        assert self.parser().parse(s).parsed == 3
+
+
+class DescriptionNumberTestCase(OrdinalNumberTestCase):
+    def parser(self) -> Parser:
+        return description_number()
+
+    def test_parses_next(self):
+        """
+        Tests 'next' is considered as an ordinal number.
+        """
+        s = pre_process('next')
+        assert self.parser().parse(s).parsed == 0
 
 
 class MoveDirectionTestCase(unittest.TestCase):
@@ -40,22 +54,28 @@ class MoveDirectionTestCase(unittest.TestCase):
         return move_direction()
 
     def test_parses_forwards(self):
-        assert self.parser().parse(['forwards']).parsed == MoveDirection.FORWARDS
+        s = pre_process('forwards')
+        assert self.parser().parse(s).parsed == MoveDirection.FORWARDS
 
     def test_parses_front(self):
-        assert self.parser().parse(['front']).parsed == MoveDirection.FORWARDS
+        s = pre_process('front')
+        assert self.parser().parse(s).parsed == MoveDirection.FORWARDS
 
     def test_parses_backwards(self):
-        assert self.parser().parse(['backwards']).parsed == MoveDirection.BACKWARDS
+        s = pre_process('backwards')
+        assert self.parser().parse(s).parsed == MoveDirection.BACKWARDS
 
     def test_parses_behind(self):
-        assert self.parser().parse(['behind']).parsed == MoveDirection.BACKWARDS
+        s = pre_process('behind')
+        assert self.parser().parse(s).parsed == MoveDirection.BACKWARDS
 
     def test_parses_left(self):
-        assert self.parser().parse(['left']).parsed == MoveDirection.LEFT
+        s = pre_process('left')
+        assert self.parser().parse(s).parsed == MoveDirection.LEFT
 
     def test_parses_right(self):
-        assert self.parser().parse(['right']).parsed == MoveDirection.RIGHT
+        s = pre_process('right')
+        assert self.parser().parse(s).parsed == MoveDirection.RIGHT
 
 
 class ObjectRelativeDirectionTestCase(MoveDirectionTestCase):
@@ -63,7 +83,8 @@ class ObjectRelativeDirectionTestCase(MoveDirectionTestCase):
         return object_relative_direction()
 
     def test_parse_defaults_to_vicinity(self):
-        assert self.parser().parse(['nan']).parsed == ObjectRelativeDirection.VICINITY
+        s = pre_process('nan')
+        assert self.parser().parse(s).parsed == ObjectRelativeDirection.VICINITY
 
 
 class AbsoluteTestCase(unittest.TestCase):
@@ -276,6 +297,10 @@ class StairsTestCase(unittest.TestCase):
         This allowed the game to decide which direction the spy should go in.
         """
         s = pre_process('stairs')
+        assert location().parse(s).parsed == Stairs(direction=None)
+
+    def test_next_floor(self):
+        s = pre_process('go to the next floor')
         assert location().parse(s).parsed == Stairs(direction=None)
 
     def test_fails_if_just_floor(self):

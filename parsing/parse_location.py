@@ -20,12 +20,26 @@ def move_object_name() -> Parser:
 
 def ordinal_number() -> Parser:
     """
-    :return: a parser for ordinal numbers, e.g. next, first, second, third, which are converted to their numerical
+    :return: a parser for ordinal numbers, e.g. first, second, third, which are converted to their numerical
              representation.
     """
     words = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
-    word_matchers = [word_match(word).ignore_parsed(num) for num, word in enumerate(words)] + [word_match('next').ignore_parsed(0)]
-    return strongest(word_matchers)
+    word_parsers = [word_match(word).ignore_parsed(num) for num, word in enumerate(words)]
+
+    corrections = [('sorry', 3)]
+    correction_parsers = [word_match(word).ignore_parsed(num) for word, num in corrections]
+
+    return strongest(word_parsers + correction_parsers)
+
+
+def description_number() -> Parser:
+    """
+    :return: a parser for ordinal numbers, e.g. first, second, etc, and adverbs which can be used to describe a
+             number, e.g. next. Outputs a numerical representation.
+    """
+    adverbs = [('next', 0)]
+    parsers = [word_match(word).ignore_parsed(num) for word, num in adverbs]
+    return strongest(parsers + [ordinal_number()])
 
 
 def move_direction() -> Parser:
@@ -156,7 +170,7 @@ def positional() -> Parser:
     def combine_ordinal_num(makePos: Callable, r1: Response) -> Parser:
         # Parses an ordinal number, or defaults to 0 if there is no ordinal number.
         default = produce(parsed=0, response=0)
-        ord = strongest([non_consuming(ordinal_number()), default])
+        ord = strongest([non_consuming(description_number()), default])
 
         # Partially applies the parsed position to the constructor of Positional.
         return ord.map(lambda parsed_num, r2: (partial(makePos, parsed_num), mix(r1, r2, 0.2)))
@@ -215,7 +229,9 @@ def stairs() -> Parser:
 
     # Only 'stairs' can be used without a direction, e.g. take the stairs. This is because 'take the floor' does not
     # make sense. None indicates that there is no direction.
-    no_direction_parser = word_match('stairs').ignore_parsed(None)
+    next_floor = word_match('next').then_ignore(word_match('floor'))
+    stairs = word_match('stairs')
+    no_direction_parser = strongest([next_floor, stairs]).ignore_parsed(None)
 
     upstairs = word_match('upstairs').ignore_parsed(FloorDirection.UP)
     downstairs = word_match('downstairs').ignore_parsed(FloorDirection.DOWN)
