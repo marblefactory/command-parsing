@@ -303,6 +303,14 @@ class StairsTestCase(unittest.TestCase):
         s = pre_process('go to the next floor')
         assert location().parse(s).parsed == Stairs(direction=None)
 
+    def test_next_floor_up(self):
+        s = pre_process('go to the next floor up')
+        assert location().parse(s).parsed == Stairs(FloorDirection.UP)
+
+    def test_next_floor_down(self):
+        s = pre_process('go to the next floor down')
+        assert location().parse(s).parsed == Stairs(FloorDirection.DOWN)
+
     def test_fails_if_just_floor(self):
         s = pre_process('floor')
         assert location().parse(s).is_failure()
