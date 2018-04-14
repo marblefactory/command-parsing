@@ -23,7 +23,9 @@ def stop() -> Parser:
     """
     :return: parses stop actions, i.e. saying the word 'stop'.
     """
-    return strongest_word(['stop', 'freeze', 'halt'], make_word_parsers=[word_spelling]).ignore_parsed(Stop())
+    spelling = partial(word_spelling, dist_threshold=0.5)
+    return strongest_word(['stop', 'freeze', 'halt'], make_word_parsers=[spelling]) \
+          .ignore_parsed(Stop())
 
 
 def single_action() -> Parser:
