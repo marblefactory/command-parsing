@@ -49,8 +49,7 @@ def go_verbs() -> Parser:
     # S2T can mistake 'to' for 'o2.
     corrections = ['o2']
 
-    spelling = partial(word_spelling, dist_threshold=0.5)
-    go_verb_parser = words_and_corrections(go_verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
+    go_verb_parser = words_and_corrections(go_verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     # All parsers which can be used to parse 'go' verbs.
     all_parsers = [

@@ -274,7 +274,7 @@ def predicate(condition: Callable[[Word], Response], first_only = False, consume
     return Parser(parse)
 
 
-def word_spelling(word: Word, dist_threshold: Response = 0.49, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
+def word_spelling(word: Word, dist_threshold: Response = 0.5, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
@@ -588,7 +588,8 @@ def object_spelled(names: List[str], other_noun_response: Response) -> Parser:
     :return: a parser which strongly recognises spelling of the given names, and can also recognise other nouns.
     """
     # Objects the player can actually pick up.
-    objects = strongest_word(names, make_word_parsers=[word_match, word_spelling])
+    spelling = partial(word_spelling, dist_threshold=other_noun_response)
+    objects = strongest_word(names, make_word_parsers=[word_match, spelling])
     # Objects which are recognised, but the user cannot pickup. These have a lower response.
     nouns = ['NN', 'NNS']
     other_objects = word_tagged(nouns).map_response(lambda _: other_noun_response)

@@ -53,8 +53,7 @@ def drop() -> Parser:
     :return: a parser which parses an instruction for the spy to drop whatever they're holding.
     """
     verbs = ['put', 'drop', 'place']
-    spelling = partial(word_spelling, dist_threshold=0.5)
-    verb_parsers = strongest_word(verbs, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
+    verb_parsers = strongest_word(verbs, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     return verb_parsers.ignore_parsed(Drop())
 
@@ -81,7 +80,8 @@ def hack() -> Parser:
     """
     hack_verbs = ['hack', 'log', 'attack']
     corrections = ['text', 'taxi']  # 'hack' is sometimes misheard for 'text'.
-    verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    spelling = partial(word_spelling, dist_threshold=0.49)
+    verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # Only want the spelling of the word 'break', not the meaning.
     break_parser = word_spelling('break')
