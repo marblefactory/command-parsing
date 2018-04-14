@@ -78,16 +78,18 @@ def hack() -> Parser:
     """
     :return: a parser which parses hack instructions.
     """
-    hack_verbs = ['hack', 'log', 'attack']
+    hack_verbs = ['hack', 'attack']
     corrections = ['text', 'taxi']  # 'hack' is sometimes misheard for 'text'.
     spelling = partial(word_spelling, dist_threshold=0.49)
+
     verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # Only want the spelling of the word 'break', not the meaning.
     break_parser = word_spelling('break')
+    log_in = word_match('log').ignore_then(word_spelling('into'), combine_responses=mix)
 
     # Combine the break and verb parsers.
-    parser = strongest([verb_parser, break_parser])
+    parser = strongest([verb_parser, break_parser, log_in])
 
     def combine_direction(make_type: Callable, _: Response) -> Parser:
         return object_relative_direction().map_parsed(lambda dir: make_type(dir))

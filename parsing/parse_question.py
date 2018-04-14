@@ -76,5 +76,5 @@ def time_remaining_question() -> Parser:
     time = strongest_word(time_words)
 
     return maybe(non_consuming(left)) \
-          .ignore_then(time, combine_responses=max) \
+          .ignore_then(time, combine_responses=mix) \
           .ignore_parsed(TimeRemainingQuestion())
