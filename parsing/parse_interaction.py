@@ -26,6 +26,7 @@ def guard_noun() -> Parser:
     corrections = ['card', 'god', 'aids', 'jobs', 'dogs', 'car']
     return words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 
+
 def pick_up() -> Parser:
     """
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
@@ -51,10 +52,11 @@ def drop() -> Parser:
     """
     :return: a parser which parses an instruction for the spy to drop whatever they're holding.
     """
-    put_down_verb = word_match('put').then_ignore(word_match('down'))
-    drop_verb = word_meaning('drop', pos=POS.verb)
+    verbs = ['put', 'drop', 'place']
+    spelling = partial(word_spelling, dist_threshold=0.5)
+    verb_parsers = strongest_word(verbs, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
-    return strongest([put_down_verb, drop_verb]).ignore_parsed(Drop())
+    return verb_parsers.ignore_parsed(Drop())
 
 
 def hackable_object_name() -> Parser:

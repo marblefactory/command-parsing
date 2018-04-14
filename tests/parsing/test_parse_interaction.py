@@ -65,6 +65,10 @@ class PickUpTestCase(unittest.TestCase):
 
         assert fake_r.response < real_r.response
 
+    def test_parses_rocket_as_rock(self):
+        s = pre_process('pick up the rocket')
+        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
+
 
 class ThrowTestCase(unittest.TestCase):
     def test_parse_directional(self):
@@ -159,13 +163,9 @@ class DropTestCase(unittest.TestCase):
         s = pre_process('put down the rock')
         assert action().parse(s).parsed == Drop()
 
-    def test_fails_if_just_put(self):
-        s = pre_process('put the rock')
-        assert action().parse(s).is_failure()
-
-    def test_fails_if_just_down(self):
-        s = pre_process('down the rock')
-        assert action().parse(s).is_failure()
+    def test_place(self):
+        s = pre_process('place the rock')
+        assert action().parse(s).parsed == Drop()
 
 
 class HackTestCase(unittest.TestCase):
