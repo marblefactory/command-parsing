@@ -289,6 +289,22 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('take the stairs')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Stairs(direction=None), None)
 
+    def test_parses_forwards(self):
+        s = pre_process('go forwards')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+
+    def test_parses_afford_as_forward(self):
+        s = pre_process('go afford')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+
+    def test_parses_affords_as_forward(self):
+        s = pre_process('go affords')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+
+    def test_for_as_forward(self):
+        s = pre_process('go for')
+        assert action().parse(s).parsed.location.direction == MoveDirection.FORWARDS
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
