@@ -14,7 +14,8 @@ def fast_speed_verb() -> Parser:
     corrections = ['randa', 'rhonda', 'rhondda']
 
     # Make a parser that recognises the meaning and spelling of the actual verbs, and matches on exact corrections.
-    parser = words_and_corrections(verbs, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    spelling = partial(word_spelling, dist_threshold=0.49)
+    parser = words_and_corrections(verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # Ignore the go verbs, because it *can* be parsed as to mean 'fast', but it does not necessarily.
     return ignore_words(go_verb_words()).ignore_then(parser)

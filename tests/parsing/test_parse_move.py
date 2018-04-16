@@ -141,6 +141,10 @@ class ChangeSpeedTestCase(unittest.TestCase):
         s = pre_process('walk')
         assert action().parse(s).parsed == ChangeSpeed(Speed.NORMAL)
 
+    def test_rent_as_run(self):
+        s = pre_process('rent')
+        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+
 
 class MoveTestCase(unittest.TestCase):
     def test_parses_just_location1(self):
