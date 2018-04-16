@@ -47,7 +47,7 @@ class TakeOutGuardEncoder(json.JSONEncoder):
     """
     def default(self, obj):
         return {
-            'type': 'take_out_guard',
+            'type': 'attack',
             'direction': obj.direction
         }
 

@@ -114,7 +114,7 @@ def throw_verb() -> Parser:
     :return: a parser for verbs that mean 'to throw'.
     """
     throw_verbs = ['chuck', 'throw']
-    corrections = ['show', 'stoner', 'through', 'check', 'shut', 'row']
+    corrections = ['show', 'stoner', 'through', 'check', 'shut', 'row', 'road', 'roller']
     match = partial(word_match, consume=Consume.WORD_ONLY)
     return  words_and_corrections(throw_verbs, corrections, make_word_parsers=[match])
 

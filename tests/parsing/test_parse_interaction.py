@@ -178,6 +178,10 @@ class TakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('attack the security')
         assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
 
+    def test_strangle(self):
+        s = pre_process('strangle the guard')
+        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+
 
 class DropTestCase(unittest.TestCase):
     def test_drop(self):

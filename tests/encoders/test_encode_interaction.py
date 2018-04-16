@@ -52,7 +52,7 @@ class TakeOutGuardEncoderTestCase(unittest.TestCase):
         take_out = TakeOutGuard(ObjectRelativeDirection.FORWARDS)
 
         expected = {
-            'type': 'take_out_guard',
+            'type': 'attack',
             'direction': 'forwards'
         }
 
