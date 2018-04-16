@@ -62,7 +62,7 @@ class ThrowAtGuard(ActionDefaultPositiveResponseMixin, Action):
         self.direction = direction
 
     def __str__(self):
-        return 'throw at guard'
+        return 'throw at guard at {}'.format(self.direction)
 
     def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
         """
@@ -87,6 +87,11 @@ class TakeOutGuard(ActionDefaultPositiveResponseMixin, Action):
 
     def __str__(self):
         return 'take out guard at {}'.format(self.direction)
+
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        return [
+            "He's a gonner"
+        ]
 
 
 class Drop(ActionDefaultPositiveResponseMixin, Action):
