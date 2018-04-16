@@ -24,6 +24,10 @@ class StopTestCase(unittest.TestCase):
         s = pre_process('holt')
         assert action().parse(s).parsed == Stop()
 
+    def test_star_as_stop(self):
+        s = pre_process('star')
+        assert action().parse(s).parsed == Stop()
+
 
 class CompositeTestCase(unittest.TestCase):
     def test_parses_then(self):
