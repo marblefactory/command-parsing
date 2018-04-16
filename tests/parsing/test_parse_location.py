@@ -142,16 +142,7 @@ class AbsoluteTestCase(unittest.TestCase):
 
     def test_parses_gun_range(self):
         s = pre_process('go to the gun range')
-        assert location().parse(s).parsed == Absolute('range')
-
-    def test_parses_gun_range_same_response(self):
-        s1 = pre_process('go to the range')
-        s2 = pre_process('go to the gun range')
-
-        r1 = location().parse(s1).response
-        r2 = location().parse(s2).response
-
-        assert r1 == r2
+        assert location().parse(s).parsed == Absolute('gun range')
 
     def test_parses_mortuary(self):
         s = pre_process('go to the mortuary')
@@ -352,4 +343,4 @@ class EndOfTestCase(unittest.TestCase):
 
     def test_parse_absolute(self):
         s = pre_process('go to the end of the gun range')
-        assert location().parse(s).parsed == EndOf('range')
+        assert location().parse(s).parsed == EndOf('gun range')
