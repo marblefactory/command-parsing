@@ -96,11 +96,17 @@ def process_transcript(transcript: str) -> str:
 
         # Where the action should be sent depends on whether it is a question or not.
         get_game_response = post_to_game if GAME_MODE else mock_post_to_game
-        addr_postfix = 'question' if isinstance(action, Question) else 'action'
+        addr_postfix = 'questions' if isinstance(action, Question) else 'action'
         print('sending to:', addr_postfix)
         game_response = get_game_response(addr_postfix, action)
 
         log_conversation('server', game_response)
+
+        try:
+            game_json = game_response.json()
+            log_conversation('server json', game_json)
+        except:
+            pass
 
         # We got a response from the server, however this does not mean the action was necessarily performed.
         # For example, if the spy was asked to pickup an object the action could fail if there are none of the
