@@ -52,10 +52,12 @@ def drop() -> Parser:
     """
     :return: a parser which parses an instruction for the spy to drop whatever they're holding.
     """
-    verbs = ['put', 'drop', 'place']
+    verbs = ['put', 'drop']
     verb_parsers = strongest_word(verbs, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    place = word_spelling('place')
+    parsers = strongest([place, verb_parsers])
 
-    return verb_parsers.ignore_parsed(Drop())
+    return parsers.ignore_parsed(Drop())
 
 
 def hackable_object_name() -> Parser:

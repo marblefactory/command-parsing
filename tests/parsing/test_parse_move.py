@@ -313,6 +313,10 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('go to security')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('security room'), None)
 
+    def test_gun_range(self):
+        s = pre_process('run to the gun range')
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('range'), None)
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
