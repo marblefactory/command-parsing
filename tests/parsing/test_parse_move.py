@@ -95,6 +95,10 @@ class ChangeStanceTestCase(unittest.TestCase):
         s = pre_process('get low')
         assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
 
+    def test_close_as_crouch(self):
+        s = pre_process('close down')
+        assert action().parse(s).parsed == ChangeStance(Stance.CROUCH)
+
 
 class ChangeSpeedTestCase(unittest.TestCase):
     def test_run(self):
