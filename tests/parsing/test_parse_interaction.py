@@ -127,6 +127,10 @@ class ThrowAtGuardTestCase(unittest.TestCase):
         s = pre_process('shut the rock at the guard')
         assert action().parse(s).parsed == ThrowAtGuard(ObjectRelativeDirection.VICINITY)
 
+    def test_security(self):
+        s = pre_process('throw at the security')
+        assert action().parse(s).parsed == ThrowAtGuard(ObjectRelativeDirection.VICINITY)
+
 
 class TakeOutGuardTestCase(unittest.TestCase):
     def test_kill(self):
@@ -151,6 +155,10 @@ class TakeOutGuardTestCase(unittest.TestCase):
 
     def test_attack_guard(self):
         s = pre_process('attack the guard')
+        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+
+    def test_security(self):
+        s = pre_process('attack the security')
         assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
 
 
@@ -240,6 +248,10 @@ class PickpocketTestCase(unittest.TestCase):
 
     def test_parse_take_object(self):
         s = pre_process('take the rock from the guard')
+        assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.VICINITY)
+
+    def test_security(self):
+        s = pre_process('pickpocket the security')
         assert action().parse(s).parsed == Pickpocket(ObjectRelativeDirection.VICINITY)
 
 

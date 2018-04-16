@@ -1,6 +1,6 @@
 from parsing.parser import *
 from actions.question import *
-from parsing.parse_interaction import pickupable_object_name
+from parsing.parse_interaction import pickupable_object_name, guard_noun
 
 def see_verb() -> Parser:
     """
@@ -36,11 +36,7 @@ def guards_question() -> Parser:
     """
     :return: a parser for asking questions about guards.
     """
-    guard_words = ['guard', 'enemy']
-    corrections = ['card', 'god', 'aids', 'jobs', 'dogs']
-    parser = words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
-
-    return parser.ignore_parsed(GuardsQuestion())
+    return guard_noun().ignore_parsed(GuardsQuestion())
 
 
 def surroundings_question() -> Parser:

@@ -33,6 +33,10 @@ class GuardsQuestionTestCase(unittest.TestCase):
         s = pre_process('can you see any gods')
         assert action().parse(s).parsed == GuardsQuestion()
 
+    def test_security(self):
+        s = pre_process('can you see any security')
+        assert action().parse(s).parsed == GuardsQuestion()
+
 
 class SurroundingsTestCase(unittest.TestCase):
     def test_parse(self):
