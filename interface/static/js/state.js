@@ -249,6 +249,12 @@ class RecognitionState extends State {
         this._recognisedSpeech = true;
 
         var transcript = event.results[0][0].transcript;
+
+        // Enter is not recognised for some reason.
+        if (transcript == '\n') {
+            transcript = 'enter'
+        }
+
         console.log(`Recognised: ${transcript}`);
 
         var newState = new SendRecvSpeechState(transcript, this.stateDiv);

@@ -26,7 +26,7 @@ socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = True
+GAME_MODE = False
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
 GAME_SERVER = 'http://192.168.0.69:8080/'
