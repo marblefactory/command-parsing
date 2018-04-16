@@ -5,13 +5,6 @@ from parsing.parse_question import *
 from utils import split_list
 
 
-def failure_words() -> Parser:
-    """
-    :return: a parser which parses words which will cause parsing to fail.
-    """
-    return strongest_word(["not", "don't"])
-
-
 def ignored_words() -> List[str]:
     """
     :return: a list of words which should be removed from the input text.
@@ -23,7 +16,7 @@ def stop() -> Parser:
     """
     :return: parses stop actions, i.e. saying the word 'stop'.
     """
-    stop_words = ['stop', 'freeze', 'halt']
+    stop_words = ['stop', 'freeze', 'halt', "don't", 'not']
     stop_corrections = ['star']
     parser = words_and_corrections(stop_words, stop_corrections, make_word_parsers=[word_spelling])
 
@@ -95,6 +88,5 @@ def action() -> Parser:
     :return: a parser for single or composite actions. Nothing will be parsed if the text contains "not" or "don't".
     """
     act = strongest([composite(), single_action()])
-    return none(failure_words()) \
-          .ignore_then(ignore_words(ignored_words())) \
+    return ignore_words(ignored_words()) \
           .ignore_then(act)
