@@ -9,7 +9,7 @@ def pickupable_object_name() -> Parser:
     :return: a parser for the names of objects which can be picked up and thrown.
     """
     # Objects the player can actually pick up.
-    names = ['rock', 'hammer', 'bottle', 'cup', 'can']
+    names = ['rock', 'hammer', 'bottle', 'cup', 'can', 'beaker']
 
     rock_correction = word_match('ra').ignore_parsed('rock')
     # Strongly recognises the names of actual objects in the game, and weakly matches on other nouns.
@@ -113,7 +113,7 @@ def throw_verb() -> Parser:
     :return: a parser for verbs that mean 'to throw'.
     """
     throw_verbs = ['chuck', 'throw']
-    corrections = ['show', 'stoner', 'through', 'check', 'shut']
+    corrections = ['show', 'stoner', 'through', 'check', 'shut', 'row']
     return  words_and_corrections(throw_verbs, corrections)
 
 

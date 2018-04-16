@@ -29,7 +29,7 @@ socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
 GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.0.102:8080/'
+GAME_SERVER = 'http://192.168.0.69:8080/'
 
 # If True then the chatbot is trained fully. Otherwise the chatbot uses whatever it has been trained on.
 TRAIN_CHATBOT = False
