@@ -127,7 +127,7 @@ def absolute_place_names() -> Parser:
     kitchen = word_match('kitchen')
     gun_range = word_match('range')
     mortuary = strongest_word(['mortuary', 'motor']).ignore_parsed('mortuary')
-    security_office = word_match('security').then(append(word_match('office')))
+    security_office = word_match('security').ignore_parsed('security room')
     generator_room = word_match('generator').then(append(word_match('room')))
     car_park = word_match('car').then(append(word_match('park')))
 

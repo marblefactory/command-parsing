@@ -161,9 +161,13 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to the motor')
         assert location().parse(s).parsed == Absolute('mortuary')
 
+    def test_parse_security(self):
+        s = pre_process('go to security')
+        assert location().parse(s).parsed == Absolute('security room')
+
     def test_parses_security_office(self):
         s = pre_process('go to the security office')
-        assert location().parse(s).parsed == Absolute('security office')
+        assert location().parse(s).parsed == Absolute('security room')
 
     def test_parses_basement(self):
         s = pre_process('go to the basement')
