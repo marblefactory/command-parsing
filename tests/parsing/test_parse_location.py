@@ -90,24 +90,15 @@ class ObjectRelativeDirectionTestCase(MoveDirectionTestCase):
 class AbsoluteTestCase(unittest.TestCase):
     def test_parses_storage(self):
         s = pre_process('go to storage room 5')
-        assert location().parse(s).parsed == Absolute('storage room 5')
+        assert location().parse(s).parsed == Absolute('storage 5')
 
     def test_parses_default_number(self):
         s = pre_process('go to the storage room')
-        assert location().parse(s).parsed == Absolute('storage room 1')
+        assert location().parse(s).parsed == Absolute('storage 1')
 
     def test_parses_storage_no_room(self):
         s = pre_process('go to storage 5')
-        assert location().parse(s).parsed == Absolute('storage room 5')
-
-    def test_parses_storage_same_response(self):
-        s1 = pre_process('go to storage 5')
-        s2 = pre_process('go to storage room 5')
-
-        r1 = location().parse(s1).response
-        r2 = location().parse(s2).response
-
-        assert r1 == r2
+        assert location().parse(s).parsed == Absolute('storage 5')
 
     def test_parses_office(self):
         s = pre_process('go to office 10')

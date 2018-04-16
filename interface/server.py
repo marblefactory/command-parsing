@@ -26,10 +26,10 @@ socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = False
+GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.1.144:8080/'
+GAME_SERVER = 'http://192.168.0.102:8080/'
 
 # If True then the chatbot is trained fully. Otherwise the chatbot uses whatever it has been trained on.
 TRAIN_CHATBOT = False
@@ -106,16 +106,18 @@ def process_transcript(transcript: str) -> str:
         # For example, if the spy was asked to pickup an object the action could fail if there are none of the
         # specified objects around.
         if game_response.status_code == 200:
-            # sample_json = {
-            #     'success': True, # Indicates whether the action could be performed in the game.
-            #     'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
-            #     'location': 'the computer lab',  # For if the user asks where the spy is.
-            #     'num_guards': randrange(0, 10), # For if the user asks about guards
-            #     'surroundings': ['server', 'camera', 'camera'] # For if the user asks about the spy's surroundings
-            # }
-            # response = make_speech(sample_json)
-            # # TODO: Remove sample JSON
-            response = make_speech(game_response.json())
+            # TODO: Remove sample JSON
+            sample_json = {
+                'success': True,  # Indicates whether the action could be performed in the game.
+                'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
+                'location': 'the computer lab',  # For if the user asks where the spy is.
+                'num_guards': randrange(0, 10),  # For if the user asks about guards
+                'surroundings': ['server', 'camera', 'camera'],  # For if the user asks about the spy's surroundings
+                'mins_remaining': randrange(1, 5)
+            }
+            response = make_speech(sample_json)
+
+            #response = make_speech(game_response.json())
         else:
             log_conversation('ERROR: Unsuccessful response from game', game_response)
             response = ''

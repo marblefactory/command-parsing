@@ -112,12 +112,10 @@ def absolute_place_names() -> Parser:
         parsers = [number_str(), produce('1', response=0.0)]
         return strongest(parsers)
 
-    # When describing a storage room, the player can optionally say 'room' too.
-    storage_room_parser = strongest([produce('room', 1), maybe(word_match('room'))])
-    storage_x = word_match('storage').then(append(storage_room_parser)).then(append(number_or_1()))
 
     lab = word_spelling('lab', dist_threshold=0.24)  # Because of errors in speech parsing.
 
+    storage_x = word_match('storage').then(append(number_or_1()))
     office_x = word_match('office').then(append(number_or_1()))
     computer_lab_x = word_match('computer').then(append(lab)).then(append(number_or_1()))
     lab_x = lab.then(append(number_or_1()))
