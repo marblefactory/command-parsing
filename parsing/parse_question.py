@@ -53,7 +53,7 @@ def see_object_question() -> Parser:
     """
     :return: a parser for asking whether the spy can see a specific object.
     """
-    there = word_match('there') # E.g. "are there any ... ?"
+    there = word_spelling('there') # E.g. "are there any ... ?"
     verb = strongest([see_verb(), there])
 
     return verb \
@@ -65,12 +65,14 @@ def time_remaining_question() -> Parser:
     """
     :return: a parser for asking how much time is remaining.
     """
+    how = strongest_word(['how', 'what'], make_word_parsers=[word_spelling])
     left_words = ['left', 'remaining']
     time_words = ['time', 'longer', 'long', 'clock']
 
     left = strongest_word(left_words)
     time = strongest_word(time_words)
 
-    return maybe(non_consuming(left)) \
+    return non_consuming(how) \
+          .ignore_then(maybe(non_consuming(left)), combine_responses=mix) \
           .ignore_then(time, combine_responses=mix) \
           .ignore_parsed(TimeRemainingQuestion())

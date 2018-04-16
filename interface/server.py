@@ -255,4 +255,4 @@ if __name__ == '__main__':
     preload(fill_cache=FILL_CACHE)
 
     print('Running Server')
-    socketio.run(app, host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0', port=5000)
