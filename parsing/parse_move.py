@@ -117,6 +117,13 @@ def change_speed() -> Parser:
 def move() -> Parser:
     """
     :return: a parser to recognise movement actions.
+
+             Parses on a go verb, then the location can not be specified, thereby creating a partial move.
+             This allows the user to just say they want to move. They can then be asked a question about where they
+             want to go.
+
+             Also, parses moves which can optionally have a verb or not. This cannot be a partial parser otherwise
+             everything will be considered a partial move.
     """
     def combine_speed(makeMove: Callable, r: Response) -> Parser:
         # The speed defaults to normal.
@@ -137,16 +144,8 @@ def move() -> Parser:
         loc_parser = non_consuming(location()).map(lambda loc, loc_response: (partial(Move.partial_init(), location=loc), mix(verb_response, loc_response)))
         return loc_parser.then(combine_speed).then(combine_stance)
 
-    # Parses on the verb, then the location can not be specified, thereby creating a partial move.
-    # This allows the user to just say they want to move. They can then be asked a question about where they want to go.
-    make_partial = lambda parser, verb_response: partial_parser(parser, verb_response, marker=Move)
-    partial_move = non_consuming(go_verbs()).then(wrap(combine, make_partial))
-
-    # Parses moves which can optionally have a verb or not. This cannot be a partial parser otherwise everything will
-    # be considered a partial move.
-    move = maybe(non_consuming(go_verbs())).then(combine)
-
-    return strongest([move, partial_move])
+    go = non_consuming(go_verbs())
+    return partial_or_maybe(go, combine, partial_marker=Move)
 
 
 def hide() -> Parser:

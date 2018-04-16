@@ -32,21 +32,17 @@ def pick_up() -> Parser:
     """
     :return: a parser which parses an instruction to pick up an object relative to the player, e.g. pick up the rock on your left.
     """
-    verb_parser = strongest_word(['pick', 'take'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
-
     def combine_direction(make_type: Callable, response: Response) -> Parser:
         return object_relative_direction().map(lambda dir, _: (make_type(dir), response))
 
     def combine(_: Any, verb_response: Response) -> Parser:
         # Parses the name of the object and then the direction.
-        data_parser = pickupable_object_name() \
-                     .map(lambda obj_name, obj_name_resp: (partial(PickUp.partial_init(), obj_name), obj_name_resp)) \
-                     .then(combine_direction)
+        return pickupable_object_name() \
+              .map(lambda obj_name, obj_name_resp: (partial(PickUp.partial_init(), obj_name), mix(verb_response, obj_name_resp))) \
+              .then(combine_direction)
 
-        # If we only get the verb and no data, use the response from the verb parser.
-        return partial_parser(data_parser, verb_response, PickUp)
-
-    return verb_parser.then(combine)
+    verb_parser = strongest_word(['pick', 'take'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    return partial_or_maybe(verb_parser, combine, partial_marker=PickUp)
 
 
 def drop() -> Parser:

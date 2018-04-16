@@ -595,3 +595,22 @@ def object_spelled(names: List[str], other_noun_response: Response) -> Parser:
     other_objects = word_tagged(nouns).map_response(lambda _: other_noun_response)
 
     return strongest([objects, other_objects])
+
+
+def partial_or_maybe(initial_parser: Parser, combine: Callable[[Any, Response], Parser], partial_marker: Any):
+    """
+    :param initial_parser: the parser which can either be used to generate a partial response if combining fails,
+                           or can not be present if combine succeeds.
+    :param combine:        combines the optional result of the initial parser.
+    :param partial_marker: the marker for the partial parse if combining fails.
+    :return:               a parser which produces a partial parse if the combine fails, or can optionally not parse
+                           the initial parser and just parse using the combine operation.
+    """
+    # If the combine fails, produce a partial parse.
+    make_partial = lambda parser, response: partial_parser(parser, response, marker=partial_marker)
+    partial_initial_parser = initial_parser.then(wrap(combine, make_partial))
+
+    # Optionally parse the initial parser.
+    maybe_initial_parser = maybe(initial_parser).then(combine)
+
+    return strongest([maybe_initial_parser, partial_initial_parser])

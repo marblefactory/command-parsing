@@ -18,6 +18,10 @@ class PickUpTestCase(unittest.TestCase):
         s = pre_process('tape the rock')
         assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
 
+    def test_get(self):
+        s = pre_process('get the bottle')
+        assert action().parse(s).parsed == PickUp('bottle', ObjectRelativeDirection.VICINITY)
+
     def test_direction_defaults_to_vicinity(self):
         s = pre_process('pick up the hammer')
         assert action().parse(s).parsed == PickUp('hammer', ObjectRelativeDirection.VICINITY)
@@ -69,6 +73,14 @@ class PickUpTestCase(unittest.TestCase):
         s = pre_process('pick up the rocket')
         assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
 
+    def test_picks_up_if_only_object_name(self):
+        s = pre_process('the rock')
+        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
+
+    def test_only_object_name_with_direction(self):
+        s = pre_process('the rock on the left')
+        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.LEFT)
+
 
 class ThrowTestCase(unittest.TestCase):
     def test_parse_directional(self):
@@ -111,7 +123,6 @@ class ThrowTestCase(unittest.TestCase):
 
     def test_shut_as_chuck(self):
         s = pre_process('shut the rock')
-        print(action().parse(s).parsed)
         assert action().parse(s).parsed == Throw(Directional(MoveDirection.FORWARDS, Distance.MEDIUM))
 
     def test_left_long_distance(self):
