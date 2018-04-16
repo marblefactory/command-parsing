@@ -2,6 +2,7 @@ from actions.interaction import *
 from parsing.parser import *
 from parsing.parse_location import object_relative_direction, positional, directional, behind
 from actions.location import Directional, Distance
+from actions.location import MoveDirection
 
 
 def pickupable_object_name() -> Parser:
@@ -114,7 +115,8 @@ def throw_verb() -> Parser:
     """
     throw_verbs = ['chuck', 'throw']
     corrections = ['show', 'stoner', 'through', 'check', 'shut', 'row']
-    return  words_and_corrections(throw_verbs, corrections)
+    match = partial(word_match, consume=Consume.WORD_ONLY)
+    return  words_and_corrections(throw_verbs, corrections, make_word_parsers=[match])
 
 
 def throw() -> Parser:
@@ -126,7 +128,7 @@ def throw() -> Parser:
     target_location_parsers = [
         positional(),
         behind(),
-        directional(),
+        directional(default=MoveDirection.FORWARDS),
         default_target_parser
     ]
     target = strongest(target_location_parsers).map_response(lambda _: 1.0)
@@ -134,7 +136,7 @@ def throw() -> Parser:
     # The name of the object is not used, since the spy can only hold one object at once, however it is needed for a
     # successful parse.
     return throw_verb() \
-          .ignore_then(pickupable_object_name(), lambda verb_r, obj_r: obj_r) \
+          .ignore_then(non_consuming(pickupable_object_name()), lambda verb_r, obj_r: obj_r) \
           .ignore_then(target, mix) \
           .map_parsed(lambda loc: Throw(loc))
 

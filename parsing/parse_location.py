@@ -191,7 +191,7 @@ def positional() -> Parser:
               .then(combine_direction)
 
 
-def directional() -> Parser:
+def directional(default: Optional[MoveDirection] = None) -> Parser:
     """
     :return: a parser for directions, e.g. go left, right, forwards, backwards.
     """
@@ -200,7 +200,12 @@ def directional() -> Parser:
         dist_parser = strongest([distance(), produce(Distance.MEDIUM, 0)])
         return dist_parser.map(lambda dist, _: (Directional(dir, dist), dir_resp))
 
-    return non_consuming(move_direction()).then(combine_distance)
+    if default:
+        dir = strongest([move_direction(), produce(default, 0)])
+    else:
+        dir = move_direction()
+
+    return non_consuming(dir).then(combine_distance)
 
 
 def stairs() -> Parser:

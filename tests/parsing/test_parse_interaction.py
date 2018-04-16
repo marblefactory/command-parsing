@@ -111,7 +111,24 @@ class ThrowTestCase(unittest.TestCase):
 
     def test_shut_as_chuck(self):
         s = pre_process('shut the rock')
+        print(action().parse(s).parsed)
         assert action().parse(s).parsed == Throw(Directional(MoveDirection.FORWARDS, Distance.MEDIUM))
+
+    def test_left_long_distance(self):
+        s = pre_process('throw the rock left a long way')
+        assert action().parse(s).parsed == Throw(Directional(MoveDirection.LEFT, Distance.FAR))
+
+    def test_short_distance(self):
+        s = pre_process('throw the rock a little way')
+        assert action().parse(s).parsed == Throw(Directional(MoveDirection.FORWARDS, Distance.SHORT))
+
+    def test_long_distance(self):
+        s = pre_process('throw the rock a long way')
+        assert action().parse(s).parsed == Throw(Directional(MoveDirection.FORWARDS, Distance.FAR))
+
+    def test_throw_backwards(self):
+        s = pre_process('throw the bottle backwards')
+        assert action().parse(s).parsed == Throw(Directional(MoveDirection.BACKWARDS, Distance.MEDIUM))
 
 
 class ThrowAtGuardTestCase(unittest.TestCase):

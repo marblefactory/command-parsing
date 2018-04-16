@@ -255,5 +255,4 @@ if __name__ == '__main__':
     preload(fill_cache=FILL_CACHE)
 
     print('Running Server')
-    #socketio.run(app)
     socketio.run(app, host='0.0.0.0')
