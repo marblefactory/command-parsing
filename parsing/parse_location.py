@@ -9,7 +9,7 @@ def move_object_name() -> Parser:
     :return: a parser which parses names of objects which can be moved to, i.e. table, door, desk.
     """
     object_names = [
-        'table', 'door', 'desk', 'server', 'room', 'toilet', 'lavatory', 'corridor', 'wall', 'pillar', 'couch', 'sofa'
+        'table', 'door', 'desk', 'server', 'room', 'corridor', 'wall', 'pillar', 'couch', 'sofa'
     ]
 
     def condition(input_word: Word) -> Response:
@@ -124,6 +124,7 @@ def absolute_place_names() -> Parser:
     meeting_room_x = word_match('meeting').then(append(word_match('room'))).then(append(number_or_1()))
     workshop_x = word_match('workshop').then(append(number_or_1()))
     server_room_x = word_match('server').then(append(word_match('room'))).then(append(number_or_1()))
+    toilet_x = word_match('toilet').then(append(number_str()))
 
     reception = word_match('reception')
     kitchen = word_match('kitchen')
@@ -139,6 +140,8 @@ def absolute_place_names() -> Parser:
         gun_range,
         mortuary,
         security_office,
+        car_park,
+        generator_room,
 
         storage_x,
         office_x,
@@ -147,8 +150,7 @@ def absolute_place_names() -> Parser:
         meeting_room_x,
         workshop_x,
         server_room_x,
-        car_park,
-        generator_room,
+        toilet_x,
 
         absolute_floor_name()
     ]

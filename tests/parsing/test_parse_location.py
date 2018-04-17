@@ -193,6 +193,10 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to the car park')
         assert action().parse(s).parsed.location == Absolute('car park')
 
+    def test_toilet(self):
+        s = pre_process('go to toilet 2')
+        assert action().parse(s).parsed.location == Absolute('toilet 2')
+
 
 class PositionalTestCase(unittest.TestCase):
     def test_parses(self):

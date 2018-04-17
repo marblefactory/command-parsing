@@ -38,7 +38,7 @@ TRAIN_CHATBOT = False
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = True
+FILL_CACHE = False
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('Ethan')
