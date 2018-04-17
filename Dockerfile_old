@@ -1,0 +1,29 @@
+FROM python:3.6-alpine
+
+RUN adduser -D speech_server
+
+WORKDIR /home/speech_server
+
+COPY requirements.txt requirements.txt
+RUN python -m venv venv
+RUN venv/bin/pip install --upgrade pip
+RUN venv/bin/pip install -r requirements.txt
+
+COPY app app
+COPY actions actions
+COPY encoders encoders
+COPY failure_responses failure_responses
+COPY interface interface
+COPY parsing parsing
+COPY tests tests
+
+COPY speech_server.py equatable.py utils.py boot.sh ./
+RUN chmod +x boot.sh
+
+ENV FLASK_APP speech_server.py
+
+RUN chown -R speech_server:speech_server ./
+USER speech_server
+
+EXPOSE 5000
+ENTRYPOINT ["./boot.sh"]
