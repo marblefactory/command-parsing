@@ -8,6 +8,9 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from nltk.corpus import wordnet as wn
 from requests import Response
+
+
+
 from interface.speech_responder import SpeechResponder
 from actions.action import Action
 from encoders.encode_action import ActionEncoder
@@ -21,12 +24,11 @@ from unittest.mock import Mock
 
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
-socketio.init_app(app, engineio_logger=True, async_mode='eventlet')
+socketio = SocketIO(app, engineio_logger=True, async_mode='eventlet')
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = True
+GAME_MODE = False
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
 GAME_SERVER = 'http://192.168.0.16:8080/'
@@ -41,9 +43,59 @@ FILL_CACHE = False
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('Ethan')
 
-# Used to formulate responses to the user. This is initialised in main.
-speech_responder: SpeechResponder = None
+def make_action_speech_response(game_response: GameResponse, action: Action) -> str:
+    """
+    :param game_response: the JSON response from the game.
+    :param action: the action that was parsed.
+    :return: the speech response to say to the user indicating whether or not the action was performed.
+    """
+    # Choose from negative or positive responses depending on whether the action could be performed.
+    responses = action.positive_responses(game_response) if game_response['success'] else action.negative_responses()
+    random_index = randrange(0, len(responses))
+    speech_reply = responses[random_index]
 
+    log_conversation('success reply', speech_reply)
+
+    return speech_reply
+
+
+def make_partial_speech_response(action_type) -> str:
+    """
+    :param action_type: the class of the action for which there was a partial parse.
+    :return: a speech response indicating to give more information.
+    """
+    speech_reply = action_type.partial_response()
+    log_conversation('partial reply', speech_reply)
+    return speech_reply
+
+
+def make_parse_failure_speech_response(transcript: str) -> str:
+    """
+    :param transcript: the transcript of what the user said.
+    :return: the speech response to say to the user.
+    """
+    # 1 in 10 times use the chatbot to create a reply.
+    if randrange(0, 9) == 0:
+        r = action_failed_chat_bot.get_response(transcript)
+    else:
+        r = random_from_json('./failure_responses/action_parse.json')
+
+    log_conversation('reply', r)
+    return r
+
+
+def make_speech_responder() -> SpeechResponder:
+    """
+    :return: a speech responder that parses actions and that responds to:
+               - success with a random success speech from the action.
+               - partial with speech determined by the type that failed to parse.
+               - failure with speech from a chat bot,
+    """
+    return SpeechResponder(action(), make_action_speech_response, make_partial_speech_response, make_parse_failure_speech_response)
+
+
+# Used to formulate responses to the user. This is initialised in main.
+g_speech_responder: SpeechResponder = make_speech_responder()
 
 def post_to_game(addr_postfix: str, action: Action) -> Response:
     """
@@ -87,7 +139,7 @@ def process_transcript(transcript: str) -> str:
     log_conversation('transcript', transcript, print_nl_before=True)
 
     # The responder is used to keep track of state, such as whether the last transcript parsed to a partial.
-    make_speech, action = speech_responder.parse(transcript)
+    make_speech, action = g_speech_responder.parse(transcript)
 
     # If an action was parsed, send it to the server. The response is then dependent on whether the spy could
     # perform the action in the game, e.g. whether there was a rock to pick up.
@@ -137,7 +189,7 @@ def process_not_recognised_speech() -> str:
     """
     Speaks a response indicating that it the player was not understood.
     """
-    return random_from_json('failure_responses/transcription.json')
+    return random_from_json('./failure_responses/transcription.json')
 
 
 def preload(fill_cache: bool):
@@ -160,59 +212,8 @@ def preload(fill_cache: bool):
     if fill_cache:
         print('Filling Cache (Running Tests)...')
         loader = TestLoader()
-        suite = loader.discover(start_dir='../tests/parsing')
+        suite = loader.discover(start_dir='tests/parsing')
         TextTestRunner(verbosity=0).run(suite)
-
-
-def make_action_speech_response(game_response: GameResponse, action: Action) -> str:
-    """
-    :param game_response: the JSON response from the game.
-    :param action: the action that was parsed.
-    :return: the speech response to say to the user indicating whether or not the action was performed.
-    """
-    # Choose from negative or positive responses depending on whether the action could be performed.
-    responses = action.positive_responses(game_response) if game_response['success'] else action.negative_responses()
-    random_index = randrange(0, len(responses))
-    speech_reply = responses[random_index]
-
-    log_conversation('success reply', speech_reply)
-
-    return speech_reply
-
-
-def make_partial_speech_response(action_type) -> str:
-    """
-    :param action_type: the class of the action for which there was a partial parse.
-    :return: a speech response indicating to give more information.
-    """
-    speech_reply = action_type.partial_response()
-    log_conversation('partial reply', speech_reply)
-    return speech_reply
-
-
-def make_parse_failure_speech_response(transcript: str) -> str:
-    """
-    :param transcript: the transcript of what the user said.
-    :return: the speech response to say to the user.
-    """
-    # 1 in 10 times use the chatbot to create a reply.
-    if randrange(0, 9) == 0:
-        r = action_failed_chat_bot.get_response(transcript)
-    else:
-        r = random_from_json('failure_responses/action_parse.json')
-
-    log_conversation('reply', r)
-    return r
-
-
-def make_speech_responder() -> SpeechResponder:
-    """
-    :return: a speech responder that parses actions and that responds to:
-               - success with a random success speech from the action.
-               - partial with speech determined by the type that failed to parse.
-               - failure with speech from a chat bot,
-    """
-    return SpeechResponder(action(), make_action_speech_response, make_partial_speech_response, make_parse_failure_speech_response)
 
 
 @app.route('/')
@@ -243,16 +244,3 @@ def handle_not_recognised_speech(json):
     # Create some response speech and give it to the client to speak.
     speech = process_not_recognised_speech()
     emit('speech', speech)
-
-
-if __name__ == '__main__':
-    if not GAME_MODE:
-        print("WARNING: Not in Game Mode")
-
-    speech_responder = make_speech_responder()
-
-    # Filling the cache takes a long time as all the tests have to run.
-    preload(fill_cache=FILL_CACHE)
-
-    print('Running Server')
-    socketio.run(app, host='0.0.0.0', port=5000)
