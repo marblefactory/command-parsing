@@ -74,9 +74,30 @@ class ThrowAtGuard(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
-class TakeOutGuard(ActionDefaultPositiveResponseMixin, Action):
+class StrangleGuard(ActionDefaultPositiveResponseMixin, Action):
     """
-    Tells the spy to kill the guard.
+    Tells the spy to kill the guard by strangling them.
+    """
+
+    # The direction of the guard.
+    direction: ObjectRelativeDirection
+
+    def __init__(self, direction: ObjectRelativeDirection):
+        self.direction = direction
+
+    def __str__(self):
+        return 'strangle guard at {}'.format(self.direction)
+
+    def specific_positive_responses(self, game_response: GameResponse) -> List[str]:
+        return [
+            "He's a gonner"
+        ]
+
+
+class AutoTakeOutGuard(ActionDefaultPositiveResponseMixin, Action):
+    """
+    Tells the spy to kill the guard. This is either performed by throwing something at the guard, or by strangling
+    them. The choice is made depending on whether the spy is holding something or not.
     """
 
     # The direction of the guard.

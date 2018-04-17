@@ -160,38 +160,38 @@ class ThrowAtGuardTestCase(unittest.TestCase):
         assert action().parse(s).parsed == ThrowAtGuard(ObjectRelativeDirection.VICINITY)
 
 
-class TakeOutGuardTestCase(unittest.TestCase):
+class AutoTakeOutGuardTestCase(unittest.TestCase):
     def test_kill(self):
         s = pre_process('kill the guard')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
     def test_knock_out(self):
         s = pre_process('knock out the guard')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
     def test_take_out(self):
         s = pre_process('take out the guard')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
     def test_direction(self):
         s = pre_process('take out the guard behind you')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.BACKWARDS)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.BACKWARDS)
 
     def test_take_guard_out(self):
         s = pre_process('take the guard out')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
     def test_attack_guard(self):
         s = pre_process('attack the guard')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
     def test_security(self):
         s = pre_process('attack the security')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
     def test_strangle(self):
         s = pre_process('strangle the guard')
-        assert action().parse(s).parsed == TakeOutGuard(ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
 
 class DropTestCase(unittest.TestCase):

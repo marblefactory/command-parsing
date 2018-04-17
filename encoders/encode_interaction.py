@@ -43,7 +43,7 @@ class ThrowAtGuardEncoder(json.JSONEncoder):
 
 class TakeOutGuardEncoder(json.JSONEncoder):
     """
-    Encodes a TakeOutGuard action.
+    Encodes a AutoTakeOutGuard action.
     """
     def default(self, obj):
         return {

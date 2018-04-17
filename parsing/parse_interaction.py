@@ -137,32 +137,46 @@ def throw() -> Parser:
           .map_parsed(lambda loc: Throw(loc))
 
 
+def _make_guard_parser(verb_parser: Parser, make_action: Callable[[ObjectRelativeDirection], Any]) -> Parser:
+    """
+    :param verb_parser: a parser for the verb indicating the action to take, e.g. throw.
+    :param make_action: creates an action, using the direction of the guard from the spy.
+    :return: a parser which parses a verb, a guard noun, and the direction of the guard from the spy.
+    """
+    return non_consuming(verb_parser) \
+          .ignore_then(guard_noun()) \
+          .ignore_then(object_relative_direction()) \
+          .map_parsed(make_action)
+
+
 def throw_at_guard() -> Parser:
     """
     :return: a parser which parses instructions to throw an object at a guard.
     """
-    return throw_verb() \
-          .ignore_then(guard_noun()) \
-          .ignore_then(object_relative_direction()) \
-          .map_parsed(lambda dir: ThrowAtGuard(dir))
+    return _make_guard_parser(throw_verb(), ThrowAtGuard)
 
 
-def take_out_guard() -> Parser:
+# def strangle_guard() -> Parser:
+#     """
+#     :return: a parser which parses instruction to strangle a guard.
+#     """
+#     strangle_words = ['strangle']
+#     strangle = strongest_word(strangle_words, )
+
+
+def auto_take_out_guard() -> Parser:
     """
     :return: a parser which parsers instructions to kill a guard.
     """
     kill_words = ['kill', 'strangle', 'destroy', 'attack']
-    kill_parser = strongest_word(kill_words, make_word_parsers=[word_meaning_pos(POS.verb)])
+    kill_parser = strongest_word(kill_words, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     knock_out = word_match('knock').ignore_then(word_match('out'))
     take_out = word_match('take').ignore_then(word_match('out'))
 
     verb_parser = strongest([kill_parser, knock_out, take_out])
 
-    return non_consuming(verb_parser) \
-          .ignore_then(guard_noun()) \
-          .ignore_then(object_relative_direction()) \
-          .map_parsed(lambda dir: TakeOutGuard(dir))
+    return _make_guard_parser(verb_parser, AutoTakeOutGuard)
 
 
 def pickpocket() -> Parser:
@@ -174,7 +188,7 @@ def pickpocket() -> Parser:
     take = word_match('take').ignore_then(guard_noun())
     verb_parser = strongest([pickpocket, take])
 
-    return verb_parser \
+    return non_consuming(verb_parser) \
           .ignore_then(object_relative_direction()) \
           .map_parsed(lambda dir: Pickpocket(dir))
 

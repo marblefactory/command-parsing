@@ -49,7 +49,7 @@ class ThrowAtGuardEncoderTestCase(unittest.TestCase):
 
 class TakeOutGuardEncoderTestCase(unittest.TestCase):
     def test_encode(self):
-        take_out = TakeOutGuard(ObjectRelativeDirection.FORWARDS)
+        take_out = AutoTakeOutGuard(ObjectRelativeDirection.FORWARDS)
 
         expected = {
             'type': 'attack',

@@ -83,7 +83,7 @@ class ActionEncoder(json.JSONEncoder):
             encoder = SeeObjectQuestionEncoder
         elif isinstance(obj, DestroyGenerator):
             encoder = DestroyGeneratorEncoder
-        elif isinstance(obj, TakeOutGuard):
+        elif isinstance(obj, AutoTakeOutGuard):
             encoder = TakeOutGuardEncoder
         elif isinstance(obj, TimeRemainingQuestion):
             encoder = TimeRemainingQuestionEncoder
