@@ -160,6 +160,16 @@ class ThrowAtGuardTestCase(unittest.TestCase):
         assert action().parse(s).parsed == ThrowAtGuard(ObjectRelativeDirection.VICINITY)
 
 
+class StrangleGuardTestCase(unittest.TestCase):
+    def test_strangle(self):
+        s = pre_process('strangle the guard')
+        assert action().parse(s).parsed == StrangleGuard(ObjectRelativeDirection.VICINITY)
+
+    def test_strangle_direction(self):
+        s = pre_process('strangle the guard on your left')
+        assert action().parse(s).parsed == StrangleGuard(ObjectRelativeDirection.LEFT)
+
+
 class AutoTakeOutGuardTestCase(unittest.TestCase):
     def test_kill(self):
         s = pre_process('kill the guard')
@@ -187,10 +197,6 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
 
     def test_security(self):
         s = pre_process('attack the security')
-        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
-
-    def test_strangle(self):
-        s = pre_process('strangle the guard')
         assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
 

@@ -41,7 +41,18 @@ class ThrowAtGuardEncoder(json.JSONEncoder):
         }
 
 
-class TakeOutGuardEncoder(json.JSONEncoder):
+class StrangleGuardEncoder(json.JSONEncoder):
+    """
+    Encodes a StrangleGuard action.
+    """
+    def default(self, obj):
+        return {
+            'type': 'strangle',
+            'direction': obj.direction
+        }
+
+
+class AutoTakeOutGuardEncoder(json.JSONEncoder):
     """
     Encodes a AutoTakeOutGuard action.
     """

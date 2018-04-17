@@ -47,7 +47,19 @@ class ThrowAtGuardEncoderTestCase(unittest.TestCase):
         assert expected == json.loads(json.dumps(throw, cls=ActionEncoder))
 
 
-class TakeOutGuardEncoderTestCase(unittest.TestCase):
+class StrangleGuardEncoderTestCase(unittest.TestCase):
+    def test_encode(self):
+        strangle = StrangleGuard(ObjectRelativeDirection.VICINITY)
+
+        expected = {
+            'type': 'strangle',
+            'direction': 'vicinity'
+        }
+
+        assert expected == json.loads(json.dumps(strangle, cls=ActionEncoder))
+
+
+class AutoTakeOutGuardEncoderTestCase(unittest.TestCase):
     def test_encode(self):
         take_out = AutoTakeOutGuard(ObjectRelativeDirection.FORWARDS)
 

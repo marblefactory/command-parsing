@@ -156,19 +156,21 @@ def throw_at_guard() -> Parser:
     return _make_guard_parser(throw_verb(), ThrowAtGuard)
 
 
-# def strangle_guard() -> Parser:
-#     """
-#     :return: a parser which parses instruction to strangle a guard.
-#     """
-#     strangle_words = ['strangle']
-#     strangle = strongest_word(strangle_words, )
+def strangle_guard() -> Parser:
+    """
+    :return: a parser which parses instruction to strangle a guard.
+    """
+    strangle_words = ['strangle']
+    strangle = strongest_word(strangle_words, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+
+    return _make_guard_parser(strangle, StrangleGuard)
 
 
 def auto_take_out_guard() -> Parser:
     """
     :return: a parser which parsers instructions to kill a guard.
     """
-    kill_words = ['kill', 'strangle', 'destroy', 'attack']
+    kill_words = ['kill', 'destroy', 'attack']
     kill_parser = strongest_word(kill_words, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
 
     knock_out = word_match('knock').ignore_then(word_match('out'))

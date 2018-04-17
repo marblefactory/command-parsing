@@ -38,6 +38,7 @@ def single_action() -> Parser:
         change_speed().map_response(lambda r: r * 0.7),  # Because move also looks for speeds, and this matches on less.
         turn(),
         auto_take_out_guard(),
+        strangle_guard(),
         pickpocket(),
         pick_up(),
         drop(),
