@@ -29,7 +29,7 @@ socketio = SocketIO(app, engineio_logger=True, async_mode='eventlet')
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = True
+GAME_MODE = False
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
 GAME_SERVER = 'http://192.168.0.16:8080/'
@@ -163,7 +163,7 @@ def preload(fill_cache: bool):
     if fill_cache:
         print('Filling Cache (Running Tests)...')
         loader = TestLoader()
-        suite = loader.discover(start_dir='../tests/parsing')
+        suite = loader.discover(start_dir='tests/parsing')
         TextTestRunner(verbosity=0).run(suite)
 
 
@@ -246,16 +246,3 @@ def handle_not_recognised_speech(json):
     # Create some response speech and give it to the client to speak.
     speech = process_not_recognised_speech()
     emit('speech', speech)
-#
-
-# if __name__ == '__main__':
-#     if not GAME_MODE:
-#         print("WARNING: Not in Game Mode")
-#
-#     speech_responder = make_speech_responder()
-#
-#     # Filling the cache takes a long time as all the tests have to run.
-#     preload(fill_cache=FILL_CACHE)
-#
-#     print('Running Server')
-#     socketio.run(app, host='0.0.0.0', port=5000)
