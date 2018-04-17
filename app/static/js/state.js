@@ -233,6 +233,8 @@ class RecognitionState extends State {
         // We haven't called stop() yet, so we know neither of these will be called yet.
         gRecognition.onresult = this._onRecognitionResult.bind(this);
         gRecognition.onend = this._onNoRecognitionResult.bind(this);
+        gRecognition.onnomatch = this._onNoRecognitionResult.bind(this);
+        gRecognition.onerror = this._onRecognitionError.bind(this);
         gRecognition.stop();
     }
 
@@ -240,6 +242,8 @@ class RecognitionState extends State {
         super.exitState();
         gRecognition.onresult = null;
         gRecognition.onend = null;
+        gRecognition.onnomatch = null;
+        gRecognition.onerror = null;
     }
 
     /**
@@ -272,6 +276,16 @@ class RecognitionState extends State {
             var newState = new SendRecvSpeechState(null, this.stateDiv);
             super.segueToState(newState);
         }
+    }
+
+    /**
+     * Callback for an error occurring in parsing.
+     */
+    _onRecognitionError(event) {
+        console.log("Speech recognition error occurred");
+
+        var newState = new SendRecvSpeechState(null, this.stateDiv);
+        super.segueToState(newState);
     }
 }
 
