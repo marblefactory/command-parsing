@@ -209,8 +209,10 @@ class TimeRemainingQuestion(Question):
         :return: responses that confirm that the spy can see the requested object.
         """
         mins_remaining = game_response['mins_remaining']
+
+        minute_word = 'minute' if mins_remaining == 1 else 'minutes'
         return [
-            "There's only {} minutes remaining".format(mins_remaining),
-            "There's only {} minutes left".format(mins_remaining),
-            "Hurry, we've only got {} minutes".format(mins_remaining)
+            "There's only {} {} remaining".format(mins_remaining, minute_word),
+            "There's only {} {} left".format(mins_remaining, minute_word),
+            "Hurry, we've only got {} {}".format(mins_remaining, minute_word)
         ]
