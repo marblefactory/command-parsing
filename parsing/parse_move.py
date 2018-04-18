@@ -181,4 +181,4 @@ def leave_room() -> Parser:
     :return: a parser which tells the spy to leave the room they're in, e.g. 'leave the room'.
     """
     leave_verbs = ['leave', 'out']
-    return strongest_word(leave_verbs).ignore_parsed(LeaveRoom())
+    return strongest_word(leave_verbs).ignore_parsed(ThroughDoor(ObjectRelativeDirection.VICINITY))
