@@ -374,6 +374,10 @@ class ThroughDoorTestCase(unittest.TestCase):
         s = pre_process('enter the room on your right')
         assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.RIGHT)
 
+    def test_go_inside(self):
+        s = pre_process('go inside the room')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
 
 class LeaveRoomTestCase(unittest.TestCase):
     def test_parse(self):
