@@ -216,49 +216,33 @@ class RecordingState extends State {
 
         this.stateDiv.innerHTML += 'Release to stop recording...<br/>';
 
-        super.addListener('keyup', () => super.segue(RecognitionState));
+        gRecognition.onresult = this._onRecognitionResult.bind(this);
+        gRecognition.onend = this._onNoRecognitionResult.bind(this);
+        gRecognition.onnomatch = this._onNoRecognitionResult.bind(this);
+        gRecognition.onerror = this._onRecognitionError.bind(this);
+
         // Stop is called by the next state.
         gRecognition.start();
+
+        super.addListener('keyup', () => this._stopRecognition());
     }
 
     exitState() {
         super.exitState();
         play('#radio_static_end');
-    }
-}
 
-/**
- * Stops recognising speech when entered,
- * then displays a message that the recorded is being sent to the spy while recognition is occurring.
- */
-class RecognitionState extends State {
-    constructor(stateDiv) {
-        super(stateDiv, 'Recognition');
-
-        // This is needed because the callback onnomatch for webkitSpeechRecognition does not work.
-        this._recognisedSpeech = false;
-    }
-
-    enterState() {
-        super.enterState();
-
-        // To mask that the speech is being recognised, and that we need to wait for the server.
-        this.stateDiv.innerHTML += '<br/>Sending...<br/>';
-
-        // We haven't called stop() yet, so we know neither of these will be called yet.
-        gRecognition.onresult = this._onRecognitionResult.bind(this);
-        gRecognition.onend = this._onNoRecognitionResult.bind(this);
-        gRecognition.onnomatch = this._onNoRecognitionResult.bind(this);
-        gRecognition.onerror = this._onRecognitionError.bind(this);
-        gRecognition.stop();
-    }
-
-    exitState() {
-        super.exitState();
         gRecognition.onresult = null;
         gRecognition.onend = null;
         gRecognition.onnomatch = null;
         gRecognition.onerror = null;
+    }
+
+    /**
+     * Stops the recogniser
+     */
+    _stopRecognition() {
+        gRecognition.stop();
+        this.stateDiv.innerHTML += '<br/>Sending...<br/>';
     }
 
     /**
@@ -297,7 +281,7 @@ class RecognitionState extends State {
      * Callback for an error occurring in parsing.
      */
     _onRecognitionError(event) {
-        console.log("Speech recognition error occurred");
+        console.log(`Speech recognition error occurred: ${event.error}`);
 
         var newState = new SendRecvSpeechState(null, this.stateDiv);
         super.segueToState(newState);
