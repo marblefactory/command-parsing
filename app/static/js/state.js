@@ -50,10 +50,12 @@ function speak(text, preferred_voice, callback) {
 class State {
     /**
      * @param {Element} stateDiv - the div in which text will be displayed.
+     * @param {string} stateName - the name of the state. Used for logging.
      */
-    constructor(stateDiv) {
+    constructor(stateDiv, stateName) {
         this.stateDiv = stateDiv;
         this.eventHandlers = [];
+        this.stateName = stateName;
     }
 
     /**
@@ -77,6 +79,7 @@ class State {
      * Can be used to display any text required in the state div, and add event handlers.
      */
     enterState() {
+        console.log(`Entered: ${this.stateName}`);
     }
 
     /**
@@ -84,6 +87,8 @@ class State {
      * Can be used to perform cleanup such as removing event handlers.
      */
     exitState() {
+        console.log(`Exited: ${this.stateName}`);
+
         for (var i=0; i<this.eventHandlers.length; i++) {
             var handlerRef = this.eventHandlers[i];
             document.removeEventListener(handlerRef.event, handlerRef.callback);
@@ -114,10 +119,12 @@ class State {
  */
 class ConnectWaitingState extends State {
     constructor(stateDiv) {
-        super(stateDiv);
+        super(stateDiv, 'Connect Intro Waiting');
     }
 
     enterState() {
+        super.enterState();
+
         this.stateDiv.innerHTML = 'Press any key to start connecting';
         super.addListener('keyup', () => super.segue(ConnectingState));
     }
@@ -128,10 +135,12 @@ class ConnectWaitingState extends State {
  */
 class ConnectingState extends State {
     constructor(stateDiv) {
-        super(stateDiv);
+        super(stateDiv, 'Connecting Intro');
     }
 
     enterState() {
+        super.enterState();
+
         // The text to display and the time (ms) to wait before showing the next text.
         var texts = [
             ['SpySpeakBIOS 4.0 Release 6.0', 450],
@@ -176,10 +185,12 @@ class ConnectingState extends State {
  */
 class RecordWaitingState extends State {
     constructor(stateDiv) {
-        super(stateDiv);
+        super(stateDiv, 'Record Waiting');
     }
 
     enterState() {
+        super.enterState();
+
         this.stateDiv.innerHTML = 'Press any to start recording...<br/>';
         super.addListener('keydown', () => super.segue(RecordingState));
     }
@@ -197,10 +208,12 @@ class RecordWaitingState extends State {
  */
 class RecordingState extends State {
     constructor(stateDiv) {
-        super(stateDiv);
+        super(stateDiv, 'Recording');
     }
 
     enterState() {
+        super.enterState();
+
         this.stateDiv.innerHTML += 'Release to stop recording...<br/>';
 
         super.addListener('keyup', () => super.segue(RecognitionState));
@@ -220,13 +233,15 @@ class RecordingState extends State {
  */
 class RecognitionState extends State {
     constructor(stateDiv) {
-        super(stateDiv);
+        super(stateDiv, 'Recognition');
 
         // This is needed because the callback onnomatch for webkitSpeechRecognition does not work.
         this._recognisedSpeech = false;
     }
 
     enterState() {
+        super.enterState();
+
         // To mask that the speech is being recognised, and that we need to wait for the server.
         this.stateDiv.innerHTML += '<br/>Sending...<br/>';
 
@@ -300,12 +315,14 @@ class SendRecvSpeechState extends State {
      * @param {Optional[string]} recognisedSpeech - the recognised speech, or null if nothing was recognised.
      */
     constructor(recognisedSpeech, stateDiv) {
-        super(stateDiv);
+        super(stateDiv, 'SendRecvSpeech');
         this.recognisedSpeech = recognisedSpeech;
         this._listener = this._onSpeechResponseReceived.bind(this);
     }
 
     enterState() {
+        super.enterState();
+
         gSocket.on('speech', this._listener);
 
         // Start sending the recognised speech to the server.
