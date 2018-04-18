@@ -38,19 +38,24 @@ TRAIN_CHATBOT = False
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = True
+FILL_CACHE = False
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('Ethan')
 
-def make_action_speech_response(game_response: GameResponse, action: Action) -> str:
+
+def action_was_successful(game_json: GameResponse) -> bool:
+    return game_json.get('type') != 'failure'
+
+
+def make_action_speech_response(game_json: GameResponse, action: Action) -> str:
     """
     :param game_response: the JSON response from the game.
     :param action: the action that was parsed.
     :return: the speech response to say to the user indicating whether or not the action was performed.
     """
     # Choose from negative or positive responses depending on whether the action could be performed.
-    responses = action.positive_responses(game_response) if game_response['success'] else action.negative_responses()
+    responses = action.positive_responses(game_json) if action_was_successful(game_json) else action.negative_responses()
     random_index = randrange(0, len(responses))
     speech_reply = responses[random_index]
 
@@ -164,18 +169,8 @@ def process_transcript(transcript: str) -> str:
         # For example, if the spy was asked to pickup an object the action could fail if there are none of the
         # specified objects around.
         if game_response.status_code == 200:
-            # TODO: Remove sample JSON
-            sample_json = {
-                'success': True,  # Indicates whether the action could be performed in the game.
-                'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
-                'location': 'the computer lab',  # For if the user asks where the spy is.
-                'num_guards': randrange(0, 10),  # For if the user asks about guards
-                'surroundings': ['server', 'camera', 'camera'],  # For if the user asks about the spy's surroundings
-                'mins_remaining': randrange(1, 5)
-            }
-            response = make_speech(sample_json)
+            response = make_speech(game_response.json())
 
-            #response = make_speech(game_response.json())
         else:
             log_conversation('ERROR: Unsuccessful response from game', game_response)
             response = ''
