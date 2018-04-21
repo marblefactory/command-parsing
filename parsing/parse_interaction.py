@@ -23,7 +23,7 @@ def guard_noun() -> Parser:
     """
     :return: a parser for the word guard, or similar words.
     """
-    guard_words = ['guard', 'enemy', 'security']
+    guard_words = ['guard', 'enemy', 'security', 'guy']
     corrections = ['card', 'god', 'aids', 'jobs', 'dogs', 'car', 'ga']
     return words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 
@@ -176,7 +176,10 @@ def auto_take_out_guard() -> Parser:
     knock_out = word_match('knock').ignore_then(word_match('out'))
     take_out = word_match('take').ignore_then(word_match('out'))
 
-    verb_parser = strongest([kill_parser, knock_out, take_out])
+    # 'Kill the guard' is often interpreted as 'hildegard'
+    hildegard_correction = word_match('hildegard')
+
+    verb_parser = strongest([kill_parser, knock_out, take_out, hildegard_correction])
 
     return _make_guard_parser(verb_parser, AutoTakeOutGuard)
 
