@@ -114,7 +114,7 @@ def absolute_place_names() -> Parser:
 
 
     lab_spelling = partial(word_spelling, dist_threshold=0.24)
-    lab_corrections = ['live', 'love']
+    lab_corrections = ['live', 'love', 'level']
     lab = words_and_corrections(['lab'], lab_corrections, make_word_parsers=[lab_spelling]).ignore_parsed('lab')
 
     storage_x = word_match('storage').then(append(number_or_1()))

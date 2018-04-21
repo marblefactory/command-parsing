@@ -121,6 +121,10 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to love 3')
         assert action().parse(s).parsed.location == Absolute('lab 3')
 
+    def test_parses_level_as_lab(self):
+        s = pre_process('go to level 1')
+        assert action().parse(s).parsed.location == Absolute('lab 1')
+
     def test_parses_meeting_room(self):
         s = pre_process('go to meeting room 89')
         assert action().parse(s).parsed.location == Absolute('meeting room 89')
