@@ -199,6 +199,10 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('attack the security')
         assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
+    def test_hildegard(self):
+        s = pre_process('hildegard')
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
+
 
 class DropTestCase(unittest.TestCase):
     def test_drop(self):

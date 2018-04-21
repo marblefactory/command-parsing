@@ -382,4 +382,4 @@ class ThroughDoorTestCase(unittest.TestCase):
 class LeaveRoomTestCase(unittest.TestCase):
     def test_parse(self):
         s = pre_process('leave the room')
-        assert action().parse(s).parsed == ThroughDoor()
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)

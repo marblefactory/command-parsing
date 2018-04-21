@@ -176,12 +176,13 @@ def auto_take_out_guard() -> Parser:
     knock_out = word_match('knock').ignore_then(word_match('out'))
     take_out = word_match('take').ignore_then(word_match('out'))
 
+    verb_parser = strongest([kill_parser, knock_out, take_out])
+    parser = _make_guard_parser(verb_parser, AutoTakeOutGuard)
+
     # 'Kill the guard' is often interpreted as 'hildegard'
-    hildegard_correction = word_match('hildegard')
+    hildegard_correction = word_match('hildegard').ignore_parsed(AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
 
-    verb_parser = strongest([kill_parser, knock_out, take_out, hildegard_correction])
-
-    return _make_guard_parser(verb_parser, AutoTakeOutGuard)
+    return strongest([parser, hildegard_correction])
 
 
 def pickpocket() -> Parser:
