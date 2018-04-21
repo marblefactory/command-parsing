@@ -141,6 +141,10 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to the kitchen')
         assert action().parse(s).parsed.location == Absolute('kitchen')
 
+    def test_parses_kit_as_kitchen(self):
+        s = pre_process('go to the kit')
+        assert action().parse(s).parsed.location == Absolute('kitchen')
+
     def test_parses_gun_range(self):
         s = pre_process('go to the gun range')
         assert action().parse(s).parsed.location == Absolute('gun range')
