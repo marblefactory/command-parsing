@@ -48,7 +48,7 @@ class SpeechResponder:
 
         if isinstance(result, SuccessParse):
             self._partial = None
-            action = result.parsed.post_processed()
+            action = result.parsed#.post_processed()
             return (lambda game_response: self.parsed_response(game_response, action), action)
 
         elif isinstance(result, PartialParse):

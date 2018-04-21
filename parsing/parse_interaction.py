@@ -1,22 +1,8 @@
 from actions.interaction import *
 from parsing.parser import *
-from parsing.parse_location import object_relative_direction, positional, directional, behind
+from parsing.parse_location import object_relative_direction, positional, directional, behind, pickupable_object_name
 from actions.location import Directional, Distance
 from actions.location import MoveDirection
-
-
-def pickupable_object_name() -> Parser:
-    """
-    :return: a parser for the names of objects which can be picked up and thrown.
-    """
-    # Objects the player can actually pick up.
-    names = ['rock', 'hammer', 'bottle', 'cup', 'can', 'beaker']
-
-    rock_correction = word_match('ra').ignore_parsed('rock')
-    # Strongly recognises the names of actual objects in the game, and weakly matches on other nouns.
-    objects = object_spelled(names, other_noun_response=0.25)
-
-    return strongest([objects, rock_correction])
 
 
 def guard_noun() -> Parser:
@@ -112,7 +98,7 @@ def throw_verb() -> Parser:
     throw_verbs = ['chuck', 'throw']
     corrections = ['show', 'stoner', 'through', 'check', 'shut', 'row', 'road', 'roller', 'roll', 'rover', 'role', 'rolling']
     match = partial(word_match, consume=Consume.WORD_ONLY)
-    return  words_and_corrections(throw_verbs, corrections, make_word_parsers=[match])
+    return words_and_corrections(throw_verbs, corrections, make_word_parsers=[match])
 
 
 def throw() -> Parser:
@@ -132,7 +118,7 @@ def throw() -> Parser:
     # The name of the object is not used, since the spy can only hold one object at once, however it is needed for a
     # successful parse.
     return throw_verb() \
-          .ignore_then(non_consuming(pickupable_object_name()), lambda verb_r, obj_r: obj_r) \
+          .ignore_then(pickupable_object_name(), lambda verb_r, obj_r: obj_r) \
           .ignore_then(target, mix) \
           .map_parsed(lambda loc: Throw(loc))
 

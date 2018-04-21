@@ -3,19 +3,29 @@ from parsing.parser import *
 from functools import partial
 import itertools
 
+def pickupable_object_name(include_other_nouns = True) -> Parser:
+    """
+    :return: a parser for the names of objects which can be picked up and thrown.
+    """
+    # Objects the player can actually pick up.
+    names = ['rock', 'hammer', 'bottle', 'cup', 'can', 'beaker']
+
+    rock_correction = word_match('ra', consume=Consume.WORD_ONLY).ignore_parsed('rock')
+    # Strongly recognises the names of actual objects in the game, and weakly matches on other nouns.
+    match = partial(word_match, consume=Consume.WORD_ONLY)
+    objects = object_spelled(names, other_noun_response=0.25) if include_other_nouns else strongest_word(names, make_word_parsers=[match])
+
+    return strongest([objects, rock_correction])
+
 
 def move_object_name() -> Parser:
     """
     :return: a parser which parses names of objects which can be moved to, i.e. table, door, desk.
     """
-    object_names = [
-        'table', 'door', 'desk', 'server', 'room', 'corridor', 'wall', 'pillar', 'couch', 'sofa'
-    ]
+    object_names = ['table', 'door', 'desk', 'server', 'room', 'corridor', 'wall', 'pillar', 'couch', 'sofa']
+    object = strongest_word(object_names)
 
-    def condition(input_word: Word) -> Response:
-        return float(input_word in object_names)
-
-    return predicate(condition)
+    return strongest([object, pickupable_object_name(include_other_nouns=False)])
 
 
 def ordinal_number() -> Parser:

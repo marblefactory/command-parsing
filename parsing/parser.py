@@ -577,7 +577,8 @@ def words_and_corrections(words: List[Word], corrections: List[Word], make_word_
              corrections.
     """
     words_parser = strongest_word(words, make_word_parsers=make_word_parsers)
-    corrections_parser = strongest_word(corrections)
+    match = partial(word_match, consume=Consume.WORD_ONLY)
+    corrections_parser = strongest_word(corrections, make_word_parsers=[match])
     return strongest([words_parser, corrections_parser], debug=debug)
 
 
@@ -588,8 +589,8 @@ def object_spelled(names: List[str], other_noun_response: Response) -> Parser:
     :return: a parser which strongly recognises spelling of the given names, and can also recognise other nouns.
     """
     # Objects the player can actually pick up.
-    spelling = partial(word_spelling, dist_threshold=other_noun_response)
-    objects = strongest_word(names, make_word_parsers=[word_match, spelling])
+    spelling = partial(word_spelling, dist_threshold=other_noun_response, consume=Consume.WORD_ONLY)
+    objects = strongest_word(names, make_word_parsers=[partial(word_match, consume=Consume.WORD_ONLY), spelling])
     # Objects which are recognised, but the user cannot pickup. These have a lower response.
     nouns = ['NN', 'NNS']
     other_objects = word_tagged(nouns).map_response(lambda _: other_noun_response)
