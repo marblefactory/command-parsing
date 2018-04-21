@@ -1,4 +1,4 @@
-import json
+from actions.action import Composite
 
 from encoders.encode_location import *
 
@@ -79,7 +79,6 @@ class MoveEncoder(json.JSONEncoder):
         'stance'  : The stance
         'speed'   : The speed of travel
     """
-
     def default(self, obj):
         return {
             'type': 'move',

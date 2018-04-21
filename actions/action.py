@@ -47,6 +47,13 @@ class Action(EquatableMixin):
         """
         return ["I can't do that"]
 
+    def post_processed(self) -> 'Action':
+        """
+        :return: a post processed version of the action. Useful for changing the action into another form ready to
+                 be sent to the game.
+        """
+        return self
+
     @classmethod
     def partial_response(cls) -> str:
         """

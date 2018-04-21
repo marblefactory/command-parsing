@@ -1,5 +1,5 @@
-from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse
-from actions.location import Location, MoveDirection, ObjectRelativeDirection
+from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse, Composite
+from actions.location import Location, MoveDirection, ObjectRelativeDirection, Absolute
 from utils import PartialClassMixin
 from typing import Optional, List
 
@@ -86,6 +86,16 @@ class Move(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
             'OK',
             'Affirmative'
         ]
+
+    def post_processed(self) -> Action:
+        """
+        :return: if the move is to an absolute location, the spy should enter the room after. Therefore, a composite
+                 action is created containing this move, and a through door action.
+                 Otherwise, just this action is returned.
+        """
+        if isinstance(self.location, Absolute):
+            return Composite([self, ThroughDoor(ObjectRelativeDirection.VICINITY)])
+        return self
 
     @classmethod
     def partial_response(cls) -> str:
