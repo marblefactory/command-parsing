@@ -175,7 +175,7 @@ def process_transcript(transcript: str) -> str:
                     response = make_speech(game_json)
                 except:
                     log_conversation('game json', 'no JSON')
-                    response = random_from_json('./failure_responses/transcription.json')
+                    response = make_speech({})
 
         except:
             log_conversation('ERROR', 'No Response')
