@@ -31,7 +31,7 @@ socketio = SocketIO(app, engineio_logger=True, async_mode='eventlet')
 GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.1.101:8080/'
+GAME_SERVER = 'http://192.168.1.144:8080/'
 
 # If True then the chatbot is trained fully. Otherwise the chatbot uses whatever it has been trained on.
 TRAIN_CHATBOT = False
@@ -161,27 +161,20 @@ def process_transcript(transcript: str) -> str:
             game_response = get_game_response(addr_postfix, action)
             log_conversation('server', game_response)
         except:
-            log_conversation('SERVER ERROR', 'No Response')
+            log_conversation('ERROR', 'No Response')
             return random_from_json('./failure_responses/transcription.json')
 
         try:
             game_json = game_response.json()
             log_conversation('server json', game_json)
+            response = make_speech(game_json)
         except:
-            pass
-
-        # We got a response from the server, however this does not mean the action was necessarily performed.
-        # For example, if the spy was asked to pickup an object the action could fail if there are none of the
-        # specified objects around.
-        if game_response.status_code == 200:
-            response = make_speech(game_response.json())
-
-        else:
             log_conversation('ERROR: Unsuccessful response from game', game_response)
-            response = ''
+            response = random_from_json('./failure_responses/transcription.json')
     else:
         response = make_speech({})
 
+    log_conversation('speech response', response)
     return response
 
 
