@@ -333,6 +333,14 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('go left a long way')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.FAR), None)
 
+    def test_go_to_pickupable1(self):
+        s = pre_process('go to the rock')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('rock', 0, ObjectRelativeDirection.VICINITY), None)
+
+    def test_go_to_pickupable2(self):
+        s = pre_process('go to the bottle')
+        assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('bottle', 0, ObjectRelativeDirection.VICINITY), None)
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):

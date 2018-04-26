@@ -25,7 +25,7 @@ def move_object_name() -> Parser:
     object_names = ['table', 'door', 'desk', 'server', 'room', 'corridor', 'wall', 'pillar', 'couch', 'sofa']
     object = strongest_word(object_names)
 
-    return strongest([object, pickupable_object_name(include_other_nouns=False)])
+    return object
 
 
 def ordinal_number() -> Parser:
@@ -187,20 +187,29 @@ def positional() -> Parser:
         # Partially applies the parsed position to the constructor of Positional.
         return ord.map(lambda parsed_num, r2: (partial(makePos, parsed_num), mix(r1, r2, 0.2)))
 
-    def combine_direction(makePos: Callable, r1: Response) -> Parser:
-        default = produce(parsed=MoveDirection.FORWARDS, response=0)
-        dir = strongest([non_consuming(move_direction()), default])
+    def combine_direction(default_dir: ObjectRelativeDirection) -> Callable[[Callable, Response], Parser]:
+        def f(makePos: Callable, r1: Response) -> Parser:
+            default = produce(parsed=default_dir, response=0)
+            dir = strongest([non_consuming(move_direction()), default])
 
-        # Completes the Positional constructor by supplying the direction.
-        return dir.map(lambda parsed_dir, r2: (makePos(parsed_dir), mix(r1, r2, 0.2)))
+            # Completes the Positional constructor by supplying the direction.
+            return dir.map(lambda parsed_dir, r2: (makePos(parsed_dir), mix(r1, r2, 0.2)))
+
+        return f
+
+    def make_parser(move_obj: Parser, default_dir: ObjectRelativeDirection) -> Parser:
+        # Partially applies the parsed object name to the Positional init.
+        obj = non_consuming(move_obj) \
+             .map_parsed(lambda parsed_name: partial(Positional.partial_init(), parsed_name))
+
+        return obj.then(combine_ordinal_num) \
+              .then(combine_direction(default_dir))
 
 
-    # Partially applies the parsed object name to the Positional init.
-    obj = non_consuming(move_object_name()) \
-         .map_parsed(lambda parsed_name: partial(Positional.partial_init(), parsed_name))
+    obj = make_parser(move_object_name(), ObjectRelativeDirection.FORWARDS)
+    pickupable = make_parser(pickupable_object_name(include_other_nouns=False), ObjectRelativeDirection.VICINITY)
 
-    return obj.then(combine_ordinal_num) \
-              .then(combine_direction)
+    return strongest([obj, pickupable])
 
 
 def directional(default: Optional[MoveDirection] = None) -> Parser:

@@ -135,7 +135,6 @@ class ThrowTestCase(unittest.TestCase):
 
     def test_long_distance(self):
         s = pre_process('throw the rock a long way')
-        print(action().parse(s).parsed)
         assert action().parse(s).parsed == Throw(Directional(MoveDirection.FORWARDS, Distance.FAR))
 
     def test_throw_backwards(self):
