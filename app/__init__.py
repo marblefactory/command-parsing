@@ -12,7 +12,7 @@ from requests import Response
 
 
 from interface.speech_responder import SpeechResponder
-from actions.action import Action
+from actions.action import Action, ActionErrorCode
 from encoders.encode_action import ActionEncoder
 from parsing.parse_action import action
 from actions.action import GameResponse
@@ -38,7 +38,7 @@ TRAIN_CHATBOT = False
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = True
+FILL_CACHE = False
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('Ethan')
@@ -128,12 +128,14 @@ def mock_post_to_game(addr_postfix: str, action: Action) -> Mock:
     r = Mock(spec=Response)
     r.status_code = 200
     r.json.return_value = {
-        'success': True,  # Indicates whether the action could be performed in the game.
+        'type': 'failure',  # Indicates whether the action could be performed in the game.
         'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
         'location': 'the computer lab',  # For if the user asks where the spy is.
         'num_guards': randrange(0, 10),  # For if the user asks about guards
         'surroundings': ['server', 'camera', 'camera'],  # For if the user asks about the spy's surroundings
-        'mins_remaining': randrange(1, 5)
+        'mins_remaining': randrange(1, 5),
+        'error_code': ActionErrorCode.CANNOT_SEE,
+        'subject': 'rock'
     }
     return r
 
