@@ -1,4 +1,4 @@
-from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse, Composite
+from actions.action import Action, GameResponse, Composite
 from actions.location import Location, MoveDirection, ObjectRelativeDirection, Absolute
 from utils import PartialClassMixin
 from typing import Optional, List
@@ -15,7 +15,7 @@ class Stance:
     STAND = 'stand'
 
 
-class Turn(ActionDefaultPositiveResponseMixin, Action):
+class Turn(Action):
     """
     Tells the spy to turn to a particular direction.
     """
@@ -29,7 +29,7 @@ class Turn(ActionDefaultPositiveResponseMixin, Action):
         return 'turn {}'.format(self.direction)
 
 
-class ChangeStance(ActionDefaultPositiveResponseMixin, Action):
+class ChangeStance(Action):
     """
     Tells the spy to change their stance.
     """
@@ -43,7 +43,7 @@ class ChangeStance(ActionDefaultPositiveResponseMixin, Action):
         return 'change stance to {}'.format(self.stance)
 
 
-class ChangeSpeed(ActionDefaultPositiveResponseMixin, Action):
+class ChangeSpeed(Action):
     """
     Tells the spy to change the speed they're performing their current movement at.
     """
@@ -57,7 +57,7 @@ class ChangeSpeed(ActionDefaultPositiveResponseMixin, Action):
         return 'change speed to {}'.format(self.speed)
 
 
-class Move(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
+class Move(PartialClassMixin, Action):
     """
     Tells the spy to move to a location.
     """
@@ -105,7 +105,7 @@ class Move(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
         return 'To where?'
 
 
-class Hide(ActionDefaultPositiveResponseMixin, Action):
+class Hide(Action):
     """
     Tells the spy to hide behind an object. If no object is given, the spy will hide behind the closest object.
     """
@@ -128,7 +128,7 @@ class Hide(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
-class ThroughDoor(ActionDefaultPositiveResponseMixin, Action):
+class ThroughDoor(Action):
     """
     Tells the spy to open the nearest door and walk through it.
     """
@@ -142,7 +142,7 @@ class ThroughDoor(ActionDefaultPositiveResponseMixin, Action):
         return 'through door on {}'.format(self.direction)
 
 
-class LeaveRoom(ActionDefaultPositiveResponseMixin, Action):
+class LeaveRoom(Action):
     """
     Tells the spy to leave they room they are in.
     """

@@ -55,11 +55,21 @@ def make_action_speech_response(game_json: GameResponse, action: Action) -> str:
     :return: the speech response to say to the user indicating whether or not the action was performed.
     """
     # Choose from negative or positive responses depending on whether the action could be performed.
-    responses = action.positive_responses(game_json) if action_was_successful(game_json) else action.negative_responses()
-    random_index = randrange(0, len(responses))
-    speech_reply = responses[random_index]
+    if action_was_successful(game_json):
+        log_conversation('speech reply', 'positive')
+        responses = action.positive_responses(game_json)
+    else:
+        log_conversation('speech reply', 'negative')
+        responses = action.negative_responses(game_json)
 
-    log_conversation('success reply', speech_reply)
+    if responses == []:
+        log_conversation('speech reply', 'empty response list, using transcription.json')
+        speech_reply = random_from_json('./failure_responses/transcription.json')
+    else:
+        random_index = randrange(0, len(responses))
+        speech_reply = responses[random_index]
+
+    log_conversation('speech reply', speech_reply)
 
     return speech_reply
 

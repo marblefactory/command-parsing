@@ -1,10 +1,10 @@
-from actions.action import Action, ActionDefaultPositiveResponseMixin, GameResponse
+from actions.action import Action, GameResponse
 from actions.location import ObjectRelativeDirection, Location
 from utils import PartialClassMixin
 from typing import List
 
 
-class PickUp(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
+class PickUp(PartialClassMixin, Action):
     """
     Tells the spy to pick up an object, e.g. pick up the rock on your left.
     """
@@ -27,7 +27,7 @@ class PickUp(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
         return 'Pick-up what?'
 
 
-class Throw(ActionDefaultPositiveResponseMixin, Action):
+class Throw(Action):
     """
     Tells the spy to throw whatever object they've picked up.
     """
@@ -50,7 +50,7 @@ class Throw(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
-class ThrowAtGuard(ActionDefaultPositiveResponseMixin, Action):
+class ThrowAtGuard(Action):
     """
     Tells the spy to throw whatever they've picked up at a guard.
     """
@@ -74,7 +74,7 @@ class ThrowAtGuard(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
-class StrangleGuard(ActionDefaultPositiveResponseMixin, Action):
+class StrangleGuard(Action):
     """
     Tells the spy to kill the guard by strangling them.
     """
@@ -94,7 +94,7 @@ class StrangleGuard(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
-class AutoTakeOutGuard(ActionDefaultPositiveResponseMixin, Action):
+class AutoTakeOutGuard(Action):
     """
     Tells the spy to kill the guard. This is either performed by throwing something at the guard, or by strangling
     them. The choice is made depending on whether the spy is holding something or not.
@@ -115,7 +115,7 @@ class AutoTakeOutGuard(ActionDefaultPositiveResponseMixin, Action):
         ]
 
 
-class Drop(ActionDefaultPositiveResponseMixin, Action):
+class Drop(Action):
     """
     Tells the spy to drop the object they're holding.
     """
@@ -131,7 +131,7 @@ class HackableType:
     TERMINAL = 'terminal'
 
 
-class Hack(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
+class Hack(PartialClassMixin, Action):
     """
     Tells the spy to hack an object.
     """
@@ -171,7 +171,7 @@ class Hack(ActionDefaultPositiveResponseMixin, PartialClassMixin, Action):
         return 'Hack what?'
 
 
-class Pickpocket(ActionDefaultPositiveResponseMixin, Action):
+class Pickpocket(Action):
     """
     Tells the spy to pickpocket a guard.
     """
@@ -186,7 +186,7 @@ class Pickpocket(ActionDefaultPositiveResponseMixin, Action):
         return 'pickpocket the guard on {}'.format(self.direction)
 
 
-class DestroyGenerator(ActionDefaultPositiveResponseMixin, Action):
+class DestroyGenerator(Action):
     """
     Tells the spy to destroy the generator.
     """
