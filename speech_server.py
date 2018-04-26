@@ -12,4 +12,4 @@ if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
 
 
-# gunicorn --worker-class=eventlet -w 1 -b localhost:8080 speech_server:app
+# sudo gunicorn --certfile=cert.pem --keyfile=key.pem --worker-class=eventlet -w 1 -b localhost:443 speech_server:app
