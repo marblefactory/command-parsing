@@ -200,47 +200,6 @@ def process_transcript(transcript: str) -> str:
     return response
 
 
-# def process_transcript(transcript: str) -> str:
-#     """
-#     :return: parses the transcript into an action, then sends the action to the game server, then speaks a response.
-#     """
-#     log_conversation('transcript', transcript, print_nl_before=True)
-#
-#     # The responder is used to keep track of state, such as whether the last transcript parsed to a partial.
-#     make_speech, action = g_speech_responder.parse(transcript)
-#
-#     # If an action was parsed, send it to the server. The response is then dependent on whether the spy could
-#     # perform the action in the game, e.g. whether there was a rock to pick up.
-#     if action:
-#         log_conversation('action', action)
-#
-#         # Sending to the game may fail.
-#         # In this case, send a speech response asking the user to repeat what they said.
-#         try:
-#             # Where the action should be sent depends on whether it is a question or not.
-#             get_game_response = post_to_game if GAME_MODE else mock_post_to_game
-#             addr_postfix = 'questions' if isinstance(action, Question) else 'action'
-#             print('sending to:', addr_postfix)
-#             game_response = get_game_response(addr_postfix, action)
-#             log_conversation('server', game_response)
-#         except:
-#             log_conversation('ERROR', 'No Response')
-#             return random_from_json('./failure_responses/transcription.json')
-#
-#         try:
-#             game_json = game_response.json()
-#             log_conversation('server json', game_json)
-#             response = make_speech(game_json)
-#         except:
-#             log_conversation('ERROR: Unsuccessful response from game', game_response)
-#             response = random_from_json('./failure_responses/transcription.json')
-#     else:
-#         response = make_speech({})
-#
-#     log_conversation('speech response', response)
-#     return response
-
-
 def process_not_recognised_speech() -> str:
     """
     Speaks a response indicating that it the player was not understood.
