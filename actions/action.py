@@ -83,6 +83,8 @@ class Action(EquatableMixin):
         elif error_code == ActionErrorCode.NOT_HOLDING:
             return ["I'm not holding anything"]
 
+        return []
+
 
     def post_processed(self) -> 'Action':
         """
