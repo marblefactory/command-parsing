@@ -567,7 +567,7 @@ def partial_parser(parser: Parser, response: Response, marker: Any) -> Parser:
     return Parser(parse)
 
 
-def words_and_corrections(words: List[Word], corrections: List[Word], make_word_parsers: [Callable[[Word], Parser]] = None, debug = False) -> Parser:
+def words_and_corrections(words: List[Word], corrections: List[Word], make_word_parsers: [Callable[[Word], Parser]] = None, debug = False, consume=Consume.WORD_ONLY) -> Parser:
     """
     :param words: the words the parser should recognise.
     :param corrections: the words the speech-to-text service mistakes for words in the list of words.
@@ -577,7 +577,7 @@ def words_and_corrections(words: List[Word], corrections: List[Word], make_word_
              corrections.
     """
     words_parser = strongest_word(words, make_word_parsers=make_word_parsers)
-    match = partial(word_match, consume=Consume.WORD_ONLY)
+    match = partial(word_match, consume=consume)
     corrections_parser = strongest_word(corrections, make_word_parsers=[match])
     return strongest([words_parser, corrections_parser], debug=debug)
 

@@ -115,7 +115,6 @@ class AbsoluteTestCase(unittest.TestCase):
 
     def test_parses_live_as_lab(self):
         s = pre_process('go to live 3')
-        print(action().parse(s).parsed)
         assert action().parse(s).parsed.location == Absolute('lab 3')
 
     def test_parses_love_as_lab(self):
