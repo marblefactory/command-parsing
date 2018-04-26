@@ -38,7 +38,7 @@ TRAIN_CHATBOT = False
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = False
+FILL_CACHE = True
 
 # Used to formulate a response if an action could not be parsed.
 action_failed_chat_bot = ChatBot('Ethan')
@@ -257,7 +257,7 @@ def preload(fill_cache: bool):
         print('Filling Cache (Running Tests)...')
         loader = TestLoader()
         suite = loader.discover(start_dir='tests/parsing')
-        TextTestRunner(verbosity=0).run(suite)
+        TextTestRunner(verbosity=1).run(suite)
 
 
 @app.route('/')
