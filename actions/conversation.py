@@ -1,7 +1,8 @@
 from typing import List
+from equatable import EquatableMixin
 
 
-class Conversation:
+class Conversation(EquatableMixin):
     """
     Represents a response that does not need to be sent to the game server.
     """
