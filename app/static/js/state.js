@@ -346,7 +346,7 @@ class SendRecvSpeechState extends State {
  * The callback is called once the socket is connected.
  */
 function setupSocket(callback) {
-    var p = 'https://' + document.domain + ':' + location.port;
+    var p = document.location.href;
     console.log(p);
     gSocket = io.connect(p);
 
