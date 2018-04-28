@@ -175,8 +175,6 @@ def process_transcript(transcript: str) -> str:
             log_conversation('game response code', game_response.status_code)
 
             if game_response.status_code == 200:
-                log_conversation('game response', game_response.text)
-
                 # Only in some cases is JSON returned from the game.
                 # If not, log this, and ask the user to repeat the command.
                 try:
