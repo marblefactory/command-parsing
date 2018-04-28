@@ -52,8 +52,7 @@ def single_action() -> Parser:
         guards_question(),
         surroundings_question(),
         time_remaining_question(),
-        see_object_question(),
-        greeting()
+        see_object_question()
     ]
 
     # Removes successful parses which have below 0.3 response. This does not remove partial parses.
