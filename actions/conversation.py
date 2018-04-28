@@ -26,6 +26,16 @@ class Greeting(Conversation):
         ]
 
 
+class WhatName(Conversation):
+    """
+    The player asked what the spy's name is.
+    """
+    def responses(self) -> List[str]:
+        return [
+            "Ethan Hunt"
+        ]
+
+
 class DefaultConversation(Conversation):
     """
     Parsed if no other actions or conversations were parsed.
