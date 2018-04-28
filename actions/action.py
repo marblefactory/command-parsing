@@ -64,7 +64,7 @@ class Action(EquatableMixin):
         :return: responses specific to the action.
         """
         if error_code == ActionErrorCode.INVALID_LOCATION:
-            return ["I can't go there"]
+            return ["There is no {}".format(subject)]
 
         elif error_code == ActionErrorCode.INVALID_STAIRS:
             return []

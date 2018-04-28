@@ -64,7 +64,7 @@ def hack() -> Parser:
     :return: a parser which parses hack instructions.
     """
     hack_verbs = ['hack', 'attack']
-    corrections = ['text', 'taxi']  # 'hack' is sometimes misheard for 'text'.
+    corrections = ['text', 'taxi', 'at']  # 'hack' is sometimes misheard for 'text'.
     spelling = word_spelling_threshold(dist_threshold=0.49)
     verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
