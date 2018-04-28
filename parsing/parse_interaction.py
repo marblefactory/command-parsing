@@ -9,7 +9,7 @@ def guard_noun() -> Parser:
     """
     :return: a parser for the word guard, or similar words.
     """
-    guard_words = ['guard', 'enemy', 'security', 'guy', 'him']
+    guard_words = ['guard', 'enemy', 'security', 'guy', 'him', 'man']
     corrections = ['card', 'god', 'aids', 'jobs', 'dogs', 'car', 'ga']
     return words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 

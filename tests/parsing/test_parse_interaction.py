@@ -211,6 +211,10 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('keel him')
         assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
+    def test_man(self):
+        s = pre_process('kill the man in front of you')
+        assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.FORWARDS)
+
 
 class DropTestCase(unittest.TestCase):
     def test_drop(self):
