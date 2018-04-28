@@ -47,6 +47,7 @@ class StairsEncoderTestCase(unittest.TestCase):
         stairs = Stairs(FloorDirection.UP)
 
         expected = {
+            'name': 'stairs',
             'type': 'stairs',
             'direction': 'up'
         }
@@ -57,6 +58,7 @@ class StairsEncoderTestCase(unittest.TestCase):
         stairs = Stairs(None)
 
         expected = {
+            'name': 'stairs',
             'type': 'stairs',
             'direction': 'none'
         }

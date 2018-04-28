@@ -71,7 +71,7 @@ class Positional(PartialClassMixin, Location):
     object_name: str          # e.g. door
     direction: MoveDirection  # e.g. on the right
 
-    def __init__(self,  object_name: str, position: int, direction: MoveDirection):
+    def __init__(self, object_name: str, position: int, direction: MoveDirection):
         self.position = position
         self.object_name = object_name
         self.direction = direction

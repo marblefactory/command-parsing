@@ -48,6 +48,24 @@ class ConversionToCPPJSONTestCase(unittest.TestCase):
 
         assert expected == json.loads(json.dumps(move, cls=ActionEncoder))
 
+    def test_stairs(self):
+        loc = Stairs(direction=FloorDirection.DOWN)
+        move = Move(Speed.NORMAL, loc, None)
+
+        expected = {
+            'type': 'move',
+            'speed': 'normal',
+            'stance': 'no_change',
+            'dest': {
+                'name': 'stairs',
+                'location': {
+                    'type': 'stairs',
+                    'direction': 'down',
+                }
+            }
+        }
+
+        self.assertEqual(expected, json.loads(json.dumps(move, cls=ActionEncoder)))
 
 class TurnEncoderTestCase(unittest.TestCase):
     def test_encode(self):
@@ -87,7 +105,7 @@ class ChangeSpeedEncoderTestCase(unittest.TestCase):
 
 class MoveEncoderTestCase(unittest.TestCase):
     def test_encode(self):
-        loc = Stairs(FloorDirection.DOWN)
+        loc = Absolute('room 3')
         move = Move(Speed.SLOW, loc, Stance.STAND)
 
         expected = {
@@ -95,10 +113,9 @@ class MoveEncoderTestCase(unittest.TestCase):
             'speed': 'slow',
             'stance': 'stand',
             'dest': {
-                'name': 'no_object',
+                'name': 'room 3',
                 'location': {
-                    'type': 'stairs',
-                    'direction': 'down'
+                    'type': 'absolute'
                 }
             }
         }
