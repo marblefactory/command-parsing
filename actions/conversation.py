@@ -36,6 +36,17 @@ class WhatName(Conversation):
         ]
 
 
+class Obscenity(Conversation):
+    """
+    The player swore at the spy.
+    """
+    def responses(self) -> List[str]:
+        return [
+            "I don't appreciate that",
+            "Calm the fuck down"
+        ]
+
+
 class DefaultConversation(Conversation):
     """
     Parsed if no other actions or conversations were parsed.
