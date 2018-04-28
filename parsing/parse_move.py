@@ -170,8 +170,10 @@ def through_door() -> Parser:
     """
     open = strongest_word(['open', 'through', 'enter', 'into', 'inside'])  # 'into' because Google thinks 'enter' is 'into'.
     door_parser = open.ignore_then(maybe(word_match('door')), mix)  # Reduce the response if 'door' is missing.
+    corrections = word_match('coincide')
+    parser = strongest([door_parser, corrections])
 
-    return door_parser \
+    return parser \
           .ignore_then(object_relative_direction()) \
           .map_parsed(lambda dir: ThroughDoor(dir))
 
