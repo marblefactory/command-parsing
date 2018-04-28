@@ -20,4 +20,4 @@ def conversation() -> Parser:
     """
     :return: a parser for all conversation.
     """
-    return strongest([greeting(), default_conversation()])
+    return strongest([greeting(), default_conversation()], debug=True)

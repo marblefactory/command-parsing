@@ -12,6 +12,7 @@ from requests import Response
 from interface.speech_responder import SpeechResponder
 from actions.action import Action, ActionErrorCode
 from encoders.encode_action import ActionEncoder
+from parsing.pre_processing import pre_process
 from parsing.parse_action import action
 from parsing.parse_conversation import conversation
 from actions.action import GameResponse
@@ -87,7 +88,8 @@ def make_parse_failure_speech_response(transcript: str) -> str:
     :param transcript: the transcript of what the user said.
     :return: the speech response to say to the user.
     """
-    responses = conversation().parse(transcript).parsed.responses()
+    s = pre_process(transcript)
+    responses = conversation().parse(s).parsed.responses()
     random_index = randrange(0, len(responses))
     r = responses[random_index]
 
