@@ -291,6 +291,18 @@ def word_spelling(word: Word, dist_threshold: Response = 0.5, first_only = False
     return threshold_success(predicate(condition, first_only, consume).ignore_parsed(word), dist_threshold)
 
 
+def word_spelling_threshold(dist_threshold: Response, first_only = False, consume = Consume.UP_TO_WORD) -> Callable[[Word], Parser]:
+    """
+    :param first_only: whether to only match the predicate on the first word in the remaining list of words.
+    :return: a parser which matches words where the difference in spelling of the word and an input word determines the
+             response. If matches then `word` is the parsed string, not the word from the input text.
+    """
+    return partial(word_spelling,
+                   dist_threshold=dist_threshold,
+                   first_only=first_only,
+                   consume=consume)
+
+
 def word_match(word: Word, match_plural = True, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param match_plural: whether to match on the plural of the word as well as the word.

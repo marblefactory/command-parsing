@@ -65,8 +65,7 @@ def hack() -> Parser:
     """
     hack_verbs = ['hack', 'attack']
     corrections = ['text', 'taxi']  # 'hack' is sometimes misheard for 'text'.
-    spelling = partial(word_spelling, dist_threshold=0.49)
-
+    spelling = word_spelling_threshold(dist_threshold=0.49)
     verb_parser = words_and_corrections(hack_verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # Only want the spelling of the word 'break', not the meaning.
@@ -157,7 +156,7 @@ def auto_take_out_guard() -> Parser:
     :return: a parser which parsers instructions to kill a guard.
     """
     kill_words = ['kill', 'destroy', 'attack', 'waste']
-    kill_parser = strongest_word(kill_words, make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    kill_parser = strongest_word(kill_words, make_word_parsers=[word_spelling_threshold(0.49), word_meaning_pos(POS.verb)])
 
     knock_out = word_match('knock').ignore_then(word_match('out'))
     take_out = word_match('take').ignore_then(word_match('out'))
