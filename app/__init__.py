@@ -9,14 +9,13 @@ from flask_socketio import SocketIO, emit
 from nltk.corpus import wordnet as wn
 from requests import Response
 
-
-
 from interface.speech_responder import SpeechResponder
 from actions.action import Action, ActionErrorCode
 from encoders.encode_action import ActionEncoder
 from parsing.parse_action import action
 from actions.action import GameResponse
 from actions.question import Question
+from actions.conversation import Conversation
 from random import randrange
 from interface.conversation_logging import log_conversation
 from unittest.mock import Mock
@@ -28,10 +27,10 @@ socketio = SocketIO(app, engineio_logger=True, async_mode='eventlet')
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = False
+GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.0.16:8080/'
+GAME_SERVER = 'http://192.168.1.145:8080/'
 
 # If True then the chatbot is trained fully. Otherwise the chatbot uses whatever it has been trained on.
 TRAIN_CHATBOT = False
@@ -163,39 +162,47 @@ def process_transcript(transcript: str) -> str:
     # If an action was parsed, send it to the server. The response is then dependent on whether the spy could
     # perform the action in the game, e.g. whether there was a rock to pick up.
     if action:
-        log_conversation('action', action)
+        if isinstance(action, Action):
+            log_conversation('action', action)
 
-        send_to_game = post_to_game if GAME_MODE else mock_post_to_game
-        # Actions are sent to different places depending on their type.
-        addr_postfix = 'questions' if isinstance(action, Question) else 'action'
-        log_conversation('sending to', addr_postfix)
+            send_to_game = post_to_game if GAME_MODE else mock_post_to_game
+            # Actions are sent to different places depending on their type.
+            addr_postfix = 'questions' if isinstance(action, Question) else 'action'
+            log_conversation('sending to', addr_postfix)
 
-        # Sending the action to the game may fail, e.g. if there is no response from the game.
-        # In this case we will ask the user to speak the action again.
-        try:
-            game_response = send_to_game(addr_postfix, action)
-            log_conversation('game response code', game_response.status_code)
+            # Sending the action to the game may fail, e.g. if there is no response from the game.
+            # In this case we will ask the user to speak the action again.
+            try:
+                game_response = send_to_game(addr_postfix, action)
+                log_conversation('game response code', game_response.status_code)
 
-            if game_response.status_code == 200:
-                log_conversation('game response', game_response.text)
+                if game_response.status_code == 200:
+                    log_conversation('game response', game_response.text)
 
-                # Only in some cases is JSON returned from the game.
-                # If not, log this, and ask the user to repeat the command.
-                try:
-                    game_json = game_response.json()
-                    log_conversation('game json', game_json)
-                    response = make_speech(game_json)
-                except:
-                    log_conversation('game json', 'no JSON')
-                    response = make_speech({})
+                    # Only in some cases is JSON returned from the game.
+                    # If not, log this, and ask the user to repeat the command.
+                    try:
+                        game_json = game_response.json()
+                        log_conversation('game json', game_json)
+                        response = make_speech(game_json)
+                    except:
+                        log_conversation('game json', 'no JSON')
+                        response = make_speech({})
 
-        except:
-            log_conversation('ERROR', 'No Response')
-            response = random_from_json('./failure_responses/transcription.json')
+            except:
+                log_conversation('ERROR', 'No Response')
+                response = random_from_json('./failure_responses/transcription.json')
+
+        # Conversation, e.g. hello
+        elif isinstance(action, Conversation):
+            responses = action.responses()
+            random_index = randrange(0, len(responses))
+            response = responses[random_index]
 
     # If no action was parsed, let the speech responder generate a response without using the game response.
     else:
         response = make_speech({})
+
 
     return response
 

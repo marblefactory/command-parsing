@@ -1,4 +1,5 @@
 from parsing.parser import *
+from actions.conversation import *
 
 
 def player_name() -> Parser:
@@ -10,3 +11,10 @@ def player_name() -> Parser:
     general = ignore_words(['i', 'name']).ignore_then(word_tagged(['NN', 'NNP']))
 
     return strongest([markers, general])
+
+
+def greeting() -> Parser:
+    """
+    :return: a parser for the player saying a greeting, e.g. hello, to the spy.
+    """
+    return word_meaning('hello').ignore_parsed(Greeting())

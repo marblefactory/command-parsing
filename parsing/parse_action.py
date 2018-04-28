@@ -2,6 +2,7 @@ from actions.action import Stop, Composite
 from parsing.parse_move import move, change_stance, change_speed, turn, hide, through_door, leave_room
 from parsing.parse_interaction import *
 from parsing.parse_question import *
+from parsing.parse_conversation import *
 from utils import split_list
 
 
@@ -51,7 +52,8 @@ def single_action() -> Parser:
         guards_question(),
         surroundings_question(),
         time_remaining_question(),
-        see_object_question()
+        see_object_question(),
+        greeting()
     ]
 
     # Removes successful parses which have below 0.3 response. This does not remove partial parses.
