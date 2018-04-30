@@ -341,6 +341,11 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('go to the bottle')
         assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('bottle', 0, ObjectRelativeDirection.VICINITY), None)
 
+    def test_go_helicopter(self):
+        s = pre_process('get to the chopper')
+        print(action().parse(s).parsed)
+        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('helicopter'), None))
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):

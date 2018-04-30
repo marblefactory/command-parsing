@@ -144,6 +144,10 @@ def absolute_place_names() -> Parser:
     generator_room = word_match('generator').then(append(word_match('room')))
     car_park = word_match('car').then(append(word_match('park')))
 
+    helicopter_words = ['chopper', 'heli', 'helicopter']
+    helicopter = strongest_word(helicopter_words, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)]) \
+                .ignore_parsed('helicopter')
+
     places = [
         reception,
         kitchen,
@@ -161,6 +165,8 @@ def absolute_place_names() -> Parser:
         workshop_x,
         server_room_x,
         toilet_x,
+
+        helicopter,
 
         absolute_floor_name()
     ]
