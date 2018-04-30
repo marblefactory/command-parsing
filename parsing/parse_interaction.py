@@ -11,7 +11,11 @@ def guard_noun() -> Parser:
     """
     guard_words = ['guard', 'enemy', 'security', 'guy', 'him', 'man']
     corrections = ['card', 'god', 'aids', 'jobs', 'dogs', 'car', 'ga']
-    return words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
+    guard_words_parser = words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
+
+    mother_fucker = phrase('mother f*****')
+
+    return strongest([guard_words_parser, mother_fucker])
 
 
 def pick_up() -> Parser:
@@ -160,8 +164,9 @@ def auto_take_out_guard() -> Parser:
 
     knock_out = word_match('knock').ignore_then(word_match('out'))
     take_out = word_match('take').ignore_then(word_match('out'))
+    tear_apart = word_match('tear').ignore_then(word_match('apart'))
 
-    verb_parser = strongest([kill_parser, knock_out, take_out])
+    verb_parser = strongest([kill_parser, knock_out, take_out, tear_apart])
     parser = _make_guard_parser(verb_parser, AutoTakeOutGuard)
 
     # 'Kill the guard' is often interpreted as 'hildegard'

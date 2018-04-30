@@ -215,6 +215,14 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('kill the man in front of you')
         assert action().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.FORWARDS)
 
+    def test_tear_apart(self):
+        s = pre_process('tear him apart')
+        self.assertEqual(action().parse(s).parsed, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_mother_fucker(self):
+        s = pre_process('kill that mother f*****')
+        self.assertEqual(action().parse(s).parsed, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
+
 
 class DropTestCase(unittest.TestCase):
     def test_drop(self):
