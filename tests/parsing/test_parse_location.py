@@ -78,6 +78,10 @@ class MoveDirectionTestCase(unittest.TestCase):
         s = pre_process('right')
         assert self.parser().parse(s).parsed == MoveDirection.RIGHT
 
+    def test_alright_as_right(self):
+        s = pre_process('alright')
+        assert self.parser().parse(s).parsed == MoveDirection.RIGHT
+
 
 class ObjectRelativeDirectionTestCase(MoveDirectionTestCase):
     def parser(self) -> Parser:

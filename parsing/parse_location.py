@@ -66,7 +66,7 @@ def move_direction() -> Parser:
     backwards = backwards_parser.ignore_parsed(MoveDirection.BACKWARDS)
 
     left = word_match('left').ignore_parsed(MoveDirection.LEFT)
-    right = word_match('right').ignore_parsed(MoveDirection.RIGHT)
+    right = strongest_word(['right', 'alright']).ignore_parsed(MoveDirection.RIGHT)
 
     return strongest([left, right, forwards, backwards])
 
