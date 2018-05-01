@@ -110,6 +110,7 @@ def make_speech_responder() -> SpeechResponder:
 # Used to formulate responses to the user. This is initialised in main.
 g_speech_responder: SpeechResponder = make_speech_responder()
 
+
 def post_to_game(addr_postfix: str, action: Action) -> Response:
     """
     :return: the response of sending the action json to the server.
