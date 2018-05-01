@@ -190,8 +190,8 @@ def process_transcript(transcript: str) -> str:
                     log_conversation('game json', 'no JSON')
                     response = make_speech({})
 
-        except:
-            log_conversation('ERROR', 'No Response')
+        except Exception as e:
+            log_conversation('ERROR', e)
             response = random_from_json('./failure_responses/transcription.json')
 
     # If no action was parsed, let the speech responder generate a response without using the game response.
