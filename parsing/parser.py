@@ -560,6 +560,18 @@ def ignore_words(words: List[Word]) -> Parser:
     return Parser(parse)
 
 
+def rest() -> Parser:
+    """
+    :return: a parser which parses the rest of input and gives it as output.
+    """
+    def parse(input: List[Word]) -> ParseResult:
+        if input == []:
+            return FailureParse()
+        return SuccessParse(parsed=input, response=1.0, remaining=[])
+
+    return Parser(parse)
+
+
 def partial_parser(parser: Parser, response: Response, marker: Any) -> Parser:
     """
     :param parser: the parser to try parsing with.

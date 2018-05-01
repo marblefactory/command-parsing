@@ -47,6 +47,17 @@ class Obscenity(Conversation):
         ]
 
 
+class Repeat(Conversation):
+    """
+    The player asked the spy to repeat something.
+    """
+    def __init__(self, words: List[str]):
+        self.words = words
+
+    def responses(self) -> List[str]:
+        return [' '.join(self.words)]
+
+
 class DefaultConversation(Conversation):
     """
     Parsed if no other actions or conversations were parsed.

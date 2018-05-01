@@ -9,11 +9,11 @@ def guard_noun() -> Parser:
     """
     :return: a parser for the word guard, or similar words.
     """
-    guard_words = ['guard', 'enemy', 'security', 'guy', 'him', 'man']
+    guard_words = ['guard', 'enemy', 'security', 'guy', 'him', 'man', 'f*****']
     corrections = ['card', 'god', 'aids', 'jobs', 'dogs', 'car', 'ga']
     guard_words_parser = words_and_corrections(guard_words, corrections, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)])
 
-    mother_fucker = phrase('mother f*****')
+    mother_fucker = strongest([phrase('mother f*****'), word_match('motherfuker')])
 
     return strongest([guard_words_parser, mother_fucker])
 

@@ -28,10 +28,10 @@ socketio = SocketIO(app, engineio_logger=True, async_mode='eventlet')
 
 # If true, sends any parsed actions to the game, otherwise a successful response is generated without
 # going to the game.
-GAME_MODE = True
+GAME_MODE = False
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.1.101:8080/'
+GAME_SERVER = 'http://192.168.0.16:8080/'
 
 # If True then the chatbot is trained fully. Otherwise the chatbot uses whatever it has been trained on.
 TRAIN_CHATBOT = False
@@ -126,7 +126,7 @@ def mock_post_to_game(addr_postfix: str, action: Action) -> Mock:
     r = Mock(spec=Response)
     r.status_code = 200
     r.json.return_value = {
-        'type': 'failure',  # Indicates whether the action could be performed in the game.
+        'type': 'success',  # Indicates whether the action could be performed in the game.
         'inventory_item': 'rock',  # For if the user asks what the spy is carrying.
         'location': 'the computer lab',  # For if the user asks where the spy is.
         'num_guards': randrange(0, 10),  # For if the user asks about guards

@@ -26,6 +26,17 @@ def obscenity() -> Parser:
     return predicate(contains_asterisk).ignore_parsed(Obscenity())
 
 
+def repeat() -> Parser:
+    """
+    :return: a parser for recognising a repeat command.
+    """
+    repeat_after_me = phrase('repeat after me')
+    repeat = word_match('repeat')
+    return strongest([repeat_after_me, repeat]) \
+          .ignore_then(rest()) \
+          .map_parsed(lambda words: Repeat(words))
+
+
 def conversation() -> Parser:
     """
     :return: a parser for all conversation.
@@ -35,6 +46,7 @@ def conversation() -> Parser:
         greeting(),
         what_name(),
         obscenity(),
+        repeat(),
         default
     ]
 
