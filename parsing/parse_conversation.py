@@ -43,7 +43,6 @@ def conversation() -> Parser:
     """
     default = produce(DefaultConversation(), response=0.0)
     parsers = [
-        repeat(),
         greeting(),
         what_name(),
         obscenity(),

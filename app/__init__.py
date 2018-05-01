@@ -14,7 +14,7 @@ from actions.action import Action, ActionErrorCode
 from encoders.encode_action import ActionEncoder
 from parsing.pre_processing import pre_process
 from parsing.parse_action import action
-from parsing.parse_conversation import conversation
+from parsing.parse_conversation import conversation, repeat
 from actions.action import GameResponse
 from actions.question import Question
 from random import randrange
@@ -153,6 +153,10 @@ def process_transcript(transcript: str) -> str:
     :return: parses the transcript into an action, then sends the action to the game server, then speaks a response.
     """
     log_conversation('transcript', transcript, print_nl_before=True)
+
+    r = repeat().parse(pre_process(transcript))
+    if r.is_success():
+        return random.choice(r.parsed.responses())
 
     # The responder is used to keep track of state, such as whether the last transcript parsed to a partial.
     make_speech, action = g_speech_responder.parse(transcript)
