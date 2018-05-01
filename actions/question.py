@@ -37,9 +37,7 @@ class InventoryContentsQuestion(Question):
         """
         # The items the spy is holding.
         item = game_response['inventory_item']
-        print(item)
         obj_description = a_singular_obj(item)
-        print(obj_description)
         return [
             "I'm holding {}".format(obj_description),
             "I've got {}".format(obj_description)
