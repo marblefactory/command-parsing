@@ -43,6 +43,16 @@ class InventoryContentsQuestion(Question):
             "I've got {}".format(obj_description)
         ]
 
+    def negative_responses(self, game_response: GameResponse) -> List[str]:
+        """
+        :param game_response: does not expect any response from game, except success bool.
+        :return: responses that tell the player the requested object is not near the spy.
+        """
+        return [
+            "I'm not holding anything",
+            "I've not got anything"
+        ]
+
 
 class LocationQuestion(Question):
     """
@@ -180,7 +190,7 @@ class SeeObjectQuestion(Question):
             "Yes, there's {} near me".format(obj_description)
         ]
 
-    def negative_responses(self) -> List[str]:
+    def negative_responses(self, game_response: GameResponse) -> List[str]:
         """
         :param game_response: does not expect any response from game, except success bool.
         :return: responses that tell the player the requested object is not near the spy.
