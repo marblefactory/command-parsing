@@ -116,7 +116,7 @@ def post_to_game(addr_postfix: str, action: Action) -> Response:
     :return: the response of sending the action json to the server.
     """
     action_json = json.loads(json.dumps(action, cls=ActionEncoder))
-    addr = GAME_SERVER + 'action'
+    addr = GAME_SERVER + addr_postfix
     return requests.post(addr, json=action_json)
 
 
