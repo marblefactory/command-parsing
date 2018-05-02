@@ -302,6 +302,10 @@ class HackTestCase(unittest.TestCase):
         s = pre_process('actor the terminal')
         assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.VICINITY)
 
+    def test_just_terminal(self):
+        s = pre_process('the terminal')
+        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.VICINITY)
+
 
 class PickpocketTestCase(unittest.TestCase):
     def test_parse_pickpocket(self):

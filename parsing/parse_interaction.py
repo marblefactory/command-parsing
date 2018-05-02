@@ -76,22 +76,18 @@ def hack() -> Parser:
     break_parser = word_spelling('break')
     log_in = word_match('log').ignore_then(word_spelling('into'), combine_responses=mix)
 
-    # Combine the break and verb parsers.
-    parser = strongest([verb_parser, break_parser, log_in])
 
-    def combine_direction(make_type: Callable, _: Response) -> Parser:
-        return object_relative_direction().map_parsed(lambda dir: make_type(dir))
+    def combine_direction(make_type: Callable, r1: Response) -> Parser:
+        return object_relative_direction().map(lambda dir, r2: (make_type(dir), mix(r1, r2)))
 
     def combine(_: Any, verb_response: Response) -> Parser:
         # Parses the name of the object and then the direction.
-        data_parser = hackable_object_name() \
-                     .map_parsed(lambda obj_data: partial(Hack.partial_init(), obj_data[1], obj_data[0])) \
-                     .then(combine_direction)
+        return hackable_object_name() \
+              .map(lambda obj_data, r: (partial(Hack.partial_init(), obj_data[1], obj_data[0]), mix(r, verb_response))) \
+              .then(combine_direction)
 
-        # If we only get the verb and no data, use the response from the verb parser.
-        return partial_parser(data_parser, verb_response, Hack)
-
-    return parser.then(combine)
+    verb_parser = strongest([verb_parser, break_parser, log_in])
+    return partial_or_maybe(verb_parser, combine, partial_marker=Hack)
 
 
 def throw_verb() -> Parser:
