@@ -36,6 +36,16 @@ class WhatName(Conversation):
         ]
 
 
+class WhoAreYou(Conversation):
+    """
+    The player asked who the spy was.
+    """
+    def responses(self) -> List[str]:
+        return [
+            "Me? ... I know who I am!"
+        ]
+
+
 class Obscenity(Conversation):
     """
     The player swore at the spy.

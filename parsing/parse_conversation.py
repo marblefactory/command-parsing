@@ -16,6 +16,15 @@ def what_name() -> Parser:
     return word_meaning('name').ignore_parsed(WhatName())
 
 
+def who_are_you() -> Parser:
+    """
+    :return: a parser for the player asking who the spy is.
+    """
+    return word_match('who') \
+          .ignore_then(word_match('you')) \
+          .ignore_parsed(WhoAreYou())
+
+
 def obscenity() -> Parser:
     """
     :return: a parser for recognising obscenity
@@ -45,6 +54,7 @@ def conversation() -> Parser:
     parsers = [
         greeting(),
         what_name(),
+        who_are_you(),
         obscenity(),
         default
     ]
