@@ -81,8 +81,11 @@ class Action(EquatableMixin, PostProcessed):
             return []
 
         elif error_code == ActionErrorCode.CANNOT_SEE:
-            obj_name = inflect.engine().plural(text=subject) if subject else ''
-            return ["I can't see any {}".format(obj_name)]
+            if subject:
+                obj_name = subject if inflect.engine().singular_noun(subject) else inflect.engine().plural(text=subject)
+                return ["I can't see any {}".format(obj_name)]
+
+            return ["I can't see any"]
 
         elif error_code == ActionErrorCode.OUTSIDE_MAP:
             return ["I can't go there"]

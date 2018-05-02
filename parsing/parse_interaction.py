@@ -157,13 +157,13 @@ def auto_take_out_guard() -> Parser:
     """
     kill_words = ['kill', 'destroy', 'attack', 'waste']
     kill_corrections = ['text', 'protector']
-    kill_parser = words_and_corrections(kill_words, kill_corrections, make_word_parsers=[word_spelling_threshold(0.49), word_meaning_pos(POS.verb)])
+    kill = words_and_corrections(kill_words, kill_corrections, make_word_parsers=[word_spelling_threshold(0.49), word_meaning_pos(POS.verb)])
 
     knock_out = word_match('knock').ignore_then(word_match('out'))
     take_out = word_match('take').ignore_then(word_match('out'))
     tear_apart = word_match('tear').ignore_then(word_match('apart'))
 
-    verb_parser = strongest([kill_parser, knock_out, take_out, tear_apart])
+    verb_parser = strongest([kill, knock_out, take_out, tear_apart])
     parser = _make_guard_parser(verb_parser, AutoTakeOutGuard)
 
     # 'Kill the guard' is often interpreted as 'hildegard'

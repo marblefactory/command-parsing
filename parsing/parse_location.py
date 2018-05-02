@@ -268,8 +268,10 @@ def stairs() -> Parser:
     upstairs = word_match('upstairs').ignore_parsed(FloorDirection.UP)
     downstairs = word_match('downstairs').ignore_parsed(FloorDirection.DOWN)
 
+    got_correction = word_match('got').ignore_then(stairs).ignore_parsed(FloorDirection.UP)
+
     # All the parsers used to parse stairs.
-    all_parsers = separate_word_parsers + [no_direction_parser, upstairs, downstairs]
+    all_parsers = separate_word_parsers + [got_correction, no_direction_parser, upstairs, downstairs]
 
     return strongest(all_parsers) \
           .map_parsed(lambda dir: Stairs(dir))

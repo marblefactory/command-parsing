@@ -330,6 +330,10 @@ class StairsTestCase(unittest.TestCase):
         s = pre_process('go down')
         assert not action().parse(s).is_success()
 
+    def test_got_as_up(self):
+        s = pre_process('got the stairs')
+        self.assertEqual(action().parse(s).parsed.location, Stairs(FloorDirection.UP))
+
 
 class BehindTestCase(unittest.TestCase):
     def test_behind(self):
