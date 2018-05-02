@@ -534,15 +534,19 @@ def threshold_success(parser: Parser, response_threshold: Response) -> Parser:
     return parser.then(check_threshold)
 
 
-def none(parser: Parser, response: Response = 1.0) -> Parser:
+def none(parser: Parser, response: Response = 1.0, max_parser_response: Response = 0.0) -> Parser:
     """
     :param response: the response of the returned parser if the supplied parser succeeds.
+    :param max_parser_response: the response of the supplied parser, above which this parser will fail.
     :return: a parser which fails if the supplied parser parses. Otherwise returns the empty response.
     """
     def parse(input: List[Word]) -> ParseResult:
         result = parser.parse(input)
         if isinstance(result, SuccessParse):
-            return FailureParse()
+            if result.response > max_parser_response:
+                return FailureParse()
+            else:
+                return result
 
         return SuccessParse(parsed=None, response=response, remaining=input)
 

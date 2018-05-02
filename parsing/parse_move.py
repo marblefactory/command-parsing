@@ -39,7 +39,7 @@ def go_verb_words() -> List[Word]:
     """
     :return: a list of words which can mean 'go'.
     """
-    return ['go', 'to', 'take', 'move']
+    return ['go', 'to', 'take', 'move', 'into']
 
 
 def go_verbs() -> Parser:
@@ -177,7 +177,10 @@ def through_door() -> Parser:
 
     verb_parser = strongest([door_parser, corrections, in_parser])
 
-    return verb_parser \
+    # If going to a location is parsed, going into the closest room should not be parsed.
+    inhibited_verb = none(move(), max_parser_response=0.85).ignore_then(verb_parser)
+
+    return inhibited_verb \
           .ignore_then(object_relative_direction(), lambda verb_r, dir_r: mix(verb_r, dir_r, 0.65)) \
           .map_parsed(lambda dir: ThroughDoor(dir))
 

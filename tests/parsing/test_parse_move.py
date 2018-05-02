@@ -353,6 +353,10 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('go into the second room')
         self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Positional('room', 1, MoveDirection.FORWARDS), None))
 
+    def test_go_into_door(self):
+        s = pre_process('go into the third door on your left')
+        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Positional('door', 2, MoveDirection.LEFT), None))
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):

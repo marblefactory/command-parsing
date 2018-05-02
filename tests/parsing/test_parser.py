@@ -535,6 +535,20 @@ class NoneTestCase(unittest.TestCase):
 
         assert p.parse(s) == SuccessParse(None, 0.5, ['x', 'y', 'z'])
 
+    def test_parse_above_threshold(self):
+        s = pre_process('')
+        p = produce(parsed='DONE', response=0.5)
+        n = none(p, max_parser_response=0.3)
+
+        assert n.parse(s).is_failure()
+
+    def test_parse_below_threshold(self):
+        s = pre_process('')
+        p = produce(parsed='DONE', response=0.2)
+        n = none(p, max_parser_response=0.3)
+
+        assert n.parse(s).parsed == 'DONE'
+
 
 class IgnoreWordsTestCase(unittest.TestCase):
     def test_removes_from_input(self):
