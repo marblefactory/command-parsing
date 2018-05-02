@@ -343,7 +343,6 @@ class MoveTestCase(unittest.TestCase):
 
     def test_go_helicopter(self):
         s = pre_process('get to the chopper')
-        print(action().parse(s).parsed)
         self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('helicopter'), None))
 
 

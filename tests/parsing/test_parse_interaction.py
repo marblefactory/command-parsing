@@ -223,6 +223,10 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('kill that mother f*****')
         self.assertEqual(action().parse(s).parsed, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
 
+    def test_girl_as_guard(self):
+        s = pre_process('kill the girl')
+        self.assertEqual(action().parse(s).parsed, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
+
 
 class DropTestCase(unittest.TestCase):
     def test_drop(self):
