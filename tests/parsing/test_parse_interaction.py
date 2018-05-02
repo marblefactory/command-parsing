@@ -241,6 +241,10 @@ class DropTestCase(unittest.TestCase):
         s = pre_process('place the rock')
         assert action().parse(s).parsed == Drop()
 
+    def test_in(self):
+        s = pre_process('place the rock in front of you')
+        assert action().parse(s).parsed == Drop()
+
 
 class HackTestCase(unittest.TestCase):
     def test_parse(self):

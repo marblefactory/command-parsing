@@ -171,10 +171,14 @@ def through_door() -> Parser:
     open = strongest_word(['open', 'through', 'enter', 'into', 'inside'])  # 'into' because Google thinks 'enter' is 'into'.
     door_parser = open.ignore_then(maybe(word_match('door')), mix)  # Reduce the response if 'door' is missing.
     corrections = word_match('coincide')
-    parser = strongest([door_parser, corrections])
 
-    return parser \
-          .ignore_then(object_relative_direction()) \
+    # For if the player says 'go in'. Reduced response though as the word could appear in other phrases.
+    in_parser = word_match('in').map_response(lambda _: 0.0)
+
+    verb_parser = strongest([door_parser, corrections, in_parser])
+
+    return verb_parser \
+          .ignore_then(object_relative_direction(), lambda verb_r, dir_r: mix(verb_r, dir_r, 0.65)) \
           .map_parsed(lambda dir: ThroughDoor(dir))
 
 

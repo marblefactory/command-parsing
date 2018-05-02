@@ -394,6 +394,10 @@ class ThroughDoorTestCase(unittest.TestCase):
         s = pre_process('coincide')
         assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
 
+    def test_go_in(self):
+        s = pre_process('go in')
+        assert action().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
 
 class LeaveRoomTestCase(unittest.TestCase):
     def test_parse(self):
