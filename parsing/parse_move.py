@@ -168,7 +168,9 @@ def through_door() -> Parser:
     """
     :return: a parser which parses instructions to go through a door, e.g. 'go through'.
     """
-    open = strongest_word(['open', 'through', 'enter', 'into', 'inside'])  # 'into' because Google thinks 'enter' is 'into'.
+    open_words = ['open', 'through', 'enter', 'into', 'inside']
+    open_corrections = ['going']
+    open = words_and_corrections(open_words, open_corrections)  # 'into' because Google thinks 'enter' is 'into'.
     door_parser = open.ignore_then(maybe(word_match('door')), mix)  # Reduce the response if 'door' is missing.
     corrections = word_match('coincide')
 
