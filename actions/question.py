@@ -1,4 +1,4 @@
-from actions.action import Action, GameResponse
+from actions.action import Action, GameResponse, PostProcessed
 from utils import join_with_last
 from typing import List
 import inflect
@@ -14,7 +14,7 @@ def a_singular_obj(obj_name: str) -> str:
     return engine.a(singular_obj_name)
 
 
-class Question(Action):
+class Question(Action, PostProcessed):
     """
     Base class for questions. Used to identify questions so they can be sent
     to a different handler in the game server.

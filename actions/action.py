@@ -20,7 +20,15 @@ class ActionErrorCode:
     NOT_HOLDING = 7
 
 
-class Action(EquatableMixin):
+class PostProcessed:
+    """
+    A type which can be modified before being send to the game, or used.
+    """
+    def post_processed(self):
+        return self
+
+
+class Action(EquatableMixin, PostProcessed):
     """
     An action that the player can command the spy to make.
     """
