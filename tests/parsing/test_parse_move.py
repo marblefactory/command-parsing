@@ -345,6 +345,14 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('get to the chopper')
         self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('helicopter'), None))
 
+    def test_go_into_absolute(self):
+        s = pre_process('go into lab 2')
+        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('lab 2'), None))
+
+    def test_go_into_directional(self):
+        s = pre_process('go into the second room')
+        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Positional('room', 1, MoveDirection.FORWARDS), None))
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
