@@ -89,6 +89,10 @@ class SeeObjectTestCase(unittest.TestCase):
         s = pre_process('nan')
         assert action().parse(s).is_failure()
 
+    def test_terminal(self):
+        s = pre_process('can you see a terminal')
+        self.assertEqual(action().parse(s).parsed, SeeObjectQuestion('terminal'))
+
 
 class TimeRemainingTestCase(unittest.TestCase):
     def test_parse_longer(self):

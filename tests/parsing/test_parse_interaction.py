@@ -317,11 +317,11 @@ class HackTestCase(unittest.TestCase):
         assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'server', ObjectRelativeDirection.VICINITY)
 
     def test_actor_as_hack(self):
-        s = pre_process('actor the terminal')
+        s = pre_process('actor terminal')
         assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.VICINITY)
 
     def test_just_terminal(self):
-        s = pre_process('the terminal')
+        s = pre_process('terminal')
         assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.VICINITY)
 
     def test_hyperterminal(self):

@@ -3,6 +3,7 @@ from parsing.parser import *
 from functools import partial
 import itertools
 
+
 def pickupable_object_name(include_other_nouns = True) -> Parser:
     """
     :return: a parser for the names of objects which can be picked up and thrown.
@@ -268,10 +269,13 @@ def stairs() -> Parser:
     upstairs = word_match('upstairs').ignore_parsed(FloorDirection.UP)
     downstairs = word_match('downstairs').ignore_parsed(FloorDirection.DOWN)
 
-    got_correction = word_match('got').ignore_then(stairs).ignore_parsed(FloorDirection.UP)
+    up_correction_words = ['got', 'garden']
+    up_corrections = strongest_word(up_correction_words) \
+                     .ignore_then(stairs)\
+                     .ignore_parsed(FloorDirection.UP)
 
     # All the parsers used to parse stairs.
-    all_parsers = separate_word_parsers + [got_correction, no_direction_parser, upstairs, downstairs]
+    all_parsers = separate_word_parsers + [up_corrections, no_direction_parser, upstairs, downstairs]
 
     return strongest(all_parsers) \
           .map_parsed(lambda dir: Stairs(dir))
