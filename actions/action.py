@@ -18,6 +18,9 @@ class ActionErrorCode:
     OUTSIDE_MAP = 5
     BLOCKED_MOVE = 6
     NOT_HOLDING = 7
+    OBJECT_NOT_PICKUPABLE = 8
+    GUARD_ALERTED = 9
+    NO_GUARDS_IN_SIGHT = 10
 
 
 class PostProcessed:
@@ -96,6 +99,17 @@ class Action(EquatableMixin, PostProcessed):
 
         elif error_code == ActionErrorCode.NOT_HOLDING:
             return ["I'm not holding anything"]
+
+        elif error_code == ActionErrorCode.OBJECT_NOT_PICKUPABLE:
+            return ["I can't pick that up"]
+
+        elif error_code == ActionErrorCode.GUARD_ALERTED:
+            # TODO
+            print("What is this error code for: GUARD_ALERTED")
+            raise NotImplementedError
+
+        elif error_code == ActionErrorCode.NO_GUARDS_IN_SIGHT:
+            return ["I can't see any guards"]
 
         return []
 
