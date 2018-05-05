@@ -95,6 +95,16 @@ class SeeObjectTestCase(unittest.TestCase):
         s = pre_process('can you see a terminal')
         self.assertEqual(action().parse(s).parsed, SeeObjectQuestion('terminal'))
 
+    def test_where_are(self):
+        s = pre_process('where are the rocks')
+        r = action().parse(s).parsed
+        self.assertEqual(r, SeeObjectQuestion('rock'))
+
+    def test_singular(self):
+        s = pre_process('where are the rock')
+        r = action().parse(s).parsed
+        self.assertEqual(r, SeeObjectQuestion('rock'))
+
 
 class TimeRemainingTestCase(unittest.TestCase):
     def test_parse_longer(self):

@@ -128,7 +128,8 @@ def absolute_floor_name() -> Parser:
 
     floor_parsers = strongest_word(floor_names)
     # Parses floor 0, floor 1, and floor 2 as basement, ground, and roof respectively.
-    numerical_parsers = word_match('floor').ignore_then(number()).then(index_array(floor_names))
+    floor_words = ['floor', 'level']
+    numerical_parsers = strongest_word(floor_words).ignore_then(number()).then(index_array(floor_names))
     # Parses 'first floor', 'second floor' etc. +2 because the first floor is the roof.
     ordinal_parsers = ordinal_number().then_ignore(word_match('floor')).map_parsed(lambda n: n+2).then(index_array(floor_names))
 

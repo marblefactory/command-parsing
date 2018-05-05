@@ -276,6 +276,11 @@ class MoveTestCase(unittest.TestCase):
         r = action().parse(s).parsed
         self.assertEqual(r, Move(Speed.FAST, Absolute('security room'), None))
 
+    def test_ranbu_as_run(self):
+        s = pre_process('ranbu to the security room')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Move(Speed.FAST, Absolute('security room'), None))
+
     def test_pick_up_is_not_move(self):
         s = pre_process('pick up the assault rifle')
         assert type(action().parse(s).parsed) != Move

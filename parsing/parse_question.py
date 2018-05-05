@@ -55,7 +55,7 @@ def see_object_question() -> Parser:
     """
     :return: a parser for asking whether the spy can see a specific object.
     """
-    there = word_spelling('there') # E.g. "are there any ... ?"
+    there = strongest_word(['there', 'where']) # E.g. "are there any ... ?" or "where are the ...?"
     verb = strongest([see_verb(), there])
 
     return verb \
