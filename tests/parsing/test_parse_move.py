@@ -271,6 +271,11 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('rhondda to lab 300')
         assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
+    def test_round_as_run(self):
+        s = pre_process('round to the security room')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Move(Speed.FAST, Absolute('security room'), None))
+
     def test_pick_up_is_not_move(self):
         s = pre_process('pick up the assault rifle')
         assert type(action().parse(s).parsed) != Move
@@ -325,11 +330,13 @@ class MoveTestCase(unittest.TestCase):
 
     def test_gun_range(self):
         s = pre_process('run to the gun range')
-        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('gun range'), None)
+        r = action().parse(s).parsed
+        self.assertEqual(r, Move(Speed.FAST, Absolute('gun range'), None))
 
     def test_run_to_live_to(self):
         s = pre_process('run to live to')
-        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 2'), None)
+        r = action().parse(s).parsed
+        self.assertEqual(r, Move(Speed.FAST, Absolute('lab 2'), None))
 
     def test_left_a_long_way(self):
         s = pre_process('go left a long way')

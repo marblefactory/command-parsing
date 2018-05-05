@@ -141,21 +141,17 @@ def absolute_place_names() -> Parser:
     """
 
     # Parsers a number, or if no number was parsed, returns '1'.
-    def number_or_1() -> Parser:
-        parsers = [number_str(), produce('1', response=0.0)]
-        return strongest(parsers)
+    lab_corrections = ['app', 'live']
+    lab_spelling = partial(word_spelling, min_word_length=2, dist_threshold=0.24)
+    lab = words_and_corrections(['lab'], lab_corrections, make_word_parsers=[lab_spelling], consume=Consume.UP_TO_WORD).ignore_parsed('lab')
 
-
-    lab_corrections = ['live', 'love', 'level']
-    lab = words_and_corrections(['lab'], lab_corrections, make_word_parsers=[word_spelling], consume=Consume.UP_TO_WORD).ignore_parsed('lab')
-
-    storage_x = word_match('storage').then(append(number_or_1()))
-    office_x = word_match('office').then(append(number_or_1()))
-    computer_lab_x = word_match('computer').then(append(lab)).then(append(number_or_1()))
-    lab_x = lab.then(append(number_or_1()))
-    meeting_room_x = word_match('meeting').then(append(word_match('room'))).then(append(number_or_1()))
-    workshop_x = word_match('workshop').then(append(number_or_1()))
-    server_room_x = word_match('server').then(append(word_match('room'))).then(append(number_or_1()))
+    storage_x = word_match('storage').then(append(number_str()))
+    office_x = word_match('office').then(append(number_str()))
+    computer_lab_x = word_match('computer').then(append(lab)).then(append(number_str()))
+    lab_x = lab.then(append(number_str()))
+    meeting_room_x = word_match('meeting').then(append(word_match('room'))).then(append(number_str()))
+    workshop_x = word_match('workshop').then(append(number_str()))
+    server_room_x = word_match('server').then(append(word_match('room'))).then(append(number_str()))
     toilet_x = word_match('toilet').then(append(number_str()))
 
     reception = word_match('reception')
