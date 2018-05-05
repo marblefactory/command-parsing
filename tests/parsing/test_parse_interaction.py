@@ -229,7 +229,13 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
 
     def test_text_as_attack(self):
         s = pre_process('text the guard')
-        self.assertEqual(action().parse(s).parsed, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
+        result = action().parse(s).parsed
+        self.assertEqual(result, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_fights_the_guard(self):
+        s = pre_process('fights the guard')
+        result = action().parse(s).parsed
+        self.assertEqual(result, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
 
 
 class DropTestCase(unittest.TestCase):

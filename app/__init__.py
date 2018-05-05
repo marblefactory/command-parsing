@@ -2,8 +2,6 @@ import json
 import random
 from unittest import TestLoader, TextTestRunner
 import requests
-from chatterbot import ChatBot
-from chatterbot.trainers import ChatterBotCorpusTrainer, ListTrainer
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from nltk.corpus import wordnet as wn
@@ -33,15 +31,9 @@ GAME_MODE = True
 # The address of the game server. This will only be used if GAME_MODE is enabled.
 GAME_SERVER = 'http://192.168.1.101:8080/'
 
-# If True then the chatbot is trained fully. Otherwise the chatbot uses whatever it has been trained on.
-TRAIN_CHATBOT = False
-
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
 FILL_CACHE = False
-
-# Used to formulate a response if an action could not be parsed.
-action_failed_chat_bot = ChatBot('Ethan')
 
 
 def action_was_successful(game_json: GameResponse) -> bool:
@@ -102,7 +94,7 @@ def make_speech_responder() -> SpeechResponder:
     :return: a speech responder that parses actions and that responds to:
                - success with a random success speech from the action.
                - partial with speech determined by the type that failed to parse.
-               - failure with speech from a chat bot,
+               - failure with a conversation parser.
     """
     return SpeechResponder(action(), make_action_speech_response, make_partial_speech_response, make_parse_failure_speech_response)
 
@@ -218,13 +210,6 @@ def preload(fill_cache: bool):
     # Preload the WordNet dictionary.
     print('Loading WordNet...')
     wn.ensure_loaded()
-
-    # Train the ChatBot in case the transcript was not parsed as an action.
-    print('Training Chat Bot...')
-
-    trainer = ChatterBotCorpusTrainer if TRAIN_CHATBOT else ListTrainer
-    action_failed_chat_bot.set_trainer(trainer)
-    action_failed_chat_bot.train("chatterbot.corpus.english")
 
     if fill_cache:
         print('Filling Cache (Running Tests)...')

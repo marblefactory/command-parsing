@@ -155,7 +155,7 @@ def auto_take_out_guard() -> Parser:
     """
     :return: a parser which parsers instructions to kill a guard.
     """
-    kill_words = ['kill', 'destroy', 'attack', 'waste']
+    kill_words = ['kill', 'destroy', 'attack', 'waste', 'fight']
     kill_corrections = ['text', 'protector']
     kill = words_and_corrections(kill_words, kill_corrections, make_word_parsers=[word_spelling_threshold(0.49), word_meaning_pos(POS.verb)])
 
