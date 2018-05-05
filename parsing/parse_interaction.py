@@ -1,6 +1,6 @@
 from actions.interaction import *
 from parsing.parser import *
-from parsing.parse_location import object_relative_direction, positional, directional, behind, pickupable_object_name
+from parsing.parse_location import *
 from actions.location import Directional, Distance
 from actions.location import MoveDirection
 
@@ -47,22 +47,6 @@ def drop() -> Parser:
     return parsers.ignore_parsed(Drop())
 
 
-def hackable_object_name() -> Parser:
-    """
-    :return: a parser for the names of objects which can be hacked. Returns a tuple containing the name of the
-             hacked object (e.g. server) and the type of object it is (e.g. TERMINAL).
-    """
-    camera_words = ['camera', 'cctv']
-    camera = strongest_word(camera_words, make_word_parsers=[word_spelling]) \
-            .map_parsed(lambda obj_name: (obj_name, HackableType.CAMERA))
-
-    terminal_words = ['terminal', 'computer', 'console', 'server', 'mainframe']
-    terminal = strongest_word(terminal_words, make_word_parsers=[word_spelling]) \
-              .map_parsed(lambda obj_name: (obj_name, HackableType.TERMINAL))
-
-    return strongest([camera, terminal])
-
-
 def hack() -> Parser:
     """
     :return: a parser which parses hack instructions.
@@ -83,7 +67,7 @@ def hack() -> Parser:
     def combine(_: Any, verb_response: Response) -> Parser:
         # Parses the name of the object and then the direction.
         return hackable_object_name() \
-              .map(lambda obj_data, r: (partial(Hack.partial_init(), obj_data[1], obj_data[0]), mix(r, verb_response))) \
+              .map(lambda obj_name, r: (partial(Hack.partial_init(), obj_name), mix(r, verb_response))) \
               .then(combine_direction)
 
     verb_parser = strongest([verb_parser, break_parser, log_in])
@@ -91,7 +75,7 @@ def hack() -> Parser:
 
     # Correction
     hyperterminal = word_match('hyperterminal') \
-                   .ignore_parsed(partial(Hack.partial_init(), HackableType.TERMINAL, 'terminal')) \
+                   .ignore_parsed(partial(Hack.partial_init(), 'terminal')) \
                    .then(combine_direction)
 
     return strongest([parser, hyperterminal])

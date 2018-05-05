@@ -263,44 +263,44 @@ class DropTestCase(unittest.TestCase):
 class HackTestCase(unittest.TestCase):
     def test_parse(self):
         s = pre_process('hack the terminal on your left')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.LEFT)
+        assert action().parse(s).parsed == Hack('terminal', ObjectRelativeDirection.LEFT)
 
     def test_direction_defaults_to_vicinity(self):
-        s = pre_process('hack the camera')
-        assert action().parse(s).parsed == Hack(HackableType.CAMERA, 'camera', ObjectRelativeDirection.VICINITY)
+        s = pre_process('hack the terminal')
+        assert action().parse(s).parsed == Hack('terminal', ObjectRelativeDirection.VICINITY)
 
     def test_hacked_as_hack(self):
         s = pre_process('hacked the computer')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('computer', ObjectRelativeDirection.VICINITY)
 
     def test_have_as_hack(self):
         s = pre_process('have the console')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'console', ObjectRelativeDirection.VICINITY)
+        self.assertEqual(action().parse(s).parsed, Hack('console', ObjectRelativeDirection.VICINITY))
 
     def test_text_as_hack(self):
         # Because speech recognition mistakes 'hack' as 'text'
         s = pre_process('text the server')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'server', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
 
     def test_hack_into(self):
-        s = pre_process('hack into a camera')
-        assert action().parse(s).parsed == Hack(HackableType.CAMERA, 'camera', ObjectRelativeDirection.VICINITY)
+        s = pre_process('hack into a computer')
+        assert action().parse(s).parsed == Hack('computer', ObjectRelativeDirection.VICINITY)
 
     def test_log_into(self):
         s = pre_process('log into the computer')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('computer', ObjectRelativeDirection.VICINITY)
 
     def test_break_into(self):
-        s = pre_process('break into the cctv')
-        assert action().parse(s).parsed == Hack(HackableType.CAMERA, 'cctv', ObjectRelativeDirection.VICINITY)
+        s = pre_process('break into the server')
+        assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
 
     def test_breaking(self):
         s = pre_process('breaking the mainframe')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'mainframe', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('mainframe', ObjectRelativeDirection.VICINITY)
 
     def test_attack(self):
         s = pre_process('attack their server')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'server', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
 
     def test_partial_if_no_object1(self):
         s = pre_process('hack')
@@ -314,25 +314,25 @@ class HackTestCase(unittest.TestCase):
 
     def test_at_as_hack(self):
         s = pre_process('at their server')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'server', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('server', ObjectRelativeDirection.VICINITY)
 
     def test_actor_as_hack(self):
         s = pre_process('actor terminal')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('terminal', ObjectRelativeDirection.VICINITY)
 
     def test_just_terminal(self):
         s = pre_process('terminal')
-        assert action().parse(s).parsed == Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.VICINITY)
+        assert action().parse(s).parsed == Hack('terminal', ObjectRelativeDirection.VICINITY)
 
     def test_hyperterminal(self):
         s = pre_process('hyperterminal')
         result = action().parse(s).parsed
-        self.assertEqual(result, Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.VICINITY))
+        self.assertEqual(result, Hack('terminal', ObjectRelativeDirection.VICINITY))
 
     def test_hyperterminal_with_direction(self):
         s = pre_process('hyperterminal on your left')
         result = action().parse(s).parsed
-        self.assertEqual(result, Hack(HackableType.TERMINAL, 'terminal', ObjectRelativeDirection.LEFT))
+        self.assertEqual(result, Hack('terminal', ObjectRelativeDirection.LEFT))
 
 
 class PickpocketTestCase(unittest.TestCase):

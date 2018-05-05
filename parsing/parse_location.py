@@ -4,8 +4,18 @@ from functools import partial
 import itertools
 
 
+def hackable_object_name() -> Parser:
+    """
+    :return: a parser for the names of objects which can be hacked. Returns a tuple containing the name of the
+             hacked object (e.g. server) and the type of object it is (e.g. TERMINAL).
+    """
+    terminal_words = ['terminal', 'computer', 'console', 'server', 'mainframe']
+    return strongest_word(terminal_words, make_word_parsers=[word_spelling])
+
+
 def pickupable_object_name(include_other_nouns = True) -> Parser:
     """
+    :param include_other_nouns: whether to search for other nouns, not only objects in the game.
     :return: a parser for the names of objects which can be picked up and thrown.
     """
     # Objects the player can actually pick up.
@@ -17,6 +27,14 @@ def pickupable_object_name(include_other_nouns = True) -> Parser:
     objects = object_spelled(names, other_noun_response=0.25) if include_other_nouns else strongest_word(names, make_word_parsers=[match])
 
     return strongest([objects, rock_correction])
+
+
+def interactable_object_name(include_other_nouns = True) -> Parser:
+    """
+    :param include_other_nouns: whether to search for other nouns, not only objects in the game.
+    :return: a parser for the names of objects which be interacted with, e.g. picked up, hacked, thrown.
+    """
+    return strongest([hackable_object_name(), pickupable_object_name(include_other_nouns)])
 
 
 def move_object_name() -> Parser:

@@ -84,11 +84,10 @@ class DropEncoderTestCase(unittest.TestCase):
 
 class HackEncoderTestCase(unittest.TestCase):
     def test_encode(self):
-        hack = Hack(HackableType.TERMINAL, 'computer', ObjectRelativeDirection.RIGHT)
+        hack = Hack('computer', ObjectRelativeDirection.RIGHT)
 
         expected = {
             'type': 'hack',
-            'hack_type': 'terminal',
             'direction': 'right'
         }
 

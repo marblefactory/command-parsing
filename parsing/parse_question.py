@@ -1,6 +1,6 @@
 from parsing.parser import *
 from actions.question import *
-from parsing.parse_interaction import pickupable_object_name, guard_noun
+from parsing.parse_interaction import interactable_object_name, guard_noun
 
 def see_verb() -> Parser:
     """
@@ -57,7 +57,7 @@ def see_object_question() -> Parser:
     verb = strongest([see_verb(), there])
 
     return verb \
-          .ignore_then(pickupable_object_name(), combine_responses=mix) \
+          .ignore_then(interactable_object_name(), combine_responses=mix) \
           .map_parsed(lambda obj: SeeObjectQuestion(obj))
 
 
