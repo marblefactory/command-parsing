@@ -9,11 +9,10 @@ from requests import Response
 
 from interface.speech_responder import SpeechResponder
 from actions.action import Action, ActionErrorCode
+from actions.conversation import Conversation
 from encoders.encode_action import ActionEncoder
-from parsing.pre_processing import pre_process
 from parsing.parser import Parser
 from parsing.parse_action import action
-from parsing.parse_conversation import conversation, repeat
 from actions.action import GameResponse
 from actions.question import Question
 from random import randrange
@@ -81,11 +80,7 @@ def make_parse_failure_speech_response(transcript: str) -> str:
     :param transcript: the transcript of what the user said.
     :return: the speech response to say to the user.
     """
-    s = pre_process(transcript)
-    responses = conversation().parse(s).parsed.responses()
-    random_index = randrange(0, len(responses))
-    r = responses[random_index]
-
+    r = random_from_json('./failure_responses/action.json')
     log_conversation('failure reply', r)
     return r
 
@@ -147,10 +142,6 @@ def process_transcript(transcript: str) -> str:
     """
     log_conversation('transcript', transcript, print_nl_before=True)
 
-    r = repeat().parse(pre_process(transcript))
-    if r.is_success():
-        return random.choice(r.parsed.responses())
-
     # The responder is used to keep track of state, such as whether the last transcript parsed to a partial.
     make_speech, action = g_speech_responder.parse(transcript)
 
@@ -159,33 +150,38 @@ def process_transcript(transcript: str) -> str:
     # If an action was parsed, send it to the server. The response is then dependent on whether the spy could
     # perform the action in the game, e.g. whether there was a rock to pick up.
     if action:
-        log_conversation('action', action)
+        if isinstance(action, Conversation):
+            log_conversation('conversation', action)
+            response = random.choice(action.responses())
 
-        send_to_game = post_to_game if GAME_MODE else mock_post_to_game
-        # Actions are sent to different places depending on their type.
-        addr_postfix = 'questions' if isinstance(action, Question) else 'action'
-        log_conversation('sending to', addr_postfix)
+        else:
+            log_conversation('action', action)
 
-        # Sending the action to the game may fail, e.g. if there is no response from the game.
-        # In this case we will ask the user to speak the action again.
-        try:
-            game_response = send_to_game(addr_postfix, action)
-            log_conversation('game response code', game_response.status_code)
+            send_to_game = post_to_game if GAME_MODE else mock_post_to_game
+            # Actions are sent to different places depending on their type.
+            addr_postfix = 'questions' if isinstance(action, Question) else 'action'
+            log_conversation('sending to', addr_postfix)
 
-            if game_response.status_code == 200:
-                # Only in some cases is JSON returned from the game.
-                # If not, log this, and ask the user to repeat the command.
-                try:
-                    game_json = game_response.json()
-                    log_conversation('game json', game_json)
-                    response = make_speech(game_json)
-                except:
-                    log_conversation('game json', 'no JSON')
-                    response = make_speech({})
+            # Sending the action to the game may fail, e.g. if there is no response from the game.
+            # In this case we will ask the user to speak the action again.
+            try:
+                game_response = send_to_game(addr_postfix, action)
+                log_conversation('game response code', game_response.status_code)
 
-        except Exception as e:
-            log_conversation('ERROR', e)
-            response = random_from_json('./failure_responses/transcription.json')
+                if game_response.status_code == 200:
+                    # Only in some cases is JSON returned from the game.
+                    # If not, log this, and ask the user to repeat the command.
+                    try:
+                        game_json = game_response.json()
+                        log_conversation('game json', game_json)
+                        response = make_speech(game_json)
+                    except:
+                        log_conversation('game json', 'no JSON')
+                        response = make_speech({})
+
+            except Exception as e:
+                log_conversation('ERROR', e)
+                response = random_from_json('./failure_responses/transcription.json')
 
     # If no action was parsed, let the speech responder generate a response without using the game response.
     else:
@@ -217,8 +213,6 @@ def preload(fill_cache: bool):
         loader = TestLoader()
         suite = loader.discover(start_dir='tests/parsing')
         TextTestRunner(verbosity=1).run(suite)
-
-    print('Created', Parser.num_created, 'parsers')
 
 
 @app.route('/')

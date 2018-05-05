@@ -50,13 +50,12 @@ def conversation() -> Parser:
     """
     :return: a parser for all conversation.
     """
-    default = produce(DefaultConversation(), response=0.0)
     parsers = [
         greeting(),
         what_name(),
         who_are_you(),
         obscenity(),
-        default
+        repeat()
     ]
 
     return strongest(parsers)
