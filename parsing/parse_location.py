@@ -24,7 +24,10 @@ def pickupable_object_name(include_other_nouns = True) -> Parser:
     rock_correction = word_match('ra', consume=Consume.WORD_ONLY).ignore_parsed('rock')
     # Strongly recognises the names of actual objects in the game, and weakly matches on other nouns.
     match = partial(word_match, consume=Consume.WORD_ONLY)
-    objects = object_spelled(names, other_noun_response=0.25) if include_other_nouns else strongest_word(names, make_word_parsers=[match])
+
+    p1 = object_spelled(names, other_noun_response=0.25)
+    p2 = strongest_word(names, make_word_parsers=[match])
+    objects = p1 if include_other_nouns else p2
 
     return strongest([objects, rock_correction])
 
@@ -103,7 +106,8 @@ def distance() -> Parser:
     """
     # Returns a parser to recognise the given words and return the given distance.
     def make_parser(words: List[Word], dist: Distance) -> Parser:
-        return strongest_word(words, make_word_parsers=[word_spelling, word_meaning]).ignore_parsed(dist)
+        spelling = partial(word_spelling, match_first_letter=True)
+        return strongest_word(words, make_word_parsers=[spelling, word_meaning]).ignore_parsed(dist)
 
     short_words = ['short', 'close', 'little', 'bit']
     medium_words = ['medium', 'fair']
@@ -142,9 +146,8 @@ def absolute_place_names() -> Parser:
         return strongest(parsers)
 
 
-    lab_spelling = partial(word_spelling, dist_threshold=0.24)
     lab_corrections = ['live', 'love', 'level']
-    lab = words_and_corrections(['lab'], lab_corrections, make_word_parsers=[lab_spelling], consume=Consume.UP_TO_WORD).ignore_parsed('lab')
+    lab = words_and_corrections(['lab'], lab_corrections, make_word_parsers=[word_spelling], consume=Consume.UP_TO_WORD).ignore_parsed('lab')
 
     storage_x = word_match('storage').then(append(number_or_1()))
     office_x = word_match('office').then(append(number_or_1()))
@@ -328,5 +331,5 @@ def location() -> Parser:
     :return: a parser which parses locations.
     """
     # Half the response to give bias towards positional locations since both use directions.
-    dir = directional().map_response(lambda r: r/2)
+    dir = directional().map_response(lambda r: r*0.7)
     return strongest([end_of(), absolute(), positional(), dir, stairs(), behind()])

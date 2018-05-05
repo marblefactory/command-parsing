@@ -147,7 +147,8 @@ class ChangeSpeedTestCase(unittest.TestCase):
 
     def test_rent_as_run(self):
         s = pre_process('rent')
-        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+        r = action().parse(s).parsed
+        self.assertEqual(r, ChangeSpeed(Speed.FAST))
 
 
 class MoveTestCase(unittest.TestCase):
@@ -187,9 +188,10 @@ class MoveTestCase(unittest.TestCase):
 
     def test_ron_as_run(self):
         s = pre_process('ron to the next door')
+        r = action().parse(s).parsed
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
-        assert action().parse(s).parsed == Move(Speed.FAST, expected_loc, None)
+        self.assertEqual(r, Move(Speed.FAST, expected_loc, None))
 
     def test_sprint_as_fast(self):
         s = pre_process('sprint to the next door')

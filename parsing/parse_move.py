@@ -11,10 +11,10 @@ def fast_speed_verb() -> Parser:
     """
     verbs = ['quick', 'fast', 'sprint', 'run', 'hurry']
     # S2T mistakes 'run' for the following words:
-    corrections = ['randa', 'rhonda', 'rhondda']
+    corrections = ['randa', 'rhonda', 'rhondda', 'rent', 'ranbu']
 
     # Make a parser that recognises the meaning and spelling of the actual verbs, and matches on exact corrections.
-    spelling = word_spelling_threshold(dist_threshold=0.49)
+    spelling = word_spelling_threshold(dist_threshold=0.49, min_word_length=2, match_first_letter=True)
     parser = words_and_corrections(verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # Ignore the go verbs, because it *can* be parsed as to mean 'fast', but it does not necessarily.
@@ -191,5 +191,5 @@ def leave_room() -> Parser:
     """
     :return: a parser which tells the spy to leave the room they're in, e.g. 'leave the room'.
     """
-    leave_verbs = ['leave', 'out']
+    leave_verbs = ['leave', 'out', 'exit']
     return strongest_word(leave_verbs).ignore_parsed(ThroughDoor(ObjectRelativeDirection.VICINITY))

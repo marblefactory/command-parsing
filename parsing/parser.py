@@ -171,6 +171,17 @@ class Parser:
         return self.map_parsed(lambda _: new_parsed)
 
 
+def print_result() -> Callable[[Any, Response], Parser]:
+    """
+    :return: a function to be used with `then` which prints out the parse and passes it on.
+    """
+    def _print(parsed: Any, response: Response) -> Parser:
+        print('{}, {}'.format(parsed, response))
+        return produce(parsed, response)
+
+    return _print
+
+
 def wrap(operation: Callable[[Any, Response], Parser], wrapper: Callable[[Parser, Response], Parser]) -> Callable[[Any, Response], Parser]:
     """
     :return: a function which wraps the operation in the wrapper, passing the result of one to the other.
@@ -274,14 +285,23 @@ def predicate(condition: Callable[[Word], Response], first_only = False, consume
     return Parser(parse)
 
 
-def word_spelling(word: Word, match_first_letter = True, dist_threshold: Response = 0.5, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
+def word_spelling(word: Word,
+                  match_first_letter = False,
+                  min_word_length = 3,
+                  dist_threshold: Response = 0.5,
+                  first_only = False,
+                  consume = Consume.UP_TO_WORD) -> Parser:
     """
     :param match_first_letter: whether the parser should fail if the first letter does not match.
+    :param min_word_length: the minimum word length, below, or equal, to which word spelling must exactly match.
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
              response. If matches then `word` is the parsed string, not the word from the input text.
     """
     def condition(input_word: Word) -> Response:
+        if len(input_word) <= min_word_length:
+            return input_word == word
+
         if match_first_letter and input_word[0] != word[0]:
             return 0
 
@@ -289,16 +309,23 @@ def word_spelling(word: Word, match_first_letter = True, dist_threshold: Respons
         edit_dist = editdistance.eval(word, input_word)
         return ((max_word_len - edit_dist) / max_word_len)
 
-    return threshold_success(predicate(condition, first_only, consume).ignore_parsed(word), dist_threshold)
+    p = predicate(condition, first_only, consume).ignore_parsed(word)
+    return threshold_success(p, dist_threshold)
 
 
-def word_spelling_threshold(dist_threshold: Response, first_only = False, consume = Consume.UP_TO_WORD) -> Callable[[Word], Parser]:
+def word_spelling_threshold(dist_threshold: Response,
+                            match_first_letter=False,
+                            min_word_length=3,
+                            first_only = False,
+                            consume = Consume.UP_TO_WORD) -> Callable[[Word], Parser]:
     """
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
              response. If matches then `word` is the parsed string, not the word from the input text.
     """
     return partial(word_spelling,
+                   match_first_letter=match_first_letter,
+                   min_word_length=min_word_length,
                    dist_threshold=dist_threshold,
                    first_only=first_only,
                    consume=consume)
@@ -607,14 +634,14 @@ def words_and_corrections(words: List[Word], corrections: List[Word], make_word_
     return strongest([words_parser, corrections_parser], debug=debug)
 
 
-def object_spelled(names: List[str], other_noun_response: Response) -> Parser:
+def object_spelled(names: List[str], other_noun_response: Response, word_spelling_threshold=0.5) -> Parser:
     """
     :param names: the names of objects in the game. These give a response of 1.0.
     :param other_noun_response: the response for other nouns.
     :return: a parser which strongly recognises spelling of the given names, and can also recognise other nouns.
     """
     # Objects the player can actually pick up.
-    spelling = partial(word_spelling, dist_threshold=other_noun_response, consume=Consume.WORD_ONLY)
+    spelling = partial(word_spelling, consume=Consume.WORD_ONLY, dist_threshold=word_spelling_threshold)
     objects = strongest_word(names, make_word_parsers=[partial(word_match, consume=Consume.WORD_ONLY), spelling])
     # Objects which are recognised, but the user cannot pickup. These have a lower response.
     nouns = ['NN', 'NNS']

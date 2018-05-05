@@ -34,17 +34,13 @@ class PickUpTestCase(unittest.TestCase):
         # Tests that a partial is returned asking for more information if the object name is not given.
         s = pre_process('pick up')
         result = action().parse(s)
-        assert result.marker == PickUp
+        self.assertEqual(result.marker, PickUp)
 
     def test_take_is_partial(self):
         # Tests that a partial is returned if you say 'take'.
         s = pre_process('take')
         result = action().parse(s)
         assert result.marker == PickUp
-
-    def test_rope_as_rock(self):
-        s = pre_process('pick up the rope')
-        assert action().parse(s).parsed == PickUp('rock', ObjectRelativeDirection.VICINITY)
 
     def test_ra_as_rock(self):
         s = pre_process('pick up the ra')
@@ -55,7 +51,8 @@ class PickUpTestCase(unittest.TestCase):
         Tests that other nouns that haven't been explicitly listed can also be recognised.
         """
         s = pre_process('pick up the phone')
-        assert action().parse(s).parsed == PickUp('phone', ObjectRelativeDirection.VICINITY)
+        r = action().parse(s).parsed
+        self.assertEqual(r, PickUp('phone', ObjectRelativeDirection.VICINITY))
 
     def test_parses_noun_lower_response(self):
         """
@@ -305,7 +302,7 @@ class HackTestCase(unittest.TestCase):
     def test_partial_if_no_object1(self):
         s = pre_process('hack')
         result = action().parse(s)
-        assert result.marker == Hack
+        self.assertEqual(result.marker, Hack)
 
     def test_partial_if_no_object2(self):
         s = pre_process('hack something')
