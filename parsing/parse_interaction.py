@@ -87,7 +87,14 @@ def hack() -> Parser:
               .then(combine_direction)
 
     verb_parser = strongest([verb_parser, break_parser, log_in])
-    return partial_or_maybe(verb_parser, combine, partial_marker=Hack)
+    parser = partial_or_maybe(verb_parser, combine, partial_marker=Hack)
+
+    # Correction
+    hyperterminal = word_match('hyperterminal') \
+                   .ignore_parsed(partial(Hack.partial_init(), HackableType.TERMINAL, 'terminal')) \
+                   .then(combine_direction)
+
+    return strongest([parser, hyperterminal])
 
 
 def throw_verb() -> Parser:
