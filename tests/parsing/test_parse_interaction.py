@@ -141,6 +141,10 @@ class ThrowTestCase(unittest.TestCase):
         s = pre_process('throw the bottle backwards')
         assert action().parse(s).parsed == Throw(Directional(MoveDirection.BACKWARDS, Distance.MEDIUM))
 
+    def test_grow_as_throw(self):
+        s = pre_process('grow the rock')
+        self.assertEqual(action().parse(s).parsed, Throw(Directional(MoveDirection.FORWARDS, Distance.MEDIUM)))
+
 
 class ThrowAtGuardTestCase(unittest.TestCase):
     def test_throw_at_guard(self):
