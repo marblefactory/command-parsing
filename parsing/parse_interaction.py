@@ -1,5 +1,4 @@
 from actions.interaction import *
-from parsing.parser import *
 from parsing.parse_location import *
 from actions.location import Directional, Distance
 from actions.location import MoveDirection
@@ -73,12 +72,7 @@ def hack() -> Parser:
     verb_parser = strongest([verb_parser, break_parser, log_in])
     parser = partial_or_maybe(verb_parser, combine, partial_marker=Hack)
 
-    # Correction
-    hyperterminal = word_match('hyperterminal') \
-                   .ignore_parsed(partial(Hack.partial_init(), 'terminal')) \
-                   .then(combine_direction)
-
-    return strongest([parser, hyperterminal])
+    return strongest([parser])
 
 
 def throw_verb() -> Parser:

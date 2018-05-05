@@ -331,6 +331,21 @@ class HackTestCase(unittest.TestCase):
         result = action().parse(s).parsed
         self.assertEqual(result, Hack('terminal', ObjectRelativeDirection.LEFT))
 
+    def test_criminal_as_terminal(self):
+        s = pre_process('hack the criminal')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Hack('terminal', ObjectRelativeDirection.VICINITY))
+
+    def test_determinant_as_terminal(self):
+        s = pre_process('hack the determinant')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Hack('terminal', ObjectRelativeDirection.VICINITY))
+
+    def test_determine_as_terminal(self):
+        s = pre_process('hack the determine')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Hack('terminal', ObjectRelativeDirection.VICINITY))
+
 
 class PickpocketTestCase(unittest.TestCase):
     def test_parse_pickpocket(self):

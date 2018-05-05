@@ -99,7 +99,8 @@ class SeeObjectTestCase(unittest.TestCase):
 class TimeRemainingTestCase(unittest.TestCase):
     def test_parse_longer(self):
         s = pre_process('how much longer is there')
-        assert action().parse(s).parsed == TimeRemainingQuestion()
+        r = action().parse(s).parsed
+        self.assertEqual(r, TimeRemainingQuestion())
 
     def test_parse_time_left(self):
         s = pre_process('how much time is left')
