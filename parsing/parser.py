@@ -566,7 +566,8 @@ def ignore_words(words: List[Word]) -> Parser:
 
 def rest() -> Parser:
     """
-    :return: a parser which parses the rest of input and gives it as output.
+    :return: a parser which parses the rest of input and gives it as output, provided there is input remaining.
+             If there is no input, the parser fails.
     """
     def parse(input: List[Word]) -> ParseResult:
         if input == []:

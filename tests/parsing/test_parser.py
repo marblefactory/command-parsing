@@ -558,6 +558,17 @@ class IgnoreWordsTestCase(unittest.TestCase):
         assert p.parse(s).remaining == ['c', 'd', 'c']
 
 
+class RestTestCase(unittest.TestCase):
+    def test_rest(self):
+        s = pre_process('a b c')
+        r = rest().parse(s).parsed
+        self.assertEqual(r, ['a', 'b', 'c'])
+
+    def test_rest_fails(self):
+        r = rest().parse([])
+        self.assertTrue(r.is_failure())
+
+
 class PartialTestCase(unittest.TestCase):
     def test_success_if_matches(self):
         p = partial_parser(word_match('a'), response=0.7, marker='MyType')

@@ -357,6 +357,12 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('go into the third door on your left')
         self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Positional('door', 2, MoveDirection.LEFT), None))
 
+    def test_alright_little_bit(self):
+        s = pre_process('alright a little bit')
+        r = action().parse(s).parsed
+        expected = Move(Speed.NORMAL, Directional(MoveDirection.RIGHT, Distance.SHORT), None)
+        self.assertEqual(r, expected)
+
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):
