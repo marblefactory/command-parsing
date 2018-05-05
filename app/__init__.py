@@ -11,6 +11,7 @@ from interface.speech_responder import SpeechResponder
 from actions.action import Action, ActionErrorCode
 from encoders.encode_action import ActionEncoder
 from parsing.pre_processing import pre_process
+from parsing.parser import Parser
 from parsing.parse_action import action
 from parsing.parse_conversation import conversation, repeat
 from actions.action import GameResponse
@@ -216,6 +217,8 @@ def preload(fill_cache: bool):
         loader = TestLoader()
         suite = loader.discover(start_dir='tests/parsing')
         TextTestRunner(verbosity=1).run(suite)
+
+    print('Created', Parser.num_created, 'parsers')
 
 
 @app.route('/')
