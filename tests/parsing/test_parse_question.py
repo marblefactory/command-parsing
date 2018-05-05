@@ -63,7 +63,8 @@ class SeeObjectTestCase(unittest.TestCase):
 
     def test_other_nouns(self):
         s = pre_process('are there any submarines around you')
-        assert action().parse(s).parsed == SeeObjectQuestion('submarines')
+        r = action().parse(s).parsed
+        self.assertEqual(r, SeeObjectQuestion('submarines'))
 
     def test_other_nouns_can_see1(self):
         s = pre_process('can you see any submarines')
@@ -79,7 +80,8 @@ class SeeObjectTestCase(unittest.TestCase):
 
     def test_any_you_can_see(self):
         s = pre_process('are there any hammers you can see')
-        assert action().parse(s).parsed == SeeObjectQuestion('hammer')
+        r = action().parse(s).parsed
+        self.assertEqual(r, SeeObjectQuestion('hammer'))
 
     def test_see_can(self):
         s = pre_process('can you see any cans')

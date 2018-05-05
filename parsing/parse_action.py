@@ -48,11 +48,11 @@ def single_action() -> Parser:
         destroy_generator(),
         leave_room(),
         inventory_question(),
+        see_object_question(),
         location_question(),
         guards_question(),
         surroundings_question(),
         time_remaining_question(),
-        see_object_question(),
         conversation()
     ]
 

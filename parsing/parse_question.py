@@ -2,6 +2,7 @@ from parsing.parser import *
 from actions.question import *
 from parsing.parse_interaction import interactable_object_name, guard_noun
 
+
 def see_verb() -> Parser:
     """
     :return: a parser for words that mean 'to see'. This only consumes the parsed words.
@@ -28,8 +29,9 @@ def location_question() -> Parser:
     """
     :return: a parser for asking the spy where they are.
     """
-    where = strongest_word(['where'], make_word_parsers=[word_spelling, word_meaning])
-    return where.ignore_then(word_match('you')).ignore_parsed(LocationQuestion())
+    spelling = partial(word_spelling, match_first_letter=True)
+    where = strongest_word(['where'], make_word_parsers=[spelling, word_meaning])
+    return where.ignore_then(word_match('you'), mix).ignore_parsed(LocationQuestion())
 
 
 def guards_question() -> Parser:
