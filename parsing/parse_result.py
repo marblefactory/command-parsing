@@ -76,6 +76,9 @@ class SuccessParse(ParseResult):
         self.response = response
         self.remaining = remaining
 
+    def __repr__(self):
+        return "<SuccessParse: {}, {}, {}>".format(self.parsed, self.response, self.remaining)
+
 
 class PartialParse(ParseResult):
     """
@@ -92,9 +95,13 @@ class PartialParse(ParseResult):
         self.response = response
         self.marker = marker
 
+    def __repr__(self):
+        return "<PartialParse: {}, {}>".format( self.response, self.marker)
+
 
 class FailureParse(ParseResult):
     """
     Represents a failed parse.
     """
-    pass
+    def __repr__(self):
+        return "<FailureParse>"

@@ -274,14 +274,15 @@ def predicate(condition: Callable[[Word], Response], first_only = False, consume
     return Parser(parse)
 
 
-def word_spelling(word: Word, dist_threshold: Response = 0.5, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
+def word_spelling(word: Word, match_first_letter = True, dist_threshold: Response = 0.5, first_only = False, consume = Consume.UP_TO_WORD) -> Parser:
     """
+    :param match_first_letter: whether the parser should fail if the first letter does not match.
     :param first_only: whether to only match the predicate on the first word in the remaining list of words.
     :return: a parser which matches words where the difference in spelling of the word and an input word determines the
              response. If matches then `word` is the parsed string, not the word from the input text.
     """
     def condition(input_word: Word) -> Response:
-        if input_word[0] != word[0]:
+        if match_first_letter and input_word[0] != word[0]:
             return 0
 
         max_word_len = max(len(input_word), len(word))
@@ -452,12 +453,7 @@ def strongest(parsers: List[Parser], debug = False) -> Parser:
             result = parser.parse(input)
 
             if debug:
-                if isinstance(result, SuccessParse):
-                    print('Success:', result.parsed, ', ', result.response)
-                elif isinstance(result, PartialParse):
-                    print('Partial:', result.marker, ', ', result.response)
-                else:
-                    print('Failure')
+                print(result)
 
             # The maximum value of a response is 1, therefore we can exit early.
             if isinstance(result, SuccessParse):

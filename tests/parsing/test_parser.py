@@ -188,44 +188,49 @@ class WordSpellingTestCase(unittest.TestCase):
         Tests None is returned if the words share no similarities.
         """
         s = pre_process('bbb ccc')
-        assert word_spelling('aaa', dist_threshold=0).parse(s).is_failure()
+        assert word_spelling('aaa', match_first_letter=True, dist_threshold=0).parse(s).is_failure()
 
     def test_no_match_not_same_first(self):
         """
         Tests None is returned if the words do not have the same first letter.
         """
         s = pre_process('dello mello')
-        assert word_spelling('hello', dist_threshold=0).parse(s).is_failure()
+        assert word_spelling('hello', match_first_letter=True, dist_threshold=0).parse(s).is_failure()
 
     def test_match_some(self):
         """
         Tests the parser matches when some of the letters are correct.
         """
         s = pre_process('abbb cccc')
-        assert word_spelling('aaaa', dist_threshold=0).parse(s) == SuccessParse('aaaa', 0.25, ['cccc'])
+        assert word_spelling('aaaa', match_first_letter=True, dist_threshold=0).parse(s) == SuccessParse('aaaa', 0.25, ['cccc'])
 
     def test_match_all(self):
         """
         Tests the parse matches when all of the letters are correct.
         """
         s = pre_process('aaaa cccc')
-        assert word_spelling('aaaa', dist_threshold=0).parse(s) == SuccessParse('aaaa', 1.0, ['cccc'])
+        assert word_spelling('aaaa', match_first_letter=True, dist_threshold=0).parse(s) == SuccessParse('aaaa', 1.0, ['cccc'])
 
     def test_matches_strongest(self):
         """
         Tests the parse matches on the word with the lowest edit distance.
         """
         s = pre_process('abbb aacc')
-        assert word_spelling('aaaa', dist_threshold=0).parse(s) == SuccessParse('aaaa', 0.5, [])
+        assert word_spelling('aaaa', match_first_letter=True, dist_threshold=0).parse(s) == SuccessParse('aaaa', 0.5, [])
 
     def test_matches_first_only(self):
         s = pre_process('dello hello')
-        assert word_spelling('hello', dist_threshold=0, first_only=False).parse(s).parsed == 'hello'
-        assert word_spelling('hello', dist_threshold=0, first_only=True).parse(s).is_failure()
+        assert word_spelling('hello', match_first_letter=True, dist_threshold=0, first_only=False).parse(s).parsed == 'hello'
+        assert word_spelling('hello', match_first_letter=True, dist_threshold=0, first_only=True).parse(s).is_failure()
 
     def test_consume_word_only(self):
         s = pre_process('aa bb cc')
-        assert word_spelling('bb', consume=Consume.WORD_ONLY).parse(s) == SuccessParse('bb', 1.0, ['aa', 'cc'])
+        assert word_spelling('bb', match_first_letter=True, consume=Consume.WORD_ONLY).parse(s) == SuccessParse('bb', 1.0, ['aa', 'cc'])
+
+    def test_no_match_first_letter(self):
+        s = pre_process('baaa')
+        r = word_spelling('aaaa', match_first_letter=False, dist_threshold=0).parse(s)
+        self.assertEqual(r, SuccessParse('aaaa', 0.75, []))
 
 
 class WordMatchTestCase(unittest.TestCase):
