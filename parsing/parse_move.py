@@ -148,7 +148,7 @@ def move() -> Parser:
     """
     def combine_speed(makeMove: Callable, r: Response) -> Parser:
         # The speed defaults to normal.
-        speed_parser = defaulted(speed(), produce(Speed.NORMAL, 0.5))
+        speed_parser = defaulted(speed(), produce(Speed.FAST, 0.5))
         # Partially applies the speed to the Move init.
         return non_consuming(speed_parser).map(lambda parsed_speed, _: (partial(makeMove, speed=parsed_speed), r))
 

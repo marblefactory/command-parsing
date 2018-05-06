@@ -160,11 +160,11 @@ class ChangeSpeedTestCase(unittest.TestCase):
 class MoveTestCase(unittest.TestCase):
     def test_parses_just_location1(self):
         s = pre_process('next door')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('door', 0, ObjectRelativeDirection.FORWARDS), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Positional('door', 0, ObjectRelativeDirection.FORWARDS), None)
 
     def test_parses_just_location2(self):
         s = pre_process('forward')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
 
     def test_parses_just_location_with_speed_stance(self):
         s = pre_process('running forward standing')
@@ -172,7 +172,7 @@ class MoveTestCase(unittest.TestCase):
 
     def test_parses_standing(self):
         s = pre_process('go left standing')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.STAND)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.STAND)
 
     def test_parses_crouching(self):
         s = pre_process('walk left crouching')
@@ -180,11 +180,11 @@ class MoveTestCase(unittest.TestCase):
 
     def test_parses_crouching_as_crouch(self):
         s = pre_process('go left while crouching')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.CROUCH)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.LEFT, Distance.MEDIUM), Stance.CROUCH)
 
     def test_stance_defaults_to_none(self):
         s = pre_process('go left')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.LEFT, Distance.MEDIUM), None)
 
     def test_fast(self):
         s = pre_process('run to the next door')
@@ -236,11 +236,11 @@ class MoveTestCase(unittest.TestCase):
         r = action().parse(s).parsed
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
-        self.assertEqual(r, Move(Speed.NORMAL, expected_loc, Stance.CROUCH))
+        self.assertEqual(r, Move(Speed.FAST, expected_loc, Stance.CROUCH))
 
     def test_parses_behind(self):
         s = pre_process('go around the desk')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Behind('desk'), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Behind('desk'), None)
 
     def test_parses_turn_backwards(self):
         s = pre_process('turn around')
@@ -248,18 +248,18 @@ class MoveTestCase(unittest.TestCase):
 
     def test_parses_take_next_door(self):
         s = pre_process('take the next door')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('door', 0, MoveDirection.FORWARDS), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Positional('door', 0, MoveDirection.FORWARDS), None)
 
     def test_parses_take_the_stairs(self):
         s = pre_process('take the stairs up')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Stairs(FloorDirection.UP), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Stairs(FloorDirection.UP), None)
 
     def test_corridor_does_not_crouch(self):
         """
         Tests that 'corridor' does not mean crouch
         """
         s = pre_process('go to the end of the corridor')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, EndOf('corridor'), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, EndOf('corridor'), None)
 
     def test_normal(self):
         s = pre_process('go normally to the next room')
@@ -274,11 +274,11 @@ class MoveTestCase(unittest.TestCase):
 
     def test_o2_is_go(self):
         s = pre_process('o2 lab 300')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('lab 300'), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
     def test_to_as_go(self):
         s = pre_process('to lab 300')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('lab 300'), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('lab 300'), None)
 
     def test_randa_as_run(self):
         s = pre_process('randa to lab 25')
@@ -313,39 +313,39 @@ class MoveTestCase(unittest.TestCase):
 
     def test_move_forwards(self):
         s = pre_process('move forwards')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
 
     def test_move_backwards(self):
         s = pre_process('move backwards')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.BACKWARDS, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.BACKWARDS, Distance.MEDIUM), None)
 
     def test_move_left(self):
         s = pre_process('move left')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.LEFT, Distance.MEDIUM), None)
 
     def test_move_right(self):
         s = pre_process('move right')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.RIGHT, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.RIGHT, Distance.MEDIUM), None)
 
     def test_go_forward_a_little(self):
         s = pre_process('go forwards a little')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.SHORT), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.SHORT), None)
 
     def test_take_stairs(self):
         s = pre_process('take the stairs')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Stairs(direction=None), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Stairs(direction=None), None)
 
     def test_parses_forwards(self):
         s = pre_process('go forwards')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
 
     def test_parses_afford_as_forward(self):
         s = pre_process('go afford')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
 
     def test_parses_affords_as_forward(self):
         s = pre_process('go affords')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.MEDIUM), None)
 
     def test_for_as_forward(self):
         s = pre_process('go for')
@@ -353,11 +353,11 @@ class MoveTestCase(unittest.TestCase):
 
     def test_go_forward_a_long_way(self):
         s = pre_process('go forward a long way')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.FORWARDS, Distance.FAR), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.FORWARDS, Distance.FAR), None)
 
     def test_security(self):
         s = pre_process('go to security')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Absolute('security room'), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Absolute('security room'), None)
 
     def test_gun_range(self):
         s = pre_process('run to the gun range')
@@ -371,39 +371,39 @@ class MoveTestCase(unittest.TestCase):
 
     def test_left_a_long_way(self):
         s = pre_process('go left a long way')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Directional(MoveDirection.LEFT, Distance.FAR), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Directional(MoveDirection.LEFT, Distance.FAR), None)
 
     def test_go_to_pickupable1(self):
         s = pre_process('go to the rock')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('rock', 0, ObjectRelativeDirection.VICINITY), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Positional('rock', 0, ObjectRelativeDirection.VICINITY), None)
 
     def test_go_to_pickupable2(self):
         s = pre_process('go to the bottle')
-        assert action().parse(s).parsed == Move(Speed.NORMAL, Positional('bottle', 0, ObjectRelativeDirection.VICINITY), None)
+        assert action().parse(s).parsed == Move(Speed.FAST, Positional('bottle', 0, ObjectRelativeDirection.VICINITY), None)
 
     def test_go_helicopter(self):
         s = pre_process('get to the chopper')
-        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('helicopter'), None))
+        self.assertEqual(action().parse(s).parsed, Move(Speed.FAST, Absolute('helicopter'), None))
 
     def test_go_to_absolute(self):
         s = pre_process('go to lab 2')
-        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('lab 2'), None))
+        self.assertEqual(action().parse(s).parsed, Move(Speed.FAST, Absolute('lab 2'), None))
 
     def test_go_into_directional(self):
         s = pre_process('go to the second room')
         r = action().parse(s).parsed
-        self.assertEqual(r, Move(Speed.NORMAL, Positional('room', 1, MoveDirection.FORWARDS), None))
+        self.assertEqual(r, Move(Speed.FAST, Positional('room', 1, MoveDirection.FORWARDS), None))
 
     def test_alright_little_bit(self):
         s = pre_process('alright a little bit')
         r = action().parse(s).parsed
-        expected = Move(Speed.NORMAL, Directional(MoveDirection.RIGHT, Distance.SHORT), None)
+        expected = Move(Speed.FAST, Directional(MoveDirection.RIGHT, Distance.SHORT), None)
         self.assertEqual(r, expected)
 
     def test_glow_as_go(self):
         s = pre_process('glow to lab 2')
         r = action().parse(s).parsed
-        self.assertEqual(r, Move(Speed.NORMAL, Absolute('lab 2'), None))
+        self.assertEqual(r, Move(Speed.FAST, Absolute('lab 2'), None))
 
 
 class MoveIntoTestCase(unittest.TestCase):
@@ -411,7 +411,7 @@ class MoveIntoTestCase(unittest.TestCase):
         s = pre_process('go into the third door on your left')
         r = action().parse(s).parsed
 
-        move = Move(Speed.NORMAL, Positional('door', 2, MoveDirection.LEFT), None)
+        move = Move(Speed.FAST, Positional('door', 2, MoveDirection.LEFT), None)
         expected = Composite([move, ThroughDoor(ObjectRelativeDirection.VICINITY)])
 
         self.assertEqual(r, expected)
@@ -420,7 +420,7 @@ class MoveIntoTestCase(unittest.TestCase):
         s = pre_process('go into lab 2')
         r = action().parse(s).parsed
 
-        move = Move(Speed.NORMAL, Absolute('lab 2'), None)
+        move = Move(Speed.FAST, Absolute('lab 2'), None)
         expected = Composite([move, ThroughDoor(ObjectRelativeDirection.VICINITY)])
 
         self.assertEqual(r, expected)
