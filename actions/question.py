@@ -143,7 +143,7 @@ class SurroundingsQuestion(Question):
 
         # Group the objects into tuples containing their name and the number of times they were found around the spy.
         # Therefore the spy can say things like 'I can see a server and two cameras'.
-        groups = [list(v) for k,v in groupby(objects)]
+        groups = [list(v) for k,v in groupby(sorted(objects))]
 
         # Returns the description of a group of objects, e.g. ['camera', 'camera'] goes to '2 cameras'.
         def make_description(group: List[str]) -> str:
