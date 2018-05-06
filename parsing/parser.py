@@ -63,11 +63,15 @@ def semantic_similarity(w1: Word, w2: Word, pos: str, similarity_measure: Callab
 
 
 class Parser:
+    num_created = 0
+
     def __init__(self, parse: Callable[[List[Word]], ParseResult]):
         """
         :param parse: the function that takes a list of words and produces a parse result.
         """
         self.parse = parse
+
+        Parser.num_created += 1
 
     def then(self, operation: Callable[[Any, Response], 'Parser']) -> 'Parser':
         """

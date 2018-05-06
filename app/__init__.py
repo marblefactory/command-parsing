@@ -11,6 +11,7 @@ from interface.speech_responder import SpeechResponder
 from actions.action import Action, ActionErrorCode
 from actions.conversation import Conversation
 from encoders.encode_action import ActionEncoder
+from parsing.parser import Parser
 from parsing.parse_action import statement
 from actions.action import GameResponse
 from actions.question import Question
@@ -32,7 +33,7 @@ GAME_SERVER = 'http://192.168.1.6:8080/'
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = True
+FILL_CACHE = False
 
 
 def action_was_successful(game_json: GameResponse) -> bool:
@@ -141,8 +142,10 @@ def process_transcript(transcript: str) -> str:
     """
     log_conversation('transcript', transcript, print_nl_before=True)
 
+    Parser.num_created = 0
     # The responder is used to keep track of state, such as whether the last transcript parsed to a partial.
     make_speech, action = g_speech_responder.parse(transcript)
+    print('Processed using', Parser.num_created, 'parsers')
 
     response = 'Error'
 
