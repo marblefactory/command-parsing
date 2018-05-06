@@ -317,7 +317,6 @@ class MoveTestCase(unittest.TestCase):
     def test_pick_up_is_not_move(self):
         s = pre_process('pick up the rifle')
         r = statement().parse(s).parsed
-        print(r)
         self.assertNotEqual(type(r), Move)
 
     def test_move_forwards(self):
