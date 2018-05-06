@@ -317,7 +317,7 @@ def word_spelling(word: Word,
         plural = inflect.engine().plural(word)
         p_plural = predicate(condition(plural), first_only, consume).ignore_parsed(plural)
         p = predicate(condition(word), first_only, consume).ignore_parsed(word)
-        return strongest([p, p_plural], debug=True)
+        return strongest([p, p_plural])
 
     else:
         p = predicate(condition(word), first_only, consume).ignore_parsed(word)
