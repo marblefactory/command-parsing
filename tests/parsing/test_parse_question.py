@@ -47,6 +47,11 @@ class SurroundingsTestCase(unittest.TestCase):
         s = pre_process('what can you see around you')
         assert action().parse(s).parsed == SurroundingsQuestion()
 
+    def test_look(self):
+        s = pre_process('look left')
+        r = action().parse(s).parsed
+        self.assertEqual(r, SurroundingsQuestion())
+
 
 class SeeObjectTestCase(unittest.TestCase):
     def test_parse(self):

@@ -13,7 +13,7 @@ def hackable_object_name() -> Parser:
     return strongest_word(terminal_words, make_word_parsers=[word_spelling])
 
 
-def pickupable_object_name(include_other_nouns = True) -> Parser:
+def pickupable_object_name(other_noun_response: Optional[float] = 0.25) -> Parser:
     """
     :param include_other_nouns: whether to search for other nouns, not only objects in the game.
     :return: a parser for the names of objects which can be picked up and thrown.
@@ -25,19 +25,21 @@ def pickupable_object_name(include_other_nouns = True) -> Parser:
     # Strongly recognises the names of actual objects in the game, and weakly matches on other nouns.
     match = partial(word_match, consume=Consume.WORD_ONLY)
 
-    p1 = object_spelled(names, other_noun_response=0.25)
+    p1 = object_spelled(names, other_noun_response=other_noun_response)
     p2 = strongest_word(names, make_word_parsers=[match])
-    objects = p1 if include_other_nouns else p2
+    objects = p1 if other_noun_response else p2
 
     return strongest([objects, rock_correction])
 
 
-def interactable_object_name(include_other_nouns = True) -> Parser:
+def interactable_object_name(other_noun_response: Optional[float] = 0.25) -> Parser:
     """
     :param include_other_nouns: whether to search for other nouns, not only objects in the game.
     :return: a parser for the names of objects which be interacted with, e.g. picked up, hacked, thrown.
     """
-    return strongest([hackable_object_name(), pickupable_object_name(include_other_nouns)])
+    # Inhibited by directions because 'left', 'right' etc, are counted as nouns.
+    return none(move_direction()) \
+          .ignore_then(strongest([hackable_object_name(), pickupable_object_name(other_noun_response)]))
 
 
 def move_object_name() -> Parser:
@@ -232,7 +234,7 @@ def positional() -> Parser:
 
 
     obj = make_parser(move_object_name(), ObjectRelativeDirection.FORWARDS)
-    pickupable = make_parser(pickupable_object_name(include_other_nouns=False), ObjectRelativeDirection.VICINITY)
+    pickupable = make_parser(pickupable_object_name(other_noun_response=None), ObjectRelativeDirection.VICINITY)
 
     return strongest([obj, pickupable])
 

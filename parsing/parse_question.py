@@ -10,8 +10,9 @@ def see_verb() -> Parser:
     can_see = maybe(word_match('can', consume=Consume.WORD_ONLY)).ignore_then(word_meaning('see', consume=Consume.WORD_ONLY))
     around = word_meaning('around', consume=Consume.WORD_ONLY)
     near = word_meaning('near', consume=Consume.WORD_ONLY)
+    look = word_meaning('look', consume=Consume.WORD_ONLY)
 
-    return strongest([can_see, around, near])
+    return strongest([can_see, around, near, look])
 
 
 def inventory_question() -> Parser:
@@ -60,7 +61,7 @@ def see_object_question() -> Parser:
     verb = strongest([see_verb(), there])
 
     return verb \
-          .ignore_then(interactable_object_name(), combine_responses=mix) \
+          .ignore_then(interactable_object_name(), mix) \
           .map_parsed(lambda obj: SeeObjectQuestion(obj))
 
 

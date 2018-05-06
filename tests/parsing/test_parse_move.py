@@ -234,7 +234,6 @@ class MoveTestCase(unittest.TestCase):
     def test_quietly_as_crouch(self):
         s = pre_process('quietly go to the next door')
         r = action().parse(s).parsed
-        print(r)
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         self.assertEqual(r, Move(Speed.NORMAL, expected_loc, Stance.CROUCH))
