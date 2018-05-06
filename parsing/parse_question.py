@@ -31,7 +31,8 @@ def location_question() -> Parser:
     """
     spelling = partial(word_spelling, match_first_letter=True)
     where = strongest_word(['where'], make_word_parsers=[spelling, word_meaning])
-    return where.ignore_then(word_match('you'), mix).ignore_parsed(LocationQuestion())
+    you = strongest_word(['you', 'i'])
+    return where.ignore_then(you, lambda r1, r2: mix(r1, r2, 0.1)).ignore_parsed(LocationQuestion())
 
 
 def guards_question() -> Parser:

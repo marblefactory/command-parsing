@@ -23,6 +23,10 @@ class LocationQuestionTestCase(unittest.TestCase):
         s = pre_process('where are you')
         assert action().parse(s).parsed == LocationQuestion()
 
+    def test_parse_i(self):
+        s = pre_process('where am i')
+        assert action().parse(s).parsed == LocationQuestion()
+
 
 class GuardsQuestionTestCase(unittest.TestCase):
     def test_parse(self):
