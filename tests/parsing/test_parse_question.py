@@ -17,6 +17,11 @@ class InventoryQuestionTestCase(unittest.TestCase):
         s = pre_process('what')
         assert action().parse(s).is_failure()
 
+    def test_you_holding(self):
+        s = pre_process('you holding')
+        r = action().parse(s).parsed
+        self.assertEqual(r, InventoryContentsQuestion())
+
 
 class LocationQuestionTestCase(unittest.TestCase):
     def test_parse(self):

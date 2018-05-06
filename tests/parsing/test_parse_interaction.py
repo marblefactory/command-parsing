@@ -40,7 +40,7 @@ class PickUpTestCase(unittest.TestCase):
         # Tests that a partial is returned if you say 'take'.
         s = pre_process('take')
         r = action().parse(s)
-        assert r.marker == PickUp
+        self.assertEqual(r.marker, PickUp)
 
     def test_ra_as_rock(self):
         s = pre_process('pick up the ra')

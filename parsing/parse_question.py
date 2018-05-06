@@ -21,9 +21,12 @@ def inventory_question() -> Parser:
     :return: a parser for asking the spy what they're holding.
     """
     what = strongest_word(['what'], make_word_parsers=[word_spelling, word_meaning])
+    you = word_match('you')
     carrying = strongest_word(['hold', 'carry'], make_word_parsers=[word_meaning])
 
-    return what.ignore_then(carrying) \
+    return maybe(what) \
+          .ignore_then(you, mix) \
+          .ignore_then(carrying, lambda what_r, carry_r: mix(what_r, carry_r, 0.24)) \
           .ignore_parsed(InventoryContentsQuestion())
 
 
