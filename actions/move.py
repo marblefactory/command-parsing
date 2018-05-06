@@ -94,7 +94,8 @@ class Move(PartialClassMixin, Action):
                  Otherwise, just this action is returned.
         """
         if isinstance(self.location, Absolute):
-            return Composite([self, ThroughDoor(ObjectRelativeDirection.VICINITY)])
+            if (not (self.location.place_name == 'basement' or self.location.place_name == 'ground')):
+                return Composite([self, ThroughDoor(ObjectRelativeDirection.VICINITY)])
         return self
 
     @classmethod

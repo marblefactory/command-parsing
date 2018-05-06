@@ -11,6 +11,18 @@ class TestMovePostProcessing(unittest.TestCase):
 
         self.assertEqual(move.post_processed(), move)
 
+    def test_post_processed_ground_floor(self):
+        loc = Absolute('ground')
+        move = Move(Speed.NORMAL, loc, None)
+
+        self.assertEqual(move.post_processed(), move)
+
+    def test_post_processed_basement(self):
+        loc = Absolute('basement')
+        move = Move(Speed.NORMAL, loc, None)
+
+        self.assertEqual(move.post_processed(), move)
+
     def test_post_process_absolute_loc(self):
         loc = Absolute('room')
         move = Move(Speed.NORMAL, loc, None)
