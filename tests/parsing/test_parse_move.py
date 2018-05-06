@@ -412,6 +412,11 @@ class MoveTestCase(unittest.TestCase):
         r = statement().parse(s).parsed
         self.assertEqual(r, Move(Speed.FAST, Absolute('lab 2'), None))
 
+    def test_good_as_go(self):
+        s = pre_process('good to lab 2')
+        r = statement().parse(s).parsed
+        self.assertEqual(r, Move(Speed.FAST, Absolute('lab 2'), None))
+
     def test_what_are_you_going_fails(self):
         s = pre_process('what are you going')
         r = statement().parse(s).parsed

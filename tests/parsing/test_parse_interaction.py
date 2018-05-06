@@ -202,6 +202,10 @@ class ThrowAtGuardTestCase(unittest.TestCase):
         r = statement().parse(s).parsed
         self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
 
+    def test_good(self):
+        s = pre_process('throw at the good')
+        r = statement().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
 
 class StrangleGuardTestCase(unittest.TestCase):
     def test_strangle(self):
