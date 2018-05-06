@@ -385,18 +385,14 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('get to the chopper')
         self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('helicopter'), None))
 
-    def test_go_into_absolute(self):
-        s = pre_process('go into lab 2')
+    def test_go_to_absolute(self):
+        s = pre_process('go to lab 2')
         self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Absolute('lab 2'), None))
 
     def test_go_into_directional(self):
-        s = pre_process('go into the second room')
+        s = pre_process('go to the second room')
         r = action().parse(s).parsed
         self.assertEqual(r, Move(Speed.NORMAL, Positional('room', 1, MoveDirection.FORWARDS), None))
-
-    def test_go_into_door(self):
-        s = pre_process('go into the third door on your left')
-        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Positional('door', 2, MoveDirection.LEFT), None))
 
     def test_alright_little_bit(self):
         s = pre_process('alright a little bit')
@@ -409,6 +405,25 @@ class MoveTestCase(unittest.TestCase):
         r = action().parse(s).parsed
         self.assertEqual(r, Move(Speed.NORMAL, Absolute('lab 2'), None))
 
+
+class MoveIntoTestCase(unittest.TestCase):
+    def test_move_into(self):
+        s = pre_process('go into the third door on your left')
+        r = action().parse(s).parsed
+
+        move = Move(Speed.NORMAL, Positional('door', 2, MoveDirection.LEFT), None)
+        expected = Composite([move, ThroughDoor(ObjectRelativeDirection.VICINITY)])
+
+        self.assertEqual(r, expected)
+
+    def test_go_into_absolute(self):
+        s = pre_process('go into lab 2')
+        r = action().parse(s).parsed
+
+        move = Move(Speed.NORMAL, Absolute('lab 2'), None)
+        expected = Composite([move, ThroughDoor(ObjectRelativeDirection.VICINITY)])
+
+        self.assertEqual(r, expected)
 
 class HideTestCase(unittest.TestCase):
     def test_parses_object_named(self):

@@ -1,5 +1,5 @@
 from actions.action import Stop, Composite
-from parsing.parse_move import move, change_stance, change_speed, turn, hide, through_door, leave_room
+from parsing.parse_move import move, change_stance, change_speed, turn, hide, through_door, leave_room, move_into
 from parsing.parse_interaction import *
 from parsing.parse_question import *
 from parsing.parse_conversation import *
@@ -34,7 +34,6 @@ def single_action() -> Parser:
         hack(),
         throw_at_guard(),
         throw(),
-        through_door(),
         change_stance().map_response(lambda r: r * 0.7),  # Because move also looks for stances, and this matches on less.
         change_speed().map_response(lambda r: r * 0.72),  # Because move also looks for speeds, and this matches on less.
         turn(),
@@ -44,6 +43,8 @@ def single_action() -> Parser:
         pick_up(),
         drop(),
         hide(),
+        move_into(),
+        through_door(),
         move(),
         destroy_generator(),
         leave_room(),

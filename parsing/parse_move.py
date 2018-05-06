@@ -169,18 +169,6 @@ def move() -> Parser:
     return partial_or_maybe(go, combine, partial_marker=Move)
 
 
-def hide() -> Parser:
-    """
-    :return: a parser to recognise hide actions.
-    """
-    verb = strongest_word(['hide'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
-    # If no object name is given, the spy hides behind the nearest object.
-    obj_name = maybe(move_object_name(), response=1.0)
-
-    return verb.ignore_then(obj_name, mix) \
-               .map_parsed(lambda obj_name: Hide(obj_name))
-
-
 def through_door() -> Parser:
     """
     :return: a parser which parses instructions to go through a door, e.g. 'go through'.
@@ -196,12 +184,30 @@ def through_door() -> Parser:
 
     verb_parser = strongest([door_parser, corrections, in_parser])
 
-    # If going to a location is parsed, going into the closest room should not be parsed.
-    inhibited_verb = none(non_consuming(move()), max_parser_response=0.85).ignore_then(verb_parser)
-
-    return inhibited_verb \
+    return verb_parser \
           .ignore_then(object_relative_direction(), lambda verb_r, dir_r: mix(verb_r, dir_r, 0.65)) \
           .map_parsed(lambda dir: ThroughDoor(dir))
+
+
+def move_into() -> Parser:
+    """
+    :return: a parser that parses going to a location and then through the door, e.g. 'go into the second room'.
+    """
+    return non_consuming(move()) \
+          .then_ignore(through_door()) \
+          .map_parsed(lambda move: Composite([move, ThroughDoor(ObjectRelativeDirection.VICINITY)]))
+
+
+def hide() -> Parser:
+    """
+    :return: a parser to recognise hide actions.
+    """
+    verb = strongest_word(['hide'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
+    # If no object name is given, the spy hides behind the nearest object.
+    obj_name = maybe(move_object_name(), response=1.0)
+
+    return verb.ignore_then(obj_name, mix) \
+               .map_parsed(lambda obj_name: Hide(obj_name))
 
 
 def leave_room() -> Parser:
