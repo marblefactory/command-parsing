@@ -11,8 +11,7 @@ from interface.speech_responder import SpeechResponder
 from actions.action import Action, ActionErrorCode
 from actions.conversation import Conversation
 from encoders.encode_action import ActionEncoder
-from parsing.parser import Parser
-from parsing.parse_action import action
+from parsing.parse_action import statement
 from actions.action import GameResponse
 from actions.question import Question
 from random import randrange
@@ -92,7 +91,7 @@ def make_speech_responder() -> SpeechResponder:
                - partial with speech determined by the type that failed to parse.
                - failure with a conversation parser.
     """
-    return SpeechResponder(action(), make_action_speech_response, make_partial_speech_response, make_parse_failure_speech_response)
+    return SpeechResponder(statement(), make_action_speech_response, make_partial_speech_response, make_parse_failure_speech_response)
 
 
 # Used to formulate responses to the user. This is initialised in main.

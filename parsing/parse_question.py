@@ -92,3 +92,18 @@ def time_remaining_question() -> Parser:
           .ignore_then(maybe(non_consuming(left)), combine_responses=mix) \
           .ignore_then(time, combine_responses=mix) \
           .ignore_parsed(TimeRemainingQuestion())
+
+
+def question() -> Parser:
+    """
+    :return: a parser for all the types of question.
+    """
+    parsers = [
+        inventory_question(),
+        see_object_question(),
+        location_question(),
+        guards_question(),
+        surroundings_question(),
+        time_remaining_question()
+    ]
+    return strongest(parsers)

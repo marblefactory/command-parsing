@@ -47,14 +47,7 @@ def single_action() -> Parser:
         through_door(),
         move(),
         destroy_generator(),
-        leave_room(),
-        inventory_question(),
-        see_object_question(),
-        location_question(),
-        guards_question(),
-        surroundings_question(),
-        time_remaining_question(),
-        conversation()
+        leave_room()
     ]
 
     # Removes successful parses which have below 0.3 response. This does not remove partial parses.
@@ -94,3 +87,15 @@ def action() -> Parser:
     act = strongest([composite(), single_action()])
     return ignore_words(ignored_words()) \
           .ignore_then(act)
+
+
+def statement() -> Parser:
+    """
+    :return: a parser which understands what the user is saying.
+    """
+    parsers = [
+        action(),
+        question(),
+        conversation()
+    ]
+    return strongest(parsers)
