@@ -119,6 +119,11 @@ class SeeObjectTestCase(unittest.TestCase):
         r = action().parse(s).parsed
         self.assertEqual(r, SeeObjectQuestion('rock'))
 
+    def test_find(self):
+        s = pre_process('find a rock')
+        r = action().parse(s).parsed
+        self.assertEqual(r, SeeObjectQuestion('rock'))
+
 
 class TimeRemainingTestCase(unittest.TestCase):
     def test_parse_longer(self):

@@ -11,8 +11,9 @@ def see_verb() -> Parser:
     around = word_meaning('around', consume=Consume.WORD_ONLY)
     near = word_meaning('near', consume=Consume.WORD_ONLY)
     look = word_meaning('look', consume=Consume.WORD_ONLY)
+    find = word_meaning('find', consume=Consume.WORD_ONLY)
 
-    return strongest([can_see, around, near, look])
+    return strongest([can_see, around, near, look, find])
 
 
 def inventory_question() -> Parser:
