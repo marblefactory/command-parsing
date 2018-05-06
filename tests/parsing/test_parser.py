@@ -588,6 +588,32 @@ class RestTestCase(unittest.TestCase):
         self.assertTrue(r.is_failure())
 
 
+class DefaultedTestCase(unittest.TestCase):
+    def test_uses_success_parse(self):
+        s = pre_process('')
+        p = produce(parsed=1, response=0.7)
+        d = produce(parsed=2, response=0.0)
+        r = defaulted(p, d).parse(s)
+
+        self.assertEqual(r, SuccessParse(1, 0.7, ['']))
+
+    def test_uses_default_if_partial(self):
+        s = pre_process('')
+        p = partial_parser(failure(), response=0.0, marker='M')
+        d = produce(parsed=2, response=0.5)
+        r = defaulted(p, d).parse(s)
+
+        self.assertEqual(r, SuccessParse(2, 0.5, ['']))
+
+    def test_uses_default_if_failure(self):
+        s = pre_process('')
+        p = failure()
+        d = produce(parsed=2, response=0.0)
+        r = defaulted(p, d).parse(s)
+
+        self.assertEqual(r, SuccessParse(2, 0.0, ['']))
+
+
 class PartialTestCase(unittest.TestCase):
     def test_success_if_matches(self):
         p = partial_parser(word_match('a'), response=0.7, marker='MyType')

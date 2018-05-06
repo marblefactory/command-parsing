@@ -11,12 +11,13 @@ def fast_speed_verb() -> Parser:
     """
     verbs = ['quick', 'fast', 'sprint', 'run', 'hurry', 'ran']
     # S2T mistakes 'run' for the following words:
-    corrections = ['randa', 'rhonda', 'rhondda', 'ranbu', 'done']
+    corrections = ['rhonda', 'rhondda', 'done']
 
     # Make a parser that recognises the meaning and spelling of the actual verbs, and matches on exact corrections.
     spelling = word_spelling_threshold(dist_threshold=0.49, min_word_length=2, match_first_letter=True)
     verb_parser = words_and_corrections(verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
+    # Google mistakes 'run' for 'rent'.
     rental_correction = word_spelling('rent')
 
     parser = strongest([verb_parser, rental_correction])
@@ -135,7 +136,7 @@ def move() -> Parser:
     """
     def combine_speed(makeMove: Callable, r: Response) -> Parser:
         # The speed defaults to normal.
-        speed_parser = strongest([speed(), produce(Speed.NORMAL, 0.5)])
+        speed_parser = defaulted(speed(), produce(Speed.NORMAL, 0.5))
         # Partially applies the speed to the Move init.
         return non_consuming(speed_parser).map(lambda parsed_speed, _: (partial(makeMove, speed=parsed_speed), r))
 

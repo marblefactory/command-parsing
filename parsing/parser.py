@@ -613,6 +613,19 @@ def rest() -> Parser:
     return Parser(parse)
 
 
+def defaulted(parser: Parser, default: Parser) -> Parser:
+    """
+    :return: a parser which uses the default parser if `parser` is not successful, i.e. failure or partial.
+    """
+    def parse(input: List[Word]) -> ParseResult:
+        result = parser.parse(input)
+        if not result.is_success():
+            return default.parse(input)
+        return result
+
+    return Parser(parse)
+
+
 def partial_parser(parser: Parser, response: Response, marker: Any) -> Parser:
     """
     :param parser: the parser to try parsing with.
