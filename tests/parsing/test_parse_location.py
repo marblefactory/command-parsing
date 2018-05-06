@@ -126,6 +126,11 @@ class AbsoluteTestCase(unittest.TestCase):
         r = statement().parse(s).parsed
         self.assertEqual(r.location, Absolute('lab 1'))
 
+    def test_parses_luck_as_lab(self):
+        s = pre_process('go to luck 3')
+        r = statement().parse(s).parsed
+        self.assertEqual(r.location, Absolute('lab 3'))
+
     def test_app_as_lab(self):
         s = pre_process('go to app 2')
         r = statement().parse(s).parsed.location
@@ -152,6 +157,11 @@ class AbsoluteTestCase(unittest.TestCase):
         s = pre_process('go to server in one')
         r = statement().parse(s).parsed[0].location
         self.assertEqual(r, Absolute('server room 1'))
+
+    def test_parses_server_at(self):
+        s = pre_process('go to server room at 2')
+        r = statement().parse(s).parsed
+        self.assertEqual(r.location, Absolute('server room 2'))
 
     def test_parses_reception(self):
         s = pre_process('go to reception')
