@@ -1,7 +1,7 @@
 from parsing.parser import Parser, strongest
 from parsing.pre_processing import pre_process
 from parsing.parse_result import SuccessParse, PartialParse, FailureParse
-from actions.action import Action, GameResponse
+from actions.action import Action, GameResponse, PostProcessed
 from typing import Optional, Callable, Any
 
 
@@ -48,7 +48,10 @@ class SpeechResponder:
 
         if isinstance(result, SuccessParse):
             self._partial = None
-            action = result.parsed.post_processed()
+            if isinstance(result.parsed, PostProcessed):
+                action = result.parsed.post_processed()
+            else:
+                action = result.parsed
             return (lambda game_response: self.parsed_response(game_response, action), action)
 
         elif isinstance(result, PartialParse):
