@@ -128,7 +128,8 @@ class ChangeSpeedTestCase(unittest.TestCase):
 
     def test_run_quick(self):
         s = pre_process('run quick')
-        assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
+        r = action().parse(s).parsed
+        self.assertEqual(r, ChangeSpeed(Speed.FAST))
 
     def test_hurry(self):
         s = pre_process('hurry up')
@@ -232,9 +233,11 @@ class MoveTestCase(unittest.TestCase):
 
     def test_quietly_as_crouch(self):
         s = pre_process('quietly go to the next door')
+        r = action().parse(s).parsed
+        print(r)
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
-        assert action().parse(s).parsed == Move(Speed.NORMAL, expected_loc, Stance.CROUCH)
+        self.assertEqual(r, Move(Speed.NORMAL, expected_loc, Stance.CROUCH))
 
     def test_parses_behind(self):
         s = pre_process('go around the desk')
@@ -299,6 +302,11 @@ class MoveTestCase(unittest.TestCase):
         s = pre_process('ranbu to the security room')
         r = action().parse(s).parsed
         self.assertEqual(r, Move(Speed.FAST, Absolute('security room'), None))
+
+    def test_randall_as_run(self):
+        s = pre_process('randall to lab 300')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Move(Speed.FAST, Absolute('lab 300'), None))
 
     def test_pick_up_is_not_move(self):
         s = pre_process('pick up the assault rifle')

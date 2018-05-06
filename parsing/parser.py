@@ -579,7 +579,7 @@ def none(parser: Parser, response: Response = 1.0, max_parser_response: Response
     def parse(input: List[Word]) -> ParseResult:
         result = parser.parse(input)
         if isinstance(result, SuccessParse):
-            if result.response > max_parser_response:
+            if result.response >= max_parser_response:
                 return FailureParse()
             else:
                 return result

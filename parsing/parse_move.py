@@ -14,7 +14,7 @@ def fast_speed_verb() -> Parser:
     corrections = ['rhonda', 'rhondda', 'done']
 
     # Make a parser that recognises the meaning and spelling of the actual verbs, and matches on exact corrections.
-    spelling = word_spelling_threshold(dist_threshold=0.49, min_word_length=2, match_first_letter=True)
+    spelling = word_spelling_threshold(dist_threshold=0.42, min_word_length=2, match_first_letter=True)
     verb_parser = words_and_corrections(verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
 
     # Google mistakes 'run' for 'rent'.
@@ -23,7 +23,12 @@ def fast_speed_verb() -> Parser:
     parser = strongest([verb_parser, rental_correction])
 
     # Ignore the go verbs, because it *can* be parsed as to mean 'fast', but it does not necessarily.
-    return ignore_words(go_verb_words()).ignore_then(parser)
+    # Also, crouching an mutually exclusive. Therefore inhibit running when crouching is detected.
+    return ignore_words(go_verb_words()) \
+          .ignore_then(none(non_consuming(crouch_stance()), max_parser_response=0.85)) \
+          .ignore_then(parser)
+
+# .ignore_then(none(crouch_stance(), max_parser_response=1.1)) \
 
 
 def normal_speed_verb() -> Parser:
@@ -79,19 +84,26 @@ def speed() -> Parser:
     return strongest([fast, normal, slow])
 
 
+def crouch_stance() -> Parser:
+    """
+    :return: a parser for recognising crouched stances.
+    """
+    crouch_words = ['crouch', 'quiet', 'sneak']
+    crouch_corrections = ['close']
+    crouched = words_and_corrections(crouch_words, crouch_corrections,
+                                     make_word_parsers=[word_spelling, word_meaning]).ignore_parsed(Stance.CROUCH)
+    crouched_correction = word_match('grouch').ignore_parsed(Stance.CROUCH)
+    lie_spelling = word_match('lie').ignore_parsed(Stance.CROUCH)
+
+    return strongest([crouched, crouched_correction, lie_spelling])
+
+
 def stance() -> Parser:
     """
     :return: a parser for different stances, i.e. crouched, standing.
     """
-    crouch_words = ['crouch', 'quiet', 'sneak']
-    crouch_corrections = ['close']
-    crouched = words_and_corrections(crouch_words, crouch_corrections,  make_word_parsers=[word_spelling, word_meaning]).ignore_parsed(Stance.CROUCH)
-    crouched_correction = word_match('grouch').ignore_parsed(Stance.CROUCH)
-
-    lie_spelling = word_match('lie').ignore_parsed(Stance.CROUCH)
     standing = word_meaning('stand').ignore_parsed(Stance.STAND)
-
-    return strongest([crouched, crouched_correction, lie_spelling, standing])
+    return strongest([crouch_stance(), standing])
 
 
 def turn() -> Parser:
@@ -185,7 +197,7 @@ def through_door() -> Parser:
     verb_parser = strongest([door_parser, corrections, in_parser])
 
     # If going to a location is parsed, going into the closest room should not be parsed.
-    inhibited_verb = none(move(), max_parser_response=0.85).ignore_then(verb_parser)
+    inhibited_verb = none(non_consuming(move()), max_parser_response=0.85).ignore_then(verb_parser)
 
     return inhibited_verb \
           .ignore_then(object_relative_direction(), lambda verb_r, dir_r: mix(verb_r, dir_r, 0.65)) \
