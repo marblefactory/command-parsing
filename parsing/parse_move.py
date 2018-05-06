@@ -206,7 +206,7 @@ def hide() -> Parser:
     # If no object name is given, the spy hides behind the nearest object.
     obj_name = maybe(move_object_name(), response=1.0)
 
-    return verb.ignore_then(obj_name, mix) \
+    return verb.ignore_then(obj_name, lambda verb_r, obj_r: mix(verb_r, obj_r, 0.35)) \
                .map_parsed(lambda obj_name: Hide(obj_name))
 
 

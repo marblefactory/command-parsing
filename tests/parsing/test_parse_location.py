@@ -78,10 +78,6 @@ class MoveDirectionTestCase(unittest.TestCase):
         s = pre_process('right')
         assert self.parser().parse(s).parsed == MoveDirection.RIGHT
 
-    def test_alright_as_right(self):
-        s = pre_process('alright')
-        assert self.parser().parse(s).parsed == MoveDirection.RIGHT
-
 
 class ObjectRelativeDirectionTestCase(MoveDirectionTestCase):
     def parser(self) -> Parser:
@@ -301,6 +297,17 @@ class DirectionalTestCase(unittest.TestCase):
     def test_swapped_direction_and_distance(self):
         s = pre_process('go a long way forwards')
         assert statement().parse(s).parsed.location == Directional(MoveDirection.FORWARDS, Distance.FAR)
+
+    def test_ride_as_right(self):
+        s = pre_process('go ride')
+        r = statement().parse(s).parsed
+        print(r)
+        self.assertEqual(r.location, Directional(MoveDirection.RIGHT, Distance.MEDIUM))
+
+    def test_alright_as_right(self):
+        s = pre_process('go alright')
+        r = statement().parse(s).parsed
+        self.assertEqual(r.location, Directional(MoveDirection.RIGHT, Distance.MEDIUM))
 
 
 class StairsTestCase(unittest.TestCase):

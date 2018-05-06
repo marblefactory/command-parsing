@@ -315,8 +315,10 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(r, Move(Speed.FAST, Absolute('lab 300'), None))
 
     def test_pick_up_is_not_move(self):
-        s = pre_process('pick up the assault rifle')
-        assert type(statement().parse(s).parsed) != Move
+        s = pre_process('pick up the rifle')
+        r = statement().parse(s).parsed
+        print(r)
+        self.assertNotEqual(type(r), Move)
 
     def test_move_forwards(self):
         s = pre_process('move forwards')

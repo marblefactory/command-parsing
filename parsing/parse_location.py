@@ -90,7 +90,10 @@ def move_direction() -> Parser:
     backwards = backwards_parser.ignore_parsed(MoveDirection.BACKWARDS)
 
     left = word_match('left').ignore_parsed(MoveDirection.LEFT)
-    right = strongest_word(['right', 'alright']).ignore_parsed(MoveDirection.RIGHT)
+
+    right_corrections = ['alright', 'ride']
+    right = words_and_corrections(['right'], corrections=right_corrections, make_word_parsers=[word_spelling]) \
+           .ignore_parsed(MoveDirection.RIGHT)
 
     return strongest([left, right, forwards, backwards])
 
