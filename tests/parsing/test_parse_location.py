@@ -118,8 +118,13 @@ class AbsoluteTestCase(unittest.TestCase):
         assert action().parse(s).parsed.location == Absolute('lab 3')
 
     def test_parses_love_as_lab(self):
-        s = pre_process('go to love 3')
-        assert action().parse(s).parsed.location == Absolute('lab 3')
+        s = pre_process('go to love one')
+        assert action().parse(s).parsed.location == Absolute('lab 1')
+
+    def test_parses_loved_as_lab(self):
+        s = pre_process('go to loved 1')
+        r = action().parse(s).parsed
+        self.assertEqual(r.location, Absolute('lab 1'))
 
     def test_app_as_lab(self):
         s = pre_process('go to app 2')
@@ -142,6 +147,11 @@ class AbsoluteTestCase(unittest.TestCase):
     def test_parses_server_room(self):
         s = pre_process('go to server room 78')
         assert action().parse(s).parsed.location == Absolute('server room 78')
+
+    def test_parses_server(self):
+        s = pre_process('go to server in one')
+        r = action().parse(s).parsed[0].location
+        self.assertEqual(r, Absolute('server room 1'))
 
     def test_parses_reception(self):
         s = pre_process('go to reception')
@@ -223,15 +233,16 @@ class AbsoluteTestCase(unittest.TestCase):
 class PositionalTestCase(unittest.TestCase):
     def test_parses(self):
         s = pre_process('on your left take the second door')
-        assert action().parse(s).parsed.location == Positional('door', 1, MoveDirection.LEFT)
+        r = action().parse(s).parsed
+        self.assertEqual(r.location, Positional('door', 1, MoveDirection.LEFT))
 
     def test_direction_default_forwards(self):
-        s = pre_process('go to the third server')
-        assert action().parse(s).parsed.location == Positional('server', 2, MoveDirection.FORWARDS)
+        s = pre_process('go to the third desk')
+        assert action().parse(s).parsed.location == Positional('desk', 2, MoveDirection.FORWARDS)
 
     def test_ordinal_num_defaults_next(self):
-        s = pre_process('go to the server on your right')
-        assert action().parse(s).parsed.location == Positional('server', 0, MoveDirection.RIGHT)
+        s = pre_process('go to the desk on your right')
+        assert action().parse(s).parsed.location == Positional('desk', 0, MoveDirection.RIGHT)
 
     def test_parses_with_all_missing(self):
         s = pre_process('go to the door')
@@ -352,8 +363,8 @@ class BehindTestCase(unittest.TestCase):
         assert action().parse(s).parsed.location == Behind('desk')
 
     def test_around(self):
-        s = pre_process('go around the server')
-        assert action().parse(s).parsed.location == Behind('server')
+        s = pre_process('go around the desk')
+        assert action().parse(s).parsed.location == Behind('desk')
 
     def test_other_side(self):
         s = pre_process('go to the other side of the table')

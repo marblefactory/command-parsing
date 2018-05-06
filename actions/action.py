@@ -144,6 +144,9 @@ class Composite(Action):
     def __init__(self, actions: List[Action]):
         self.actions = actions
 
+    def __getitem__(self, index: int) -> Action:
+        return self.actions[index]
+
     def __str__(self):
         descriptions = [str(action) for action in self.actions]
         return ', then '.join(descriptions)

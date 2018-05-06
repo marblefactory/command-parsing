@@ -31,8 +31,13 @@ class WhoAreYouTestCase(unittest.TestCase):
 
 
 class ObscenityTestCase(unittest.TestCase):
-    def test_obscenity(self):
+    def test_starred(self):
         s = pre_process('f*** you')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Obscenity())
+
+    def test_fuck(self):
+        s = pre_process('fuck you')
         r = action().parse(s).parsed
         self.assertEqual(r, Obscenity())
 

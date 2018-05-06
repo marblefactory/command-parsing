@@ -32,7 +32,10 @@ def obscenity() -> Parser:
     def contains_asterisk(word: Word) -> Response:
         return float('*' in word)
 
-    return predicate(contains_asterisk).ignore_parsed(Obscenity())
+    starred = predicate(contains_asterisk)
+    words = strongest_word(['fuck', 'shit'])
+
+    return strongest([words, starred]).ignore_parsed(Obscenity())
 
 
 def repeat() -> Parser:

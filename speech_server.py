@@ -14,4 +14,4 @@ if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000)
 
 
-# sudo gunicorn --certfile=cert.pem --keyfile=key.pem --worker-class=eventlet -w 1 -b 0.0.0.0:443 speech_server:app
+# sudo gunicorn --certfile=cert.pem --keyfile=key.pem --worker-class=eventlet -w 1 -b 0.0.0.0:443 -t 200 speech_server:app
