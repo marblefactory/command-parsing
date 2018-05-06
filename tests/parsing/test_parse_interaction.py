@@ -20,7 +20,8 @@ class PickUpTestCase(unittest.TestCase):
 
     def test_get(self):
         s = pre_process('get the bottle')
-        assert statement().parse(s).parsed == PickUp('bottle', ObjectRelativeDirection.VICINITY)
+        r = statement().parse(s).parsed
+        self.assertEqual(r, PickUp('bottle', ObjectRelativeDirection.VICINITY))
 
     def test_direction_defaults_to_vicinity(self):
         s = pre_process('pick up the hammer')
@@ -124,7 +125,8 @@ class ThrowTestCase(unittest.TestCase):
 
     def test_left_long_distance(self):
         s = pre_process('throw the rock left a long way')
-        assert statement().parse(s).parsed == Throw(Directional(MoveDirection.LEFT, Distance.FAR))
+        r = statement().parse(s).parsed
+        self.assertEqual(r, Throw(Directional(MoveDirection.LEFT, Distance.FAR)))
 
     def test_short_distance(self):
         s = pre_process('throw the rock a little way')
@@ -234,7 +236,8 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
 
     def test_attack_guard(self):
         s = pre_process('attack the guard')
-        assert statement().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
+        r = statement().parse(s).parsed
+        self.assertTrue(r, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
 
     def test_security(self):
         s = pre_process('attack the security')
@@ -254,7 +257,8 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
 
     def test_man(self):
         s = pre_process('kill the man in front of you')
-        assert statement().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.FORWARDS)
+        r = statement().parse(s).parsed
+        self.assertEqual(r, AutoTakeOutGuard(ObjectRelativeDirection.FORWARDS))
 
     def test_tear_apart(self):
         s = pre_process('tear him apart')

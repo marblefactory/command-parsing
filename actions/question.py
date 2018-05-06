@@ -201,26 +201,3 @@ class SeeObjectQuestion(Question):
             "Umm, I can't see any here",
             "I'm afraid not"
         ]
-
-
-class TimeRemainingQuestion(Question):
-    """
-    An action to ask the spy how much longer is left on the clock.
-    """
-
-    def __str__(self):
-        return 'time remaining question'
-
-    def positive_responses(self, game_response: GameResponse) -> List[str]:
-        """
-        :param game_response: expects this to contain a field 'mins_remaining' with an integer value.
-        :return: responses that confirm that the spy can see the requested object.
-        """
-        mins_remaining = game_response['mins_remaining']
-
-        minute_word = 'minute' if mins_remaining == 1 else 'minutes'
-        return [
-            "There's only {} {} remaining".format(mins_remaining, minute_word),
-            "There's only {} {} left".format(mins_remaining, minute_word),
-            "Hurry, we've only got {} {}".format(mins_remaining, minute_word)
-        ]

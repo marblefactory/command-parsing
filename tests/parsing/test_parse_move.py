@@ -414,8 +414,8 @@ class MoveTestCase(unittest.TestCase):
 
     def test_what_are_you_going_fails(self):
         s = pre_process('what are you going')
-        r = statement().parse(s)
-        self.assertTrue(r.is_failure())
+        r = statement().parse(s).parsed
+        self.assertNotEqual(type(r), Move)
 
 
 class MoveIntoTestCase(unittest.TestCase):

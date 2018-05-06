@@ -207,7 +207,8 @@ class AbsoluteTestCase(unittest.TestCase):
 
     def test_fails_with_unknown_floor_num(self):
         s = pre_process('go to floor 100')
-        assert not statement().parse(s).is_success()
+        r = statement().parse(s)
+        self.assertFalse(r.is_success())
 
     def test_fails_with_unknown_ordinal_floor_num(self):
         s = pre_process('go to the ninth floor')

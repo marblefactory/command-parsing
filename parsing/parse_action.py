@@ -93,8 +93,9 @@ def statement() -> Parser:
     """
     :return: a parser which understands what the user is saying.
     """
+    inhibiting = none(non_consuming(question()), max_parser_response=0.9)
     parsers = [
-        action(),
+        inhibiting.ignore_then(action()),
         question(),
         conversation()
     ]
