@@ -160,6 +160,46 @@ class ThrowAtGuardTestCase(unittest.TestCase):
         s = pre_process('throw at the security')
         assert action().parse(s).parsed == ThrowAtGuard(ObjectRelativeDirection.VICINITY)
 
+    def test_card(self):
+        s = pre_process('throw at the card')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_god(self):
+        s = pre_process('throw at the god')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_aids(self):
+        s = pre_process('throw at the aids')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_jobs(self):
+        s = pre_process('throw at the jobs')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_car(self):
+        s = pre_process('throw at the car')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_dogs(self):
+        s = pre_process('throw at the dogs')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_ga(self):
+        s = pre_process('throw at the ga')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
+    def test_girl(self):
+        s = pre_process('throw at the girl')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ThrowAtGuard(ObjectRelativeDirection.VICINITY))
+
 
 class StrangleGuardTestCase(unittest.TestCase):
     def test_strangle(self):

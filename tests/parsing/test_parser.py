@@ -240,6 +240,12 @@ class WordSpellingTestCase(unittest.TestCase):
         r2 = word_spelling('cup', min_word_length=3).parse(s)
         self.assertTrue(r2.is_failure())
 
+    def test_plural(self):
+        s = pre_process('clouds')
+        r = word_spelling('cloud', match_plural=True).parse(s)
+
+        self.assertEqual(r, SuccessParse('clouds', 1.0, []))
+
 
 class WordMatchTestCase(unittest.TestCase):
     def test_no_match(self):
