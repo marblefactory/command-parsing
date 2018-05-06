@@ -356,11 +356,8 @@ class BehindTestCase(unittest.TestCase):
 
     def test_other_side(self):
         s = pre_process('go to the other side of the table')
-        assert action().parse(s).parsed.location == Behind('table')
-
-    def test_fails_if_side_other_incorrect_order(self):
-        s = pre_process('go to the side other of the table')
-        assert type(action().parse(s).parsed.location) is not Behind
+        r = action().parse(s).parsed
+        self.assertEqual(r.location, Behind('table'))
 
 
 class EndOfTestCase(unittest.TestCase):

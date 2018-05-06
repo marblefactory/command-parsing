@@ -173,11 +173,11 @@ def hide() -> Parser:
     """
     :return: a parser to recognise hide actions.
     """
-    verb = word_meaning('hide')
+    verb = strongest_word(['hide'], make_word_parsers=[word_spelling, word_meaning_pos(POS.verb)])
     # If no object name is given, the spy hides behind the nearest object.
     obj_name = maybe(move_object_name(), response=1.0)
 
-    return verb.ignore_then(obj_name) \
+    return verb.ignore_then(obj_name, mix) \
                .map_parsed(lambda obj_name: Hide(obj_name))
 
 

@@ -422,6 +422,11 @@ class HideTestCase(unittest.TestCase):
         s = pre_process('take cover')
         assert action().parse(s).parsed == Hide(None)
 
+    def test_tide_as_hide(self):
+        s = pre_process('tide')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Hide(None))
+
 
 class ThroughDoorTestCase(unittest.TestCase):
     def test_parse(self):
