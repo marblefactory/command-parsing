@@ -52,6 +52,11 @@ class SurroundingsTestCase(unittest.TestCase):
         r = action().parse(s).parsed
         self.assertEqual(r, SurroundingsQuestion())
 
+    def test_whats_in_room(self):
+        s = pre_process('whats in the room')
+        r = action().parse(s).parsed
+        self.assertEqual(r, SurroundingsQuestion())
+
 
 class SeeObjectTestCase(unittest.TestCase):
     def test_parse(self):

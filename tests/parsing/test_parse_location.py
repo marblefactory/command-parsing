@@ -273,7 +273,8 @@ class DirectionalTestCase(unittest.TestCase):
 
     def test_parses_far(self):
         s = pre_process('go forwards a long way')
-        assert action().parse(s).parsed.location == Directional(MoveDirection.FORWARDS, Distance.FAR)
+        r = action().parse(s).parsed
+        self.assertEqual(r.location, Directional(MoveDirection.FORWARDS, Distance.FAR))
 
     def test_swapped_direction_and_distance(self):
         s = pre_process('go a long way forwards')

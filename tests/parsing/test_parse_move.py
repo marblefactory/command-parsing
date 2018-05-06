@@ -391,7 +391,8 @@ class MoveTestCase(unittest.TestCase):
 
     def test_go_into_directional(self):
         s = pre_process('go into the second room')
-        self.assertEqual(action().parse(s).parsed, Move(Speed.NORMAL, Positional('room', 1, MoveDirection.FORWARDS), None))
+        r = action().parse(s).parsed
+        self.assertEqual(r, Move(Speed.NORMAL, Positional('room', 1, MoveDirection.FORWARDS), None))
 
     def test_go_into_door(self):
         s = pre_process('go into the third door on your left')
