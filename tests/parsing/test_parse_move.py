@@ -105,6 +105,11 @@ class ChangeSpeedTestCase(unittest.TestCase):
         s = pre_process('run')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
 
+    def test_done_as_run(self):
+        s = pre_process('done')
+        r = action().parse(s).parsed
+        self.assertEqual(r, ChangeSpeed(Speed.FAST))
+
     def test_fast(self):
         s = pre_process('fast')
         assert action().parse(s).parsed == ChangeSpeed(Speed.FAST)
@@ -188,6 +193,20 @@ class MoveTestCase(unittest.TestCase):
 
     def test_ron_as_run(self):
         s = pre_process('ron to the next door')
+        r = action().parse(s).parsed
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        self.assertEqual(r, Move(Speed.FAST, expected_loc, None))
+
+    def test_done_as_run(self):
+        s = pre_process('done to the next door')
+        r = action().parse(s).parsed
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        self.assertEqual(r, Move(Speed.FAST, expected_loc, None))
+
+    def test_rental_as_run(self):
+        s = pre_process('rental to the next door')
         r = action().parse(s).parsed
 
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
@@ -376,6 +395,11 @@ class MoveTestCase(unittest.TestCase):
         r = action().parse(s).parsed
         expected = Move(Speed.NORMAL, Directional(MoveDirection.RIGHT, Distance.SHORT), None)
         self.assertEqual(r, expected)
+
+    def test_glow_as_go(self):
+        s = pre_process('glow to lab 2')
+        r = action().parse(s).parsed
+        self.assertEqual(r, Move(Speed.NORMAL, Absolute('lab 2'), None))
 
 
 class HideTestCase(unittest.TestCase):

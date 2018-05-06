@@ -9,13 +9,17 @@ def fast_speed_verb() -> Parser:
     """
     :return: a parser for words that mean to move at a fast pace.
     """
-    verbs = ['quick', 'fast', 'sprint', 'run', 'hurry']
+    verbs = ['quick', 'fast', 'sprint', 'run', 'hurry', 'ran']
     # S2T mistakes 'run' for the following words:
-    corrections = ['randa', 'rhonda', 'rhondda', 'rent', 'ranbu']
+    corrections = ['randa', 'rhonda', 'rhondda', 'ranbu', 'done']
 
     # Make a parser that recognises the meaning and spelling of the actual verbs, and matches on exact corrections.
     spelling = word_spelling_threshold(dist_threshold=0.49, min_word_length=2, match_first_letter=True)
-    parser = words_and_corrections(verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
+    verb_parser = words_and_corrections(verbs, corrections, make_word_parsers=[spelling, word_meaning_pos(POS.verb)])
+
+    rental_correction = word_spelling('rent')
+
+    parser = strongest([verb_parser, rental_correction])
 
     # Ignore the go verbs, because it *can* be parsed as to mean 'fast', but it does not necessarily.
     return ignore_words(go_verb_words()).ignore_then(parser)
