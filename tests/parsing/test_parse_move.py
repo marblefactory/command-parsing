@@ -199,6 +199,13 @@ class MoveTestCase(unittest.TestCase):
         expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
         self.assertEqual(r, Move(Speed.FAST, expected_loc, None))
 
+    def test_toronto_as_run(self):
+        s = pre_process('toronto to the next door')
+        r = action().parse(s).parsed
+
+        expected_loc = Positional('door', 0, MoveDirection.FORWARDS)
+        self.assertEqual(r, Move(Speed.FAST, expected_loc, None))
+
     def test_done_as_run(self):
         s = pre_process('done to the next door')
         r = action().parse(s).parsed
