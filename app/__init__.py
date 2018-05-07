@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, emit
 from nltk.corpus import wordnet as wn
 from requests import Response
 
+import inflect
 from interface.speech_responder import SpeechResponder
 from actions.action import Action, ActionErrorCode
 from actions.conversation import Conversation
@@ -33,7 +34,7 @@ GAME_SERVER = 'http://192.168.0.41:8080/'
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = True
+FILL_CACHE = False
 
 
 def action_was_successful(game_json: GameResponse) -> bool:
@@ -245,3 +246,22 @@ def handle_not_recognised_speech(json):
     # Create some response speech and give it to the client to speak.
     speech = process_not_recognised_speech()
     emit('speech', speech)
+
+
+@app.route('/terminals/<int:num_remaining>', methods=['POST'])
+def terminals(num_remaining):
+    """
+    :param num_remaining: the number of terminals the player has left to hack.
+    :return:
+    """
+    if num_remaining == 0:
+        speech = "Mission complete! Now get to the roof!"
+    elif num_remaining == 3:
+        speech = "You know the mission, we've got {} terminals to hack".format(num_remaining)
+    else:
+        plural = inflect.engine().plural('terminal', count=num_remaining)
+        speech = "One down. We've got {} {} left".format(num_remaining, plural)
+
+    log_conversation('terminals remaining', speech)
+    socketio.emit('terminals_left', speech)
+    return 'ok', 200

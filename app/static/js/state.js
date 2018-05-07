@@ -44,6 +44,15 @@ function speak(text, preferred_voice, callback) {
 	msg.onend = callback;
 }
 
+function speak_with_radio(text) {
+    speak(text, 'Tom', speakEndCallback);
+
+    function speakEndCallback() {
+        // Add a small delay so it sounds more realistic.
+        setTimeout(play('#radio_recv_end', 0.3), 20)
+    }
+}
+
 /**
  * Represents a state that the website can be in.
  */
@@ -329,12 +338,7 @@ class SendRecvSpeechState extends State {
     _onSpeechResponseReceived(speech) {
         this.stateDiv.innerHTML += 'Received';
         // Speak the message, and play a 'radio end' tine after.
-        speak(speech, 'Tom', speakEndCallback);
-
-        function speakEndCallback() {
-            // Add a small delay so it sounds more realistic.
-            setTimeout(play('#radio_recv_end', 0.3), 20)
-        }
+        speak_with_radio(speech);
 
         // Short delay so the 'received' message appears while the spy is talking.
         setTimeout(() => super.segue(RecordWaitingState), 1500);
@@ -354,6 +358,12 @@ function setupSocket(callback) {
     gSocket.on('connect', function() {
         console.log("Connected to server");
         callback();
+    });
+
+    // Used to tell the player how many terminals are left to hack.
+    gSocket.on('terminals_left', function(speech) {
+        console.log(`Terminals left: ${speech}`);
+        speak_with_radio(speech);
     });
 }
 
