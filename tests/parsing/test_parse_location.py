@@ -301,7 +301,6 @@ class DirectionalTestCase(unittest.TestCase):
     def test_ride_as_right(self):
         s = pre_process('go ride')
         r = statement().parse(s).parsed
-        print(r)
         self.assertEqual(r.location, Directional(MoveDirection.RIGHT, Distance.MEDIUM))
 
     def test_alright_as_right(self):
