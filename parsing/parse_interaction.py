@@ -153,7 +153,7 @@ def auto_take_out_guard() -> Parser:
     parser = _make_guard_parser(verb_parser, AutoTakeOutGuard)
 
     # 'Kill the guard' is often interpreted as 'hildegard'
-    hildegard_correction = word_match('hildegard').ignore_parsed(AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
+    hildegard_correction = word_spelling('hildegard').ignore_parsed(AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
 
     return strongest([parser, hildegard_correction])
 

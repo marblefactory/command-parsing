@@ -167,6 +167,7 @@ def absolute_place_names() -> Parser:
     security_office = word_match('security').ignore_parsed('security room')
     generator_room = word_match('generator').then(append(word_match('room')))
     car_park = word_match('car').then(append(word_match('park')))
+    research_lab = word_match('research').ignore_parsed('research lab')
 
     helicopter_words = ['chopper', 'heli', 'helicopter']
     helicopter = strongest_word(helicopter_words, make_word_parsers=[word_spelling, word_meaning_pos(POS.noun)]) \
@@ -180,6 +181,7 @@ def absolute_place_names() -> Parser:
         security_office,
         car_park,
         generator_room,
+        research_lab,
 
         storage_x,
         office_x,

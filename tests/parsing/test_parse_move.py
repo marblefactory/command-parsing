@@ -513,3 +513,8 @@ class LeaveRoomTestCase(unittest.TestCase):
     def test_parse(self):
         s = pre_process('leave the room')
         assert statement().parse(s).parsed == ThroughDoor(ObjectRelativeDirection.VICINITY)
+
+    def test_out(self):
+        s = pre_process('get out of the room')
+        r = statement().parse(s).parsed
+        self.assertEqual(r, ThroughDoor(ObjectRelativeDirection.VICINITY))

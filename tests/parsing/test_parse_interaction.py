@@ -251,6 +251,11 @@ class AutoTakeOutGuardTestCase(unittest.TestCase):
         s = pre_process('hildegard')
         assert statement().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)
 
+    def test_kildegaard(self):
+        s = pre_process('kildegaard')
+        r = statement().parse(s).parsed
+        self.assertEqual(r, AutoTakeOutGuard(ObjectRelativeDirection.VICINITY))
+
     def test_waste_him(self):
         s = pre_process('waste him')
         assert statement().parse(s).parsed == AutoTakeOutGuard(ObjectRelativeDirection.VICINITY)

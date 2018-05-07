@@ -11,7 +11,7 @@ print("Done Cache")
 
 if __name__ == '__main__':
     print('Running Server')
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=8080, debug=True)
 
 
 # sudo gunicorn --certfile=cert.pem --keyfile=key.pem --worker-class=eventlet -w 1 -b 0.0.0.0:443 -t 200 speech_server:app
