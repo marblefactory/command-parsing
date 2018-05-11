@@ -35,3 +35,15 @@ used with Chrome when another device is running the server.
 ```
 (venv) $ sudo gunicorn --certfile=cert.pem --keyfile=key.pem --worker-class=eventlet -w 1 -b 0.0.0.0:443 -t 36000 speech_server:app
 ```
+
+### Game Mode
+
+- Can be run in a standalone mode, where the voice commands are not sent to the
+  game. Instead, it is assumed all commands succeeded and appropriate an voice
+  will be generated.
+- Alternatively, game mode can be used which will send the commands to the game
+  to be performed by the spy.
+- To change between modes the `GAME_MODE` global variable in `app/__init__.py`
+  should be set.
+- The address of the game server also needs to be set. This is done by setting
+  the `GAME_SERVER` global variable also in `app/__init__.py`.
