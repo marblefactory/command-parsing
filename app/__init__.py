@@ -30,11 +30,11 @@ socketio = SocketIO(app, engineio_logger=True, async_mode='eventlet')
 GAME_MODE = True
 
 # The address of the game server. This will only be used if GAME_MODE is enabled.
-GAME_SERVER = 'http://192.168.0.41:8080/'
+GAME_SERVER = 'http://192.168.1.10:8080/'
 
 # If True, all tests are run before the server is started, thus filling the cache for the semantic similarity.
 # This allows for responses to be generated more quickly.
-FILL_CACHE = False
+FILL_CACHE = True
 
 
 def action_was_successful(game_json: GameResponse) -> bool:
